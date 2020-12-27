@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: def59ea2e6b91eb4fbb4a53b09a4623c, type: 3}
+  m_Name: sn_282
+  m_EditorClassIdentifier: 
+  Index: 282
+  SpellId: 282
+  Version: 2
+  AbilityName: Shell
+  CommandSet: 101
+  DamageFormulaType: 2
+  Mod: 2
+  CTR: 120
+  MP: 6
+  RemoveStat: 0
+  BaseHit: 1165
+  BaseQ: 0
+  HitsStat: 0
+  StatType: 0
+  AddsStatus: 1
+  StatusType: 28
+  PMType: 1
+  EvasionReflect: 0
+  CalculateMimic: 0
+  CounterType: 0
+  StatusCancel: 1
+  ElementType: 5
+  CasterImmune: 0
+  AlliesType: 0
+  IgnoresDefense: 1
+  RangeXYMin: 0
+  RangeXYMax: 3
+  RangeZ: 1919
+  EffectXY: 2
+  EffectZ: 0

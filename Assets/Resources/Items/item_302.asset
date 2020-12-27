@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 567b13a3ab28e124d9a2a3ed49409fee, type: 3}
+  m_Name: item_302
+  m_EditorClassIdentifier: 
+  item_id: 302
+  version: 2
+  slot: 4
+  item_type: 16
+  level: 9
+  item_name: Wizard Gloves
+  blocks: 0
+  status_name: 0
+  stat_brave: 0
+  stat_c_evade: 0
+  stat_cunning: 0
+  stat_faith: 0
+  stat_life: 0
+  stat_jump: 0
+  stat_m_evade: 0
+  stat_ma: 3
+  stat_move: 0
+  stat_mp: 0
+  stat_p_evade: 0
+  stat_pa: 0
+  stat_speed: 0
+  stat_w_evade: 0
+  stat_wp: 0
+  elemental_type: 0
+  on_hit_effect: 0
+  on_hit_chance: 0
+  stat_agi: 0
+  description: ' '

@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: def59ea2e6b91eb4fbb4a53b09a4623c, type: 3}
+  m_Name: sn_77
+  m_EditorClassIdentifier: 
+  Index: 77
+  SpellId: 77
+  Version: 1
+  AbilityName: Steal Shield
+  CommandSet: 5
+  DamageFormulaType: 20
+  Mod: 4
+  CTR: 0
+  MP: 0
+  RemoveStat: 1
+  BaseHit: 35
+  BaseQ: 1
+  HitsStat: 1
+  StatType: 11
+  AddsStatus: 0
+  StatusType: 0
+  PMType: 0
+  EvasionReflect: 2
+  CalculateMimic: 3
+  CounterType: 2
+  StatusCancel: 0
+  ElementType: 0
+  CasterImmune: 1
+  AlliesType: 2
+  IgnoresDefense: 0
+  RangeXYMin: 1
+  RangeXYMax: 1
+  RangeZ: 1
+  EffectXY: 1
+  EffectZ: 1919

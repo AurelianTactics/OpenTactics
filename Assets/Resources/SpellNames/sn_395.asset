@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: def59ea2e6b91eb4fbb4a53b09a4623c, type: 3}
+  m_Name: sn_395
+  m_EditorClassIdentifier: 
+  Index: 395
+  SpellId: 395
+  Version: 2
+  AbilityName: Life Chi
+  CommandSet: 111
+  DamageFormulaType: 9
+  Mod: 23
+  CTR: 0
+  MP: 0
+  RemoveStat: 0
+  BaseHit: 1070
+  BaseQ: 20
+  HitsStat: 3
+  StatType: 17
+  AddsStatus: 1
+  StatusType: 111
+  PMType: 2
+  EvasionReflect: 0
+  CalculateMimic: 0
+  CounterType: 0
+  StatusCancel: 0
+  ElementType: 0
+  CasterImmune: 1
+  AlliesType: 0
+  IgnoresDefense: 1
+  RangeXYMin: 1
+  RangeXYMax: 1
+  RangeZ: 0
+  EffectXY: 1
+  EffectZ: 1919

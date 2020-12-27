@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: def59ea2e6b91eb4fbb4a53b09a4623c, type: 3}
+  m_Name: sn_31
+  m_EditorClassIdentifier: 
+  Index: 31
+  SpellId: 31
+  Version: 1
+  AbilityName: Polka Polka
+  CommandSet: 19
+  DamageFormulaType: 0
+  Mod: 0
+  CTR: 8
+  MP: 0
+  RemoveStat: 1
+  BaseHit: 50
+  BaseQ: 1
+  HitsStat: 1
+  StatType: 4
+  AddsStatus: 0
+  StatusType: 0
+  PMType: 2
+  EvasionReflect: 0
+  CalculateMimic: 3
+  CounterType: 0
+  StatusCancel: 0
+  ElementType: 0
+  CasterImmune: 0
+  AlliesType: 0
+  IgnoresDefense: 0
+  RangeXYMin: -1
+  RangeXYMax: 0
+  RangeZ: 1919
+  EffectXY: 110
+  EffectZ: 1919

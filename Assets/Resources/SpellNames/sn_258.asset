@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: def59ea2e6b91eb4fbb4a53b09a4623c, type: 3}
+  m_Name: sn_258
+  m_EditorClassIdentifier: 
+  Index: 258
+  SpellId: 258
+  Version: 2
+  AbilityName: Slow Heal
+  CommandSet: 202
+  DamageFormulaType: 0
+  Mod: 0
+  CTR: 0
+  MP: 0
+  RemoveStat: 0
+  BaseHit: 100
+  BaseQ: 0
+  HitsStat: 0
+  StatType: 0
+  AddsStatus: 1
+  StatusType: 26
+  PMType: 3
+  EvasionReflect: 0
+  CalculateMimic: 0
+  CounterType: 0
+  StatusCancel: 0
+  ElementType: 0
+  CasterImmune: 0
+  AlliesType: 0
+  IgnoresDefense: 1
+  RangeXYMin: -1
+  RangeXYMax: 0
+  RangeZ: 1919
+  EffectXY: 1
+  EffectZ: 1919

@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: def59ea2e6b91eb4fbb4a53b09a4623c, type: 3}
+  m_Name: sn_104
+  m_EditorClassIdentifier: 
+  Index: 104
+  SpellId: 104
+  Version: 1
+  AbilityName: Threaten
+  CommandSet: 12
+  DamageFormulaType: 4
+  Mod: 1
+  CTR: 0
+  MP: 0
+  RemoveStat: 1
+  BaseHit: 90
+  BaseQ: 20
+  HitsStat: 1
+  StatType: 7
+  AddsStatus: 0
+  StatusType: 0
+  PMType: 2
+  EvasionReflect: 0
+  CalculateMimic: 3
+  CounterType: 0
+  StatusCancel: 1
+  ElementType: 0
+  CasterImmune: 0
+  AlliesType: 0
+  IgnoresDefense: 0
+  RangeXYMin: 0
+  RangeXYMax: 3
+  RangeZ: 3
+  EffectXY: 1
+  EffectZ: 1919

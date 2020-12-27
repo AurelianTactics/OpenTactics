@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: def59ea2e6b91eb4fbb4a53b09a4623c, type: 3}
+  m_Name: sn_428
+  m_EditorClassIdentifier: 
+  Index: 428
+  SpellId: 428
+  Version: 2
+  AbilityName: Boost Morale
+  CommandSet: 108
+  DamageFormulaType: 17
+  Mod: 12
+  CTR: 0
+  MP: 1010
+  RemoveStat: 0
+  BaseHit: 1180
+  BaseQ: 2
+  HitsStat: 1
+  StatType: 1
+  AddsStatus: 125
+  StatusType: 182
+  PMType: 1
+  EvasionReflect: 0
+  CalculateMimic: 0
+  CounterType: 0
+  StatusCancel: 0
+  ElementType: 0
+  CasterImmune: 0
+  AlliesType: 1
+  IgnoresDefense: 1
+  RangeXYMin: -1
+  RangeXYMax: 0
+  RangeZ: 0
+  EffectXY: 3
+  EffectZ: 1
