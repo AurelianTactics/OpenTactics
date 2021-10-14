@@ -17,7 +17,9 @@ public class Tile : MonoBehaviour
 
 	#region Const
 	public const float stepHeight = 0.25f;
-    public const float centerHeight = 0.05f;//used for centering the tile sho the indicator shows above the default indicators
+	//used for centering the indicator for the tile
+	//used for centering the height of units that walk around the map
+	public const float centerHeight = 0.45f;
 	#endregion
 
 	#region Fields / Properties
@@ -74,15 +76,30 @@ public class Tile : MonoBehaviour
 		height = h;
 		Match();
 	}
-	
+
 	public void Load (Vector3 v)
 	{
 		Load (new Point((int)v.x, (int)v.z), (int)v.y);
         this.UnitId = NameAll.NULL_UNIT_ID;
 	}
 
-    //change tile look for MapBuilder
-    public void RevertTile()
+	public void Load(Vector3 v, int renderMode)
+	{
+		Load(new Point((int)v.x, (int)v.z), (int)v.y, renderMode);
+		this.UnitId = NameAll.NULL_UNIT_ID;
+	}
+
+	public void Load(Point p, int h, int renderMode)
+	{
+		pos = p;
+		height = h;
+		if(renderMode != NameAll.PP_RENDER_NONE)
+			Match();
+
+	}
+
+	//change tile look for MapBuilder
+	public void RevertTile()
     {
         var rend = this.gameObject.GetComponent<Renderer>();
 		if( this.TileType == NameAll.TILE_TYPE_EXIT_MAP)

@@ -1,8 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// manages all the particles. Eliminated for now until new particles can be found and implemented
+/// </summary>
 public class ParticleManager : Singleton<ParticleManager>
 {
+	//uncomment this block and drag the new prefabs into the missing spots to re-implement this
+	/*
     //[SerializeField]
     public GameObject spellCastPrefab;
     private GameObject spellCastObject;
@@ -213,4 +218,5 @@ public class ParticleManager : Singleton<ParticleManager>
     //    FollowUnit(unitId);
     //}
 
+	*/
 }

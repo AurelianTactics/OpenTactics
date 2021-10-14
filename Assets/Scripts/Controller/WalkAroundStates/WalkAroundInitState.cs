@@ -277,18 +277,25 @@ public class WalkAroundInitState : CombatState
                     break;
                 }
             }
-
-            PlayerManager.Instance.AddPlayerUnit(playerUnit);
             PlayerUnitObject puo = playerUnitObject.GetComponent<PlayerUnitObject>();
             puo.UnitId = playerUnit.TurnOrder;
-            puo.SetDriver(SetDrivers(playerUnit.TeamId)); 
+            //puo.SetDriver(SetDrivers(playerUnit.TeamId)); 
             PlayerManager.Instance.AddPlayerObject(playerUnitObject);
             playerUnitObject.transform.SetParent(playerHolder);
             PlayerManager.Instance.SetInitialFacingDirection(playerUnit.TurnOrder);
             PlayerManager.Instance.AssignTeamIdToPlayerUnit(playerUnit.TurnOrder);
         }
-        //sets the teams alliances
-        PlayerManager.Instance.AssignAlliances();
+
+		foreach (PlayerUnit playerUnit in tempUnitList)
+		{
+			PlayerManager.Instance.AssignTeamIdToPlayerUnit(playerUnit.TurnOrder);
+			playerUnit.SetDriver(SetDrivers(playerUnit.TeamId));
+			PlayerManager.Instance.AddPlayerUnit(playerUnit);
+			//playerUnit.SetDriver(SetDrivers(playerUnit.TeamId, isRLDriver));
+		}
+
+		//sets the teams alliances
+		PlayerManager.Instance.AssignAlliances();
         //sets the markers based on each alliance
         SetPlayerUnitMarkers();
         //sets the mime shit

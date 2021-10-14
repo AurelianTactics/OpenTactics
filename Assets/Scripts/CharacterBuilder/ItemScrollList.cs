@@ -23,11 +23,6 @@ public class ItemScrollList : MonoBehaviour
         List<ItemObject> itemList = new List<ItemObject>();
     }
 
-    void Start()
-    {
-        //backButtonUI = backButton.GetComponent<UIBackButton>();
-
-    }
 
     public void Open(PlayerUnit puIn)
     {

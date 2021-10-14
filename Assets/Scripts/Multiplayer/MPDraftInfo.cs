@@ -3,11 +3,14 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// Handles logic and UI interactions when drafting units for teams
+/// </summary>
+/// <remarks>
+/// still need to implement: in incrementdraft, add the logic that tells whose turn (red/green) based on the pickOrder, first pick and number of spawn points and what part of the draft (pick/ban)
+/// 
+/// </remarks>
 
-//NEXT STEPS
-/*
-in incrementdraft, add the logic that tells whose turn (red/green) based on the pickOrder, first pick and number of spawn points and what part of the draft (pick/ban)
-    */
 public class MPDraftInfo : MonoBehaviour {
 
     public Text title;

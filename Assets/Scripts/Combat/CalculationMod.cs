@@ -189,7 +189,7 @@ public class CalculationMod {
         }
         //Debug.Log(" xa is " + xa);
         //can all crit
-        List<int> temp = CritCalculator(xa,target.TurnOrder);
+        List<int> temp = CritCalculator(xa, target.TurnOrder, sn, actor);
         int crit_holder = temp[1]; //is it a crit, set to out_effect 2 later
         xa = temp[0]; //new xa value on crit
         
@@ -360,7 +360,7 @@ public class CalculationMod {
 
         //crit chance
         List<int> temp = new List<int>();
-        temp = CritCalculator(xa, target.TurnOrder);
+        temp = CritCalculator(xa, target.TurnOrder, sn, actor);
         int crit_holder = temp[1]; //is it a crit, set to out_effect 2 later
         xa = temp[0]; //new xa value on crit
 
@@ -653,7 +653,7 @@ public class CalculationMod {
         }
 
         //can all crit except magic gun which Is handled elsewhere
-        List<int> temp = CritCalculator(xa, target.TurnOrder);
+        List<int> temp = CritCalculator(xa, target.TurnOrder, sn, actor);
         int crit_holder = temp[1]; //is it a crit, set to out_effect 2 later
         xa = temp[0]; //new xa value on crit
 
@@ -752,7 +752,7 @@ public class CalculationMod {
         //this Is not the case for dash and throw stone but they still do knockback, which Is handled in the calculationhitdamage
         //meh letting these crit
         List<int> temp = new List<int>();
-        temp = CritCalculator(xa, target.TurnOrder);
+        temp = CritCalculator(xa, target.TurnOrder, sn, actor);
         int crit_holder = temp[1]; //is it a crit, set to out_effect 2 later
         xa = temp[0]; //new xa value on crit
 
@@ -1388,7 +1388,7 @@ public class CalculationMod {
 
     //crit function
     //first value Is new xa value, 2nd value Is whether a crit happened or not
-    public static List<int> CritCalculator(int xa, int targetId)
+    public static List<int> CritCalculator(int xa, int targetId, SpellName sn, PlayerUnit actor)
     {
         List<int> ia = new List<int>();
         ia.Add(xa);
@@ -1399,28 +1399,27 @@ public class CalculationMod {
         }
 
         int critTest = 5;
-        if (PlayerManager.Instance.IsAbilityEquipped(targetId, NameAll.SUPPORT_CRIT_HIT_UP, NameAll.ABILITY_SLOT_SUPPORT))
+        if (PlayerManager.Instance.IsAbilityEquipped(actor.TurnOrder, NameAll.SUPPORT_CRIT_HIT_UP, NameAll.ABILITY_SLOT_SUPPORT))
         {
             critTest = 20;
         }
-        int z1 = UnityEngine.Random.Range(1, 101);
-        if (z1 <= critTest)
+		int rollResult = PlayerManager.Instance.GetRollResult(critTest, 1, 100, NameAll.NULL_INT, NameAll.COMBAT_LOB_SUBTYPE_CRIT_ROLL, sn, actor);
+        if (rollResult <= critTest)
         { //5% chance of crit
             ia[1] = 1;
             //modified_XA = normal_XA + (0..(normal_XA-1))
             if (xa > 0)
             {
-                z1 = UnityEngine.Random.Range(0, xa - 1);
+				xa += UnityEngine.Random.Range(0, xa - 1);
             }
-            xa += z1;
             ia[0] = xa;
         }
         return ia;
     }
 
-    public static Tile KnockbackCheck(Board board, PlayerUnit actor, PlayerUnit target, bool autoKnockback = false)
+    public static Tile KnockbackCheck(Board board, SpellName sn, PlayerUnit actor, PlayerUnit target, int rollChance, int rollSpread, bool autoKnockback = false)
     {
-        if (KnockbackSuccess() || autoKnockback )
+        if (autoKnockback || KnockbackSuccess(rollChance, rollSpread, sn, actor, target) )
         {
             //Debug.Log("in knockback check 1 ");
             //finds the locations where knockback can happen and if it can happen
@@ -1430,17 +1429,11 @@ public class CalculationMod {
         return null;
     }
 
-    public static bool KnockbackSuccess()
+    public static bool KnockbackSuccess(int rollChance, int rollSpread, SpellName sn, PlayerUnit actor, PlayerUnit target)
     {
-        int z1 = UnityEngine.Random.Range(0,1);
-        if (z1 == 1)
-        {
-            return true;
-        }
-        return false;
+		return PlayerManager.Instance.IsRollSuccess(rollChance, 1, rollSpread, NameAll.NULL_INT, NameAll.COMBAT_LOG_SUBTYPE_KNOCKBACK_SUCCESS, sn, actor, target);
     }
 
-  
 
     //returns null Tile if no tile found, if Tile is found function handles the knockback
     public static Tile GetKnockbackMapTileIndex(Board board, PlayerUnit actor, PlayerUnit target)

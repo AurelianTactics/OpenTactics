@@ -1,16 +1,30 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Plays sounds
+/// Attached to GameController in WalkAround and Combat scenes
+/// Called on certain game and UI events
+/// </summary>
+
 public class SoundManager : Singleton<SoundManager>
 {
     [SerializeField]
     private AudioSource soundSource;
-    [SerializeField]
+
+	// sound for unsuccessful action
+	[SerializeField]
     private AudioClip missSound;
+
+	// sound for successful action
     [SerializeField]
     private AudioClip hitSound;
-    [SerializeField]
+
+	// sound when navigating UI
+	[SerializeField]
     private AudioClip uiSound;
+
+	// sound when unit dies
     [SerializeField]
     private AudioClip deathSound;
 

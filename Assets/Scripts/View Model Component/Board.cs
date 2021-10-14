@@ -28,29 +28,46 @@ public class Board : MonoBehaviour
     [SerializeField]
     GameObject groundCrystalPrefab;
     private Dictionary<Tile, GameObject> groundObjectDict = new Dictionary<Tile, GameObject>(); //key is maptileindex, value is the type of object it is
+	private Dictionary<Tile, int> groundTileDict = new Dictionary<Tile, int>(); //this and groundObjectDict duplicate each other, this stores type
+	readonly int GROUND_TILE = 1;
+
 	//int proximityValue = 5;
 	Transform tileHolder;//holds tiles
 
 	public bool isGridworldBoardSet = false; //so gridworld agent stuff doesn't start until board is ready
 
+	public List<SerializableVector3> spawnList; //spawn points and teamID that can spawn there //(point.x,point.y, teamId) fucking serialization
+
 	#endregion
 
 	#region Public
-	public void Load (LevelData data)
+	public void Load (LevelData data, int renderMode=0)
 	{
+		//loads the leveldata into physical tiles. The tiles themselves are placed in t.Load (Tile.Load) with the Match() function;
 		tiles = new Dictionary<Point, Tile>();
 		_min = new Point(int.MaxValue, int.MaxValue);
 		_max = new Point(int.MinValue, int.MinValue);
-		tileHolder = new GameObject("TileHolder").transform; //holds tiles
-		tileHolder.SetParent(transform);
+		if( renderMode != NameAll.PP_RENDER_NONE) {
+			tileHolder = new GameObject("TileHolder").transform; //holds tiles
+			tileHolder.SetParent(transform);
+		}
 
+		Tile t;
 		for (int i = 0; i < data.tiles.Count; ++i)
 		{
-			GameObject instance = Instantiate(tilePrefab) as GameObject;
-			//instance.transform.SetParent(transform); board as parent
-			instance.transform.SetParent(tileHolder); //tileHolder as parent
-			Tile t = instance.GetComponent<Tile>();
-			t.Load(data.tiles[i]);
+			
+			if (renderMode != NameAll.PP_RENDER_NONE)
+			{
+				GameObject instance = Instantiate(tilePrefab) as GameObject;
+				instance.transform.SetParent(tileHolder); //tileHolder as parent
+				t = instance.GetComponent<Tile>();
+			}
+			else
+			{
+				Debug.Log("ERROR INC, TILES INHERIT FROM MONO BEHAVIOR SO NEED TO DO IT DIFFERENTLY ");
+				t = new Tile();
+			}
+			t.Load(data.tiles[i], renderMode);
 			tiles.Add(t.pos, t);
 			if (data.tileTypeList == null)
 				t.TileType = NameAll.TILE_TYPE_DEFAULT;
@@ -401,7 +418,7 @@ public class Board : MonoBehaviour
         return GetTile(p); //can return null, null check done in CalcResolveAction
     }
 
-    public void SetTilePickUp(int tileX, int tileY, bool isEnable, int pickUpId = 1)
+    public void SetTilePickUp(int tileX, int tileY, bool isEnable, int renderMode, int pickUpId = 1)
     {
         Tile t = GetTile(tileX, tileY);
         if(isEnable)
@@ -415,7 +432,7 @@ public class Board : MonoBehaviour
 
         if (pickUpId == 1)
         {
-            SetPickUpObject(t, isEnable);
+            SetPickUpObject(t, isEnable, renderMode);
         }
     }
 
@@ -424,21 +441,30 @@ public class Board : MonoBehaviour
         GetTile(pu).UnitId = NameAll.NULL_UNIT_ID;
     }
 
-    void SetPickUpObject(Tile t, bool isEnable)
+    void SetPickUpObject(Tile t, bool isEnable, int renderMode)
     {
         if(isEnable)
         {
-            GameObject go = Instantiate(groundCrystalPrefab) as GameObject;
-            Vector3 vec = t.transform.position;
-            vec += new Vector3(0, (vec.y + 0.3f), 0);
-            go.transform.position = vec;
-            groundObjectDict.Add(t,go);
+			if(renderMode != NameAll.PP_RENDER_NONE)
+			{
+				GameObject go = Instantiate(groundCrystalPrefab) as GameObject;
+				Vector3 vec = t.transform.position;
+				vec += new Vector3(0, (vec.y + 0.3f), 0);
+				go.transform.position = vec;
+				groundObjectDict.Add(t, go);
+			}
+            
+			groundTileDict.Add(t, GROUND_TILE);
         }
         else
         {
-            Destroy(groundObjectDict[t] );
-            groundObjectDict.Remove(t);
-        }
+			if (renderMode != NameAll.PP_RENDER_NONE)
+			{
+				Destroy(groundObjectDict[t]);
+				groundObjectDict.Remove(t);
+			}
+			groundTileDict.Remove(t);
+		}
     }
 
 	//move a tile pick up to a specific tile
@@ -553,6 +579,26 @@ public class Board : MonoBehaviour
         }
     }
 
+	//reset the board when the level is reset
+	public void ResetBoard(int renderMode)
+	{
+		ResetGroundDict(renderMode);
+		ClearUnitId();
+	}
+
+	void ResetGroundDict(int renderMode)
+	{
+		if(renderMode != NameAll.PP_RENDER_NONE)
+		{
+			foreach (var entry in groundObjectDict)
+			{
+				Destroy(entry.Value); //have to destroy any ground objects
+			}
+		}
+		groundObjectDict = new Dictionary<Tile, GameObject>();
+		groundTileDict = new Dictionary<Tile, int>();
+	}
+
 	//clears all unitIds, like for in Duel RL when board is reset
 	public void ClearUnitId()
 	{
@@ -561,6 +607,8 @@ public class Board : MonoBehaviour
 			t.UnitId = NameAll.NULL_UNIT_ID;
 		}
 	}
+
+
 
 	void SwapReference (ref Queue<Tile> a, ref Queue<Tile> b)
 	{
@@ -584,24 +632,30 @@ public class Board : MonoBehaviour
 	//check if there is a crystal on the tile. used in gridworld for placing unit after placing crystal
 	public bool IsCrystalOnTile(Tile t)
 	{
-		if (groundObjectDict.ContainsKey(t))
+		if (groundTileDict.ContainsKey(t) && groundTileDict[t] == GROUND_TILE)
 			return true;
+		//if (groundObjectDict.ContainsKey(t))
+		//	return true;
 		return false;
 	}
 	//check if there is a crystal on the tile. used in gridworld for placing unit after placing crystal
 	public bool IsCrystalOnTile(Point p)
 	{
 		Tile t = this.GetTile(p);
-		if (groundObjectDict.ContainsKey(t))
+		if (groundTileDict.ContainsKey(t) && groundTileDict[t] == GROUND_TILE)
 			return true;
+		//if (groundObjectDict.ContainsKey(t))
+		//	return true;
 		return false;
 	}
 	//check if there is a crystal on the tile. used in gridworld for placing unit after placing crystal
 	public bool IsCrystalOnTile(int x, int y)
 	{
 		Tile t = this.GetTile(x, y);
-		if (groundObjectDict.ContainsKey(t))
+		if (groundTileDict.ContainsKey(t) && groundTileDict[t] == GROUND_TILE)
 			return true;
+		//if (groundObjectDict.ContainsKey(t))
+		//	return true;
 		return false;
 	}
 

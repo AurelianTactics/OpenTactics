@@ -5,16 +5,24 @@ using System;
 
 /*
     OLD NOTES
-
     //assuming reflect spells if the resolve over an area, the single panel reflects
         //ie doesn't reflect a spell's entire area of effect
+	to do list:
+	the two swings code is super messy and complicated
+	the resolve action code is super messy and complicated
+	can probably split some functionionality of this class into different things
+	reflect not really implemented fully mechanically
  */
 
+	/// <summary>
+	/// Mess of a class. Performs many calculations related to game logic. Mostly dealing with resolving actions.
+	/// Most important thing is that through CalculationMono, calculates (and starts the application of) action resolving.
+	/// Not just fast actions but slow actions, reactions, etc getting resolved runs through here.
+	/// Also a mess of convenience functions. May make sense to split this class up.
+	/// </summary>
 public static class CalculationResolveAction {
 
     static int bugTest = 0;
-
-    
 
     //called in CalculationMono for the various attack checks
     public static bool FastActionChecks(CombatTurn turn, bool isSuppressText)
@@ -35,30 +43,34 @@ public static class CalculationResolveAction {
     }
 
     //called in CalculationMono
-    public static void CheckInventory(SpellName sn, int teamId, int actorId)
+    public static void CheckInventory(SpellName sn, int teamId, int actorId, int renderMode)
     {
         if (sn.Version == NameAll.VERSION_CLASSIC)
         {
             if (sn.CommandSet == NameAll.COMMAND_SET_DRAW_OUT)
             {
-                if (RollForSuccess(15))
+                if (PlayerManager.Instance.IsRollSuccess(15, 1, 100, NameAll.NULL_INT, NameAll.COMBAT_LOG_SUBTYPE_KATANA_BREAK, sn, 
+					PlayerManager.Instance.GetPlayerUnit(actorId) ))
                 {
-                    PlayerManager.Instance.ShowFloatingText(actorId, NameAll.FLOATING_TEXT_CUSTOM, "Katana Broken");
+					if(renderMode != NameAll.PP_RENDER_NONE)
+						PlayerManager.Instance.ShowFloatingText(actorId, NameAll.FLOATING_TEXT_CUSTOM, "Katana Broken");
                     SpellManager.Instance.DecrementInventory(sn, teamId);
                 }
             }
             else if (sn.SpellId == NameAll.SPELL_INDEX_ELIXIR)
             {
-                if (teamId == NameAll.TEAM_ID_GREEN)
-                {
-                    PlayerManager.Instance.ShowFloatingText(actorId, NameAll.FLOATING_TEXT_CUSTOM, "Elixirs Remaining " + (SpellManager.Instance.greenElixir - 1));
-                }
-                else
-                {
-                    PlayerManager.Instance.ShowFloatingText(actorId, NameAll.FLOATING_TEXT_CUSTOM, "Elixirs Remaining " + (SpellManager.Instance.redElixir - 1));
-                }
-
-                SpellManager.Instance.DecrementInventory(sn, teamId);
+				if (renderMode != NameAll.PP_RENDER_NONE)
+				{
+					if (teamId == NameAll.TEAM_ID_GREEN)
+					{
+						PlayerManager.Instance.ShowFloatingText(actorId, NameAll.FLOATING_TEXT_CUSTOM, "Elixirs Remaining " + (SpellManager.Instance.greenElixir - 1));
+					}
+					else
+					{
+						PlayerManager.Instance.ShowFloatingText(actorId, NameAll.FLOATING_TEXT_CUSTOM, "Elixirs Remaining " + (SpellManager.Instance.redElixir - 1));
+					}
+				}
+				SpellManager.Instance.DecrementInventory(sn, teamId);
             }
         }
     }
@@ -66,7 +78,7 @@ public static class CalculationResolveAction {
 
     //Called in CalculationMono, allows fastactions and things that become fast actions (slow actions, reactions etc) to proceed)
     public static void FastActionResults(Board board, CombatTurn turn, bool isReaction = false, bool isFirstSwing = true, bool isForceFacing = false,
-        bool isAllowBladeGrasp = false, bool isOnAttackEffect = false)
+        bool isAllowBladeGrasp = false, bool isOnAttackEffect = false, int renderMode = 0)
     {
         //Debug.Log("launching fast action results " + turn.targets.Count);
 
@@ -104,7 +116,7 @@ public static class CalculationResolveAction {
                 //Debug.Log("fast action results prior to outEffect");
                 //only use sn here, math skill can't be reflected
                 outEffect = GenerateHitDamageList(board, turn.actor, target, sn, allowBladeGrasp: isAllowBladeGrasp, forceFacing: isForceFacing); 
-                ResolveSpellAction(outEffect, board, sn, turn.actor, target, isReaction: isReaction, isFirstSwing: isFirstSwing, isOnEffectAttack: isOnAttackEffect);
+                ResolveSpellAction(outEffect, board, sn, turn.actor, target, isReaction: isReaction, isFirstSwing: isFirstSwing, isOnEffectAttack: isOnAttackEffect, renderMode: renderMode);
             }
             else
             {
@@ -115,7 +127,7 @@ public static class CalculationResolveAction {
 
     //two swords second swing version of fastaction results
     public static void FastActionSecondSwing(Board board, CombatTurn turn, bool isReaction, bool isForceFacing = false,
-        bool isAllowBladeGrasp = false, bool isOnAttackEffect = false)
+        bool isAllowBladeGrasp = false, bool isOnAttackEffect = false, int renderMode = 0)
     {
         if (turn.targetTile.UnitId == NameAll.NULL_UNIT_ID)
             return;
@@ -124,20 +136,21 @@ public static class CalculationResolveAction {
         if( target.StatTotalLife > 0)
         {
             List<int> outEffect = GenerateHitDamageList(board, turn.actor, target, turn.spellName, allowBladeGrasp: isAllowBladeGrasp, forceFacing: isForceFacing);
-            ResolveSpellAction(outEffect, board, turn.spellName, turn.actor, target, isReaction: isReaction, isFirstSwing: false, isOnEffectAttack: isOnAttackEffect);
+            ResolveSpellAction(outEffect, board, turn.spellName, turn.actor, target, isReaction: isReaction, isFirstSwing: false, isOnEffectAttack: isOnAttackEffect, renderMode: renderMode);
         }
         
     }
 
     //on attack effect of an attack version of fastaction results
+	//ie a weapon that has a chance to cast a spell after the weapon attack
     public static void FastActionAttackEffect(Board board, CombatTurn turn, bool isReaction, bool isForceFacing = false,
-       bool isAllowBladeGrasp = false, bool isOnAttackEffect = false)
+       bool isAllowBladeGrasp = false, bool isOnAttackEffect = false, int renderMode = 0)
     {
         PlayerUnit target = PlayerManager.Instance.GetPlayerUnit(turn.targetTile.UnitId);
         if (target.StatTotalLife > 0)
         {
             List<int> outEffect = GenerateHitDamageList(board, turn.actor, target, turn.spellName, allowBladeGrasp: isAllowBladeGrasp, forceFacing: isForceFacing);
-            ResolveSpellAction(outEffect, board, turn.spellName, turn.actor, target, isReaction: isReaction, isFirstSwing: false, isOnEffectAttack: isOnAttackEffect);
+            ResolveSpellAction(outEffect, board, turn.spellName, turn.actor, target, isReaction: isReaction, isFirstSwing: false, isOnEffectAttack: isOnAttackEffect, renderMode: renderMode);
         }
 
     }
@@ -191,7 +204,7 @@ public static class CalculationResolveAction {
             return target;
     }
 
-    //sees if actor can preform an action, 
+    //sees if actor can perform an action, 
     static bool IsUnableToPerformAction(int actorId, SpellName sn, bool isSuppressText = false)
     {
         //check that a status doesn't prevent this type of spell//for now it's just silence
@@ -268,7 +281,6 @@ public static class CalculationResolveAction {
     }
 
     
-
     //called in CalculationMono after certain FastActions, checks if item should be added to MimeQUeue
     public static void AddToMimeQueue(Board board, PlayerUnit actor, SpellName sn, Tile targetTile)
     {
@@ -327,7 +339,7 @@ public static class CalculationResolveAction {
                 if(!StatusManager.Instance.IfStatusByUnitAndId(targetTile.UnitId, NameAll.STATUS_ID_JUMPING))
                 {
                     PlayerUnit target = PlayerManager.Instance.GetPlayerUnit(targetTile.UnitId);
-                    PlayerUnit reflectTarget = ReflectCalculation(board, actor, sn, target,false);
+                    PlayerUnit reflectTarget = ReflectCalculation(board, actor, sn, target, false);
 
                     //reflect on different unit or reflected to no unit at all, shit stays at 0
                     if ( reflectTarget == null || reflectTarget.TurnOrder != target.TurnOrder)
@@ -488,11 +500,12 @@ public static class CalculationResolveAction {
         return outEffect;
     }
 
+
     #region ResolveSpellAction and related functions
     //called in FastActionResults and FastActionSecondSwing
     //applies the spellName effect and creates the reaction
     static void ResolveSpellAction(List<int> modEffectArray, Board board, SpellName sn, PlayerUnit actor, PlayerUnit target, bool isReaction = false, 
-        bool isFirstSwing = false, bool isOnEffectAttack = false)
+        bool isFirstSwing = false, bool isOnEffectAttack = false, int renderMode = 0)
     {
         PlayerManager.Instance.WalkAroundCombatStartCheck(actor, target, sn);
         //modEffectArray has
@@ -514,8 +527,9 @@ public static class CalculationResolveAction {
                 SpellName tempSN = SpellManager.Instance.GetSpellNameByIndex(tempSpellIndex);
                 if (MapTileManager.Instance.IsTileInAttackRange(actor,target, tempSN)) //TARGET AND ACTOR SWAPPED
                 {
-                    //does the roll
-                    if (RollForSuccess(target.StatTotalBrave))
+					//roll to see if reaction is successful
+					if (PlayerManager.Instance.IsRollSuccess(target.StatTotalBrave, 1, 100, NameAll.NULL_INT, NameAll.COMBAT_LOG_SUBTYPE_REACTION_BRAVE_ROLL, 
+						sn, actor, target, target.AbilityReactionCode) )
                     {
                         //creates the reaction
                         CreateSpellReaction(NameAll.REACTION_HAMEDO, target, actor, sn, reactionEffect); //TARGET AND ACTOR SWAPPED
@@ -526,26 +540,29 @@ public static class CalculationResolveAction {
             }
         }
 
-        //does it hit
-        //Random r = new Random(); int z1 = r.nextInt(100) + 1; //z1 is 1-100
-        int z1 = UnityEngine.Random.Range(1, 100 + 1);
-        string combatLogString;
+		//does it hit
+		int rollResult = PlayerManager.Instance.GetRollResult(modEffectArray[0], 1, 100, NameAll.NULL_INT, NameAll.COMBAT_LOG_SUBTYPE_ROLL_RESOLVE_ACTION, sn, actor, target);
+        string combatLogString = "";
         if (isReaction)
         {
-            combatLogString = "reaction type: " + BuildCombatLogString(actor, target, sn, 1);
+			if(renderMode != NameAll.PP_RENDER_NONE)
+				combatLogString = "reaction type: " + BuildCombatLogString(actor, target, sn, 1, renderMode);
         }
         else
         {
-            combatLogString = BuildCombatLogString(actor, target, sn, 1);
+            combatLogString = BuildCombatLogString(actor, target, sn, 1, renderMode);
         }
+        combatLogString = AppendCombatLogString(combatLogString, modEffectArray, rollResult, sn, 1, renderMode);
 
-        combatLogString = AppendCombatLogString(combatLogString, modEffectArray, z1, sn, 1);
-        if (z1 <= modEffectArray[0]) //spell hits
+        if (rollResult <= modEffectArray[0]) //spell hits
         {
-            SoundManager.Instance.PlaySoundClip(1);
-            //actor cast particles over head
-            AddParticleHit(target.TurnOrder, sn);
-            combatLogString += " hits ";
+			if(renderMode != NameAll.PP_RENDER_NONE)
+			{
+				SoundManager.Instance.PlaySoundClip(1);
+				//actor cast particles over head
+				AddParticleHit(target.TurnOrder, sn);
+			}
+            combatLogString = AppendCombatLogString(combatLogString, " hits ", renderMode);
 
             //unit can't be dead for this part to hit
             if( !StatusManager.Instance.IfStatusByUnitAndId(target.TurnOrder,NameAll.STATUS_ID_DEAD) )
@@ -556,31 +573,31 @@ public static class CalculationResolveAction {
                     //Debug.Log("doing crit knockback check 1");
                     if (modEffectArray[2] == NameAll.CRIT_KNOCKBACK_SUCCESS) //dash, throw stone, already passed the knockback check
                     {
-                        Tile moveTile = CalculationMod.KnockbackCheck(board, actor, target, true); //Debug.Log("doing crit knockback check 2");
+                        Tile moveTile = CalculationMod.KnockbackCheck(board, sn, actor, target, 1, 1, true); //Debug.Log("doing crit knockback check 2");
                         if (moveTile != null)
                         {
-                            combatLogString += " target is moved back by ability "; //Debug.Log("doing crit knockback check 3");
+                            combatLogString = AppendCombatLogString(combatLogString, " target is moved back by ability ", renderMode); //Debug.Log("doing crit knockback check 3");
                                                                                     //moves the target to a new location
                             //Debug.Log("using knockback a player in CalcResolve");
-                            PlayerManager.Instance.KnockbackPlayer(board, target.TurnOrder, moveTile);
+                            PlayerManager.Instance.KnockbackPlayer(board, target.TurnOrder, moveTile, sn, actor); //50 50 roll happened elsewhere
                         }
                     }
                     else //test for crit knock back
                     {
-                        PlayerManager.Instance.ShowFloatingText(target.TurnOrder, NameAll.FLOATING_TEXT_CUSTOM, "CRITICAL HIT");
-                        combatLogString += " critical hit ";
-                        Tile moveTile = CalculationMod.KnockbackCheck(board, actor, target, true);
+						PlayerManager.Instance.ShowFloatingText(target.TurnOrder, NameAll.FLOATING_TEXT_CUSTOM, "CRITICAL HIT");
+						combatLogString = AppendCombatLogString(combatLogString, " critical hit ", renderMode);
+                        Tile moveTile = CalculationMod.KnockbackCheck(board, sn, actor, target, 1, 1, true);
                         if (moveTile != null)
                         {
-                            combatLogString += " target is moved back by crit ";
+							combatLogString = AppendCombatLogString(combatLogString, " target is moved back by crit ", renderMode);
                             //moves the target to a new location
                             //Debug.Log("using knockback a player in CalcResolve");
-                            PlayerManager.Instance.KnockbackPlayer(board, target.TurnOrder, moveTile);
+                            PlayerManager.Instance.KnockbackPlayer(board, target.TurnOrder, moveTile, sn, actor);
                             //PlayerManager.Instance.MovePlayer(target.TurnOrder, moveLocation, true);
                         }
                     }
                 }
-                combatLogString = AppendCombatLogString(combatLogString, modEffectArray, z1, sn, 2);
+                combatLogString = AppendCombatLogString(combatLogString, modEffectArray, rollResult, sn, 2, renderMode);
 
                 if (sn.HitsStat >= 1 && sn.HitsStat < 4) //hits a stat, if 0 then it only adds a status
                 {
@@ -593,11 +610,11 @@ public static class CalculationResolveAction {
                     {
                         if (sn.ElementType == NameAll.ITEM_ELEMENTAL_UNDEAD && StatusManager.Instance.IsUndead(target.TurnOrder))
                         {
-                            PlayerManager.Instance.AlterUnitStat(1, effect, sn.StatType, actor.TurnOrder, sn.ElementType); //undead absorb, does damage
+                            PlayerManager.Instance.AlterUnitStat(1, effect, sn.StatType, actor.TurnOrder, sn.ElementType, sn, actor); //undead absorb, does damage
                         }
                         else
                         {
-                            PlayerManager.Instance.AlterUnitStat(0, effect, sn.StatType, actor.TurnOrder, sn.ElementType); //absorb the stat
+                            PlayerManager.Instance.AlterUnitStat(0, effect, sn.StatType, actor.TurnOrder, sn.ElementType, sn, actor); //absorb the stat
                         }
                     }
 
@@ -616,9 +633,9 @@ public static class CalculationResolveAction {
                             //check if status is blocked
                             if (!StatusManager.Instance.IsStatusBlockByUnit(target.TurnOrder, io.OnHitEffect))
                             {
-                                combatLogString += " additional status roll hits " + io.OnHitChance + " " + io.OnHitEffect;
+								combatLogString = AppendCombatLogString(combatLogString, " additional status roll hits " + io.OnHitChance + " " + io.OnHitEffect, renderMode);
                                 StatusManager.Instance.AddStatusAndOverrideOthers(effect, target.TurnOrder, io.OnHitEffect);
-                                PlayerManager.Instance.ShowFloatingText(target.TurnOrder, 7, NameAll.GetStatusString(io.OnHitEffect)); //add status
+								PlayerManager.Instance.ShowFloatingText(target.TurnOrder, 7, NameAll.GetStatusString(io.OnHitEffect)); //add status
                             }
                         }
                     }
@@ -630,42 +647,43 @@ public static class CalculationResolveAction {
                     //chakra, restores hp and mp, mp stored in out effect 3
                     int effect2 = modEffectArray[3];
                     //hp
-                    PlayerManager.Instance.AlterUnitStat(sn.RemoveStat, effect, NameAll.STAT_TYPE_HP, target.TurnOrder, sn.ElementType);
+                    PlayerManager.Instance.AlterUnitStat(sn.RemoveStat, effect, NameAll.STAT_TYPE_HP, target.TurnOrder, sn.ElementType, sn, actor);
                     //mp
                     //Debug.Log("restoring Mp " + effect2);
-                    PlayerManager.Instance.AlterUnitStat(sn.RemoveStat, effect2, NameAll.STAT_TYPE_MP, target.TurnOrder, sn.ElementType);
+                    PlayerManager.Instance.AlterUnitStat(sn.RemoveStat, effect2, NameAll.STAT_TYPE_MP, target.TurnOrder, sn.ElementType, sn, actor);
                 }
                 //if the spell uses a statuseffect, checks and does the necessary work
-                combatLogString += OnHitAddStatus(actor, target,sn,effect);
+                combatLogString += OnHitAddStatus(actor, target,sn, effect, renderMode);
             }
             else
             {
                 //Debug.Log("unit is dead, going to add life if life is the status added");
                 //unit is dead, only works if status is adding life
-                combatLogString += OnHitAddStatus(actor, target, sn, effect, isDead : true);
+                combatLogString += OnHitAddStatus(actor, target, sn, effect, renderMode, isDead : true);
             }
  
         }
         else
         {
-            SoundManager.Instance.PlaySoundClip(2);
-            combatLogString += " misses ";
+			if (renderMode != NameAll.PP_RENDER_NONE)
+				SoundManager.Instance.PlaySoundClip(2);
+			combatLogString = AppendCombatLogString(combatLogString, " misses ", renderMode);
             //find out why it missed
             if (isFirstSwing) //dodged a two swords attack
             {
-                if (z1 <= modEffectArray[7]) //missed due to bladegrasp
+                if (rollResult <= modEffectArray[7]) //missed due to bladegrasp
                 {
-                    //may need to account for bladegrasp being INACTIVE here
-                    combatLogString += " misses due to bladegrasp";
+					//may need to account for bladegrasp being INACTIVE here
+					combatLogString = AppendCombatLogString(combatLogString, " misses due to bladegrasp", renderMode);
                 }
                 else
                 {
                     //may need to account for bladegrasp being ACTIVE here
                 }
             }
-            PlayerManager.Instance.ShowFloatingText(target.TurnOrder, 0, "MISS");
+			PlayerManager.Instance.ShowFloatingText(target.TurnOrder, 0, "MISS");
         }
-        CombatLogClass clObject = new CombatLogClass(combatLogString, actor.TurnOrder);
+        CombatLogClass clObject = new CombatLogClass(combatLogString, actor.TurnOrder, renderMode);
         clObject.SendNotification();
         
         if (!isReaction)
@@ -701,7 +719,7 @@ public static class CalculationResolveAction {
                     }
                 }
                 //Debug.Log("reached this part of reaction ability " + targetStartLife + " " + target.StatTotalLife);
-                CheckForReaction(sn, target, actor, targetReceivedDamage, reactionEffect); //TARGET AND ACTOR ARE SWAPPED
+                CheckForReaction(sn, target, actor, targetReceivedDamage, renderMode, reactionEffect); //TARGET AND ACTOR ARE SWAPPED
             }
             //else
             //{
@@ -712,7 +730,7 @@ public static class CalculationResolveAction {
     }
 
     //called in resolve spellaction
-    static string OnHitAddStatus(PlayerUnit actor, PlayerUnit target, SpellName sn, int effect, bool isDead = false)
+    static string OnHitAddStatus(PlayerUnit actor, PlayerUnit target, SpellName sn, int effect, int renderMode, bool isDead = false)
     {
         string combatLogString = "";
     
@@ -748,13 +766,15 @@ public static class CalculationResolveAction {
                 }
                 else
                 {
-                    //25% chance to hit, do a roll
-                    int roll = UnityEngine.Random.Range(1, 100 + 1);//r.nextInt(100) + 1; //z1 is 1-100
+					//25% chance to hit, do a roll
+					int roll = PlayerManager.Instance.GetRollResult(sn.AddsStatus - 100, 1, 100, NameAll.NULL_INT, NameAll.COMBAT_LOG_SUBTYPE_STATUS_ADD_ROLL,
+						sn, actor, target, NameAll.NULL_INT, sn.StatusType);
                     if (roll <= sn.AddsStatus - 100)
                     {
                         combatLogString += " additional status roll hits 25 (" + roll + ") " + sn.StatusType;
                         StatusManager.Instance.AddStatusAndOverrideOthers(effect, target.TurnOrder, sn.StatusType);
-                        PlayerManager.Instance.ShowFloatingText(target.TurnOrder, 7, NameAll.GetStatusString(sn.StatusType)); //add status
+						if (renderMode != NameAll.PP_RENDER_NONE)
+							PlayerManager.Instance.ShowFloatingText(target.TurnOrder, 7, NameAll.GetStatusString(sn.StatusType)); //add status
                         PlayerManager.Instance.TallyCombatStats(actor.TurnOrder, NameAll.STATS_STATUSES_DONE, 1);
                     }
                     else
@@ -764,7 +784,10 @@ public static class CalculationResolveAction {
                 }
             }
         }
-        return combatLogString;
+		if (renderMode != NameAll.PP_RENDER_NONE)
+			return combatLogString;
+		else
+			return "";
     }
 
     //can be called in calcAT for preview string and in ResolveSpellAction
@@ -787,14 +810,13 @@ public static class CalculationResolveAction {
     static void AlterUnitStatMPSwitch(int effect, PlayerUnit actor, PlayerUnit target, SpellName sn, bool isReaction ) //checks for mp switch on altering unit stat
     {
         List<int> tempList = CheckForSpellNameHPRestore(actor, sn); //checks if the weapon heals
-
-        if (!isReaction && MPSwitchCheck(target) && sn.StatType == NameAll.STAT_TYPE_HP && RollForSuccess(target.GetReactionNumber()) )
+		if (!isReaction && MPSwitchCheck(target) && sn.StatType == NameAll.STAT_TYPE_HP )
         {
-            PlayerManager.Instance.AlterUnitStat(tempList[0], effect, NameAll.STAT_TYPE_MP, target.TurnOrder, tempList[1]); //alters mp instead
+            PlayerManager.Instance.AlterUnitStat(tempList[0], effect, NameAll.STAT_TYPE_MP, target.TurnOrder, tempList[1], sn, actor); //alters mp instead
         }
         else
         {
-            PlayerManager.Instance.AlterUnitStat(tempList[0], effect, sn.StatType, target.TurnOrder, tempList[1]);
+            PlayerManager.Instance.AlterUnitStat(tempList[0], effect, sn.StatType, target.TurnOrder, tempList[1], sn, actor);
         }
     }
 
@@ -821,7 +843,8 @@ public static class CalculationResolveAction {
             || PlayerManager.Instance.IsAbilityEquipped(reactor.TurnOrder, NameAll.REACTION_HP_TO_MP, NameAll.ABILITY_SLOT_REACTION))
             && reactor.StatTotalMP > 0)
         {
-            if (RollForSuccess(reactor.StatTotalBrave))
+            if (PlayerManager.Instance.IsRollSuccess(reactor.StatTotalBrave,1,100,NameAll.NULL_INT, NameAll.COMBAT_LOG_SUBTYPE_REACTION_BRAVE_ROLL, null,
+				reactor, null, reactor.AbilityReactionCode))
             {
                 return true;
             }
@@ -850,7 +873,8 @@ public static class CalculationResolveAction {
             particleType = 3; //buff
         } 
 
-        ParticleManager.Instance.SetSpellHit(targetId, particleType);
+		//no particles for now
+        //ParticleManager.Instance.SetSpellHit(targetId, particleType);
     }
 
     //called in ResolveSpellAction
@@ -912,7 +936,7 @@ public static class CalculationResolveAction {
 
     #region CheckForReaction and related functions
     //called in resolvespellaction, also adds to combat log
-    static void CheckForReaction(SpellName sn, PlayerUnit actor, PlayerUnit target, bool receivedDamage, int effect = 0)
+    static void CheckForReaction(SpellName sn, PlayerUnit actor, PlayerUnit target, bool receivedDamage, int renderMode, int effect = 0)
     {
         
         int abilityId = actor.AbilityReactionCode;
@@ -921,7 +945,8 @@ public static class CalculationResolveAction {
         int reactionType = GetReactionType(abilityId, sn); //Debug.Log("reaction type is " + reactionType);
         bool isCreateReaction = false;
 
-        bool isRollSuccessful = RollForSuccess(reactChance);//RollForSuccess(reactChance);
+		bool isRollSuccessful = PlayerManager.Instance.IsRollSuccess(reactChance, 1, 100, NameAll.NULL_INT, NameAll.COMBAT_LOG_SUBTYPE_REACTION_BRAVE_ROLL,
+			sn, actor, target);
 
         string combatLogString = "";
         if (!isRollSuccessful) //pre roll it, not really the proper way but saves a lot of checks
@@ -1037,7 +1062,7 @@ public static class CalculationResolveAction {
 
         if( combatLogString.Length > 1)
         {
-            CombatLogClass clObject = new CombatLogClass(combatLogString, actor.TurnOrder);
+            CombatLogClass clObject = new CombatLogClass(combatLogString, actor.TurnOrder, renderMode);
             clObject.SendNotification();
         }
         
@@ -1600,9 +1625,12 @@ public static class CalculationResolveAction {
     #endregion
 
     #region misc
-    public static string BuildCombatLogString(PlayerUnit actor, PlayerUnit target, SpellName sn, int phase)
+    static string BuildCombatLogString(PlayerUnit actor, PlayerUnit target, SpellName sn, int phase, int renderMode)
     {
-        string zString = "";
+		if (renderMode == NameAll.PP_RENDER_NONE)
+			return "";
+
+		string zString = "";
         if (phase == 1)
         {
             zString += actor.UnitName + " casts " + sn.AbilityName + " on " + target.UnitName;
@@ -1611,8 +1639,11 @@ public static class CalculationResolveAction {
         return zString;
     }
 
-    public static string AppendCombatLogString(string clString, List<int> outEffect, int roll, SpellName sn, int phase)
+    static string AppendCombatLogString(string clString, List<int> outEffect, int roll, SpellName sn, int phase, int renderMode)
     {
+		if (renderMode == NameAll.PP_RENDER_NONE)
+			return clString;
+
         if (phase == 1)
         {
             clString += " roll is " + outEffect[0] + "(" + roll + ")";
@@ -1654,15 +1685,14 @@ public static class CalculationResolveAction {
         return clString;
     }
 
-    //does a roll, called in many places
-    public static bool RollForSuccess(int success)
-    {
-        if (UnityEngine.Random.Range(1, 100 + 1) <= success)
-        {
-            return true;
-        }
-        return false;
-    }
+	static string AppendCombatLogString(string clString, string stringToAppend, int renderMode)
+	{
+		if(renderMode != NameAll.PP_RENDER_NONE)
+		{
+			clString = clString += stringToAppend;
+		}
+		return clString;
+	}
 
     #endregion
 

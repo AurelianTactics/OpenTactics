@@ -3,6 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
+/// <summary>
+/// Holds statics/constants/functions that are called from a variety of scripts
+/// I'm sure there's a better way to do this
+/// </summary>
+/// <remarks>
+/// Seems pretty fucking stupid to do it this way but alternative is copying a bunch of constants to each script that calls it
+/// </remarks>
 public class NameAll
 {
     //public const float TILE_PLACEMENT_HEIGHT = 0.125f;
@@ -10,8 +17,9 @@ public class NameAll
     public static readonly int ROTATION_OFFSET = -25; //prefabs kind of aligned funnily
 
     public static readonly string NOTIFICATION_EXIT_GAME = "NotificationExitGame";
+	public static readonly string NOTIFICATION_RESET_GAME = "NotificationResetGame";
 
-    public static readonly int CRIT_KNOCKBACK_SUCCESS = 2;
+	public static readonly int CRIT_KNOCKBACK_SUCCESS = 2;
 
     public static readonly int FLOATING_TEXT_CUSTOM = 19;
 
@@ -81,10 +89,18 @@ public class NameAll
     public static readonly string PP_COMBAT_LEVEL = "combatMap"; //index number of the level to load
     public static readonly string PP_LEVEL_DIRECTORY = "Aurelian"; //4 ways to load levels: level Aurelian, level custom, campaign level aurelian, campaign level custom
     public static readonly string PP_COMBAT_CAMPAIGN_LOAD = "campaignId"; //when loading a campaign level, what is the id to load?
+	public static readonly string PP_RENDER_MODE = "renderMode";
+	public static readonly int PP_RENDER_NORMAL = 0;
+	public static readonly int PP_RENDER_NONE = 1;
 
-    //public static readonly string PP_LEVEL_LOAD = "level_0"; //level to load, used in all modes for now
-    
-    public static readonly string PP_CUSTOM_GAME_TYPE = "customGameType";
+	public static readonly string PP_RL_MODE = "reinforcementLearningMode";
+	public static readonly int PP_RL_MODE_FALSE = 0;
+	public static readonly int PP_RL_MODE_TRUE = 1;
+
+
+	//public static readonly string PP_LEVEL_LOAD = "level_0"; //level to load, used in all modes for now
+
+	public static readonly string PP_CUSTOM_GAME_TYPE = "customGameType";
     public static readonly int CUSTOM_GAME_OFFLINE = 0;
     public static readonly int CUSTOM_GAME_ONLINE = 1;
 
@@ -160,7 +176,45 @@ public class NameAll
     public static readonly int CAMPAIGN_SPAWN_UNIT_NONE = -1;
     public static readonly int CAMPAIGN_SPAWN_UNIT_NULL = -2;
 
-    public static readonly int STORY_MAP_0 = 0;
+	public static readonly int COMBAT_LOG_TYPE_END_TURN = 0;
+	public static readonly int COMBAT_LOG_TYPE_MOVE = 1;
+	public static readonly int COMBAT_LOG_TYPE_ACTION = 2;
+	public static readonly int COMBAT_LOG_TYPE_CONTINUED_ACTION = 3;
+	public static readonly int COMBAT_LOG_TYPE_REACTION = 4;
+	public static readonly int COMBAT_LOG_TYPE_MIME_ACTION = 5;
+	public static readonly int COMBAT_LOG_TYPE_SLOW_ACTION = 6;
+	public static readonly int COMBAT_LOG_TYPE_STATUS_MANAGER = 7;
+	public static readonly int COMBAT_LOG_TYPE_MISC = 8;
+	public static readonly int COMBAT_LOG_TYPE_ALTER_STAT_ADD = 9;
+	public static readonly int COMBAT_LOG_TYPE_ALTER_STAT_REMOVE = 10;
+	public static readonly int COMBAT_LOG_TYPE_ROLL = 11;
+
+	public static readonly int COMBAT_LOG_SUBTYPE_MOVE_TELEPORT_ROLL = 1000;
+	public static readonly int COMBAT_LOG_SUBTYPE_MOVE_SWAP = 1001;
+	public static readonly int COMBAT_LOG_SUBTYPE_MOVE_EFFECT = 1002;
+	public static readonly int COMBAT_LOG_SUBTYPE_SET_HP = 2000;
+	public static readonly int COMBAT_LOG_SUBTYPE_SET_HP_REMOVE_ALL = 2001;
+	public static readonly int COMBAT_LOG_SUBTYPE_ITEM_ON_HIT_CHANCE = 2002;
+	public static readonly int COMBAT_LOG_SUBTYPE_KATANA_BREAK = 2003;
+	public static readonly int COMBAT_LOG_SUBTYPE_ROLL_RESOLVE_ACTION = 2004;
+	public static readonly int COMBAT_LOB_SUBTYPE_CRIT_ROLL = 2005;
+	public static readonly int COMBAT_LOG_SUBTYPE_SPELL_SLOW_ADD = 2006;
+	public static readonly int COMBAT_LOG_SUBTYPE_REACTION_BRAVE_ROLL = 4000;
+	public static readonly int COMBAT_LOG_SUBTYPE_SLOW_ACTION_UNABLE_TO_CAST = 6000;
+	public static readonly int COMBAT_LOG_SUBTYPE_STATUS_REMOVE = 7000;
+	public static readonly int COMBAT_LOG_SUBTYPE_END_TURN_TICK_REGEN = 7001;
+	public static readonly int COMBAT_LOG_SUBTYPE_END_TURN_TICK_POISON = 7002;
+	public static readonly int COMBAT_LOG_SUBTYPE_STATUS_ADD_ROLL = 7003;
+	public static readonly int COMBAT_LOG_SUBTYPE_STATUS_ADD = 7004;
+	public static readonly int COMBAT_LOG_SUBTYPE_KNOCKBACK_MOVE = 8000;
+	public static readonly int COMBAT_LOG_SUBTYPE_KNOCKBACK_DAMAGE = 8001;
+	public static readonly int COMBAT_LOG_SUBTYPE_ADD_BRAVE_DEFAULT = 8002;
+	public static readonly int COMBAT_LOG_SUBTYPE_CRYSTAL_PICK_UP = 8003;
+	public static readonly int COMBAT_LOG_SUBTYPE_UNDEAD_REVIVE_ROLL = 8004;
+	public static readonly int COMBAT_LOG_SUBTYPE_KNOCKBACK_SUCCESS = 8005;
+	public static readonly int COMBAT_LOG_SUBTYPE_CRYSTAL_ROLL = 8006;
+
+	public static readonly int STORY_MAP_0 = 0;
     public static readonly int STORY_MAP_1 = 1;
 
     public static readonly int NULL_INT = -1919;
@@ -1447,6 +1501,12 @@ public class NameAll
     public static readonly int CLASS_RANGER = 110;
     public static readonly int CLASS_DRUID = 111;
 
+	/// <summary>
+	/// returns the string needed to instantiate the GameObject for the PlayerUnitObject
+	/// for now just returning a default thing
+	/// </summary>
+	/// <param name="classId"></param>
+	/// <returns></returns>
     public static string GetPUOString( int classId)
     {
 
@@ -1454,146 +1514,146 @@ public class NameAll
         {
             return GetIconStringFromClass(classId);
         }
+		return "Heroes/default_puo";
+        //string zString = "Heroes/box_man";
+        //if (classId >= CLASS_FIRE_MAGE)
+        //{
+        //    if( classId == CLASS_FIRE_MAGE)
+        //    {
+        //        zString = "Heroes/wizard";
+        //    }
+        //    else if (classId == CLASS_HEALER)
+        //    {
+        //        zString = "Heroes/magic_plant";
+        //    }
+        //    else if (classId == CLASS_NECROMANCER)
+        //    {
+        //        zString = "Heroes/undeath_2";
+        //    }
+        //    else if (classId == CLASS_ARTIST)
+        //    {
+        //        zString = "Heroes/box_man";
+        //    }
+        //    else if (classId == CLASS_APOTHECARY)
+        //    {
+        //        zString = "Heroes/surgeon_zombie";
+        //    }
+        //    else if (classId == CLASS_DEMAGOGUE)
+        //    {
+        //        zString = "Heroes/woopa";
+        //    }
+        //    else if (classId == CLASS_BRAWLER)
+        //    {
+        //        zString = "Heroes/war_bear";
+        //    }
+        //    else if (classId == CLASS_WARRIOR)
+        //    {
+        //        zString = "Heroes/greenwar";
+        //    }
+        //    else if (classId == CLASS_CENTURION)
+        //    {
+        //        zString = "Heroes/warrior";
+        //    }
+        //    else if (classId == CLASS_ROGUE)
+        //    {
+        //        zString = "Heroes/vam";
+        //    }
+        //    else if (classId == CLASS_RANGER)
+        //    {
+        //        zString = "Heroes/sparcher";
+        //    }
+        //    else if (classId == CLASS_DRUID)
+        //    {
+        //        zString = "Heroes/fogaman";
+        //    }
 
-        string zString = "Heroes/box_man";
-        if (classId >= CLASS_FIRE_MAGE)
-        {
-            if( classId == CLASS_FIRE_MAGE)
-            {
-                zString = "Heroes/wizard";
-            }
-            else if (classId == CLASS_HEALER)
-            {
-                zString = "Heroes/magic_plant";
-            }
-            else if (classId == CLASS_NECROMANCER)
-            {
-                zString = "Heroes/undeath_2";
-            }
-            else if (classId == CLASS_ARTIST)
-            {
-                zString = "Heroes/box_man";
-            }
-            else if (classId == CLASS_APOTHECARY)
-            {
-                zString = "Heroes/surgeon_zombie";
-            }
-            else if (classId == CLASS_DEMAGOGUE)
-            {
-                zString = "Heroes/woopa";
-            }
-            else if (classId == CLASS_BRAWLER)
-            {
-                zString = "Heroes/war_bear";
-            }
-            else if (classId == CLASS_WARRIOR)
-            {
-                zString = "Heroes/greenwar";
-            }
-            else if (classId == CLASS_CENTURION)
-            {
-                zString = "Heroes/warrior";
-            }
-            else if (classId == CLASS_ROGUE)
-            {
-                zString = "Heroes/vam";
-            }
-            else if (classId == CLASS_RANGER)
-            {
-                zString = "Heroes/sparcher";
-            }
-            else if (classId == CLASS_DRUID)
-            {
-                zString = "Heroes/fogaman";
-            }
-
-        }
-        else
-        {
+        //}
+        //else
+        //{
             
             
-            if (classId == CLASS_ARCHER)
-            {
-                zString = "Heroes/sparcher";
-            }
-            else if (classId == CLASS_BARD)
-            {
-                zString = "Heroes/surgeon";
-            }
-            if (classId == CLASS_CHEMIST)
-            {
-                zString = "Heroes/surgeon_zombie";
-            }
-            else if (classId == CLASS_CALCULATOR)
-            {
-                zString = "Heroes/nurse";
-            }
-            else if (classId == CLASS_DANCER)
-            {
-                zString = "Heroes/surgeon";
-            }
-            else if (classId == CLASS_GEOMANCER)
-            {
-                zString = "Heroes/greenwar";
-            }
-            else if (classId == CLASS_KNIGHT)
-            {
-                zString = "Heroes/knight";
-            }
-            else if (classId == CLASS_LANCER)
-            {
-                zString = "Heroes/warrior";
-            }
-            else if (classId == CLASS_MEDIATOR)
-            {
-                zString = "Heroes/surgeon_zombie";
-            }
-            else if (classId == CLASS_MIME)
-            {
-                zString = "Heroes/box_man";
-            }
-            else if (classId == CLASS_MONK)
-            {
-                zString = "Heroes/war_bear";
-            }
-            else if (classId == CLASS_NINJA)
-            {
-                zString = "Heroes/undeath_2";
-            }
-            else if (classId == CLASS_ORACLE)
-            {
-                zString = "Heroes/woopa";
-            }
-            else if (classId == CLASS_PRIEST)
-            {
-                zString = "Heroes/magic_plant";
-            }
-            else if (classId == CLASS_SAMURAI)
-            {
-                zString = "Heroes/vam";
-            }
-            else if (classId == CLASS_SQUIRE)
-            {
-                zString = "Heroes/pirate";
-            }
-            else if (classId == CLASS_SUMMONER)
-            {
-                zString = "Heroes/nurse";
-            }
-            else if (classId == CLASS_THIEF)
-            {
-                zString = "Heroes/fogaman";
-            }
-            else if (classId == CLASS_TIME_MAGE)
-            {
-                zString = "Heroes/king";
-            }
-            else if (classId == CLASS_WIZARD)
-            {
-                zString = "Heroes/wizard";
-            }
-        }
-        return zString;
+        //    if (classId == CLASS_ARCHER)
+        //    {
+        //        zString = "Heroes/sparcher";
+        //    }
+        //    else if (classId == CLASS_BARD)
+        //    {
+        //        zString = "Heroes/surgeon";
+        //    }
+        //    if (classId == CLASS_CHEMIST)
+        //    {
+        //        zString = "Heroes/surgeon_zombie";
+        //    }
+        //    else if (classId == CLASS_CALCULATOR)
+        //    {
+        //        zString = "Heroes/nurse";
+        //    }
+        //    else if (classId == CLASS_DANCER)
+        //    {
+        //        zString = "Heroes/surgeon";
+        //    }
+        //    else if (classId == CLASS_GEOMANCER)
+        //    {
+        //        zString = "Heroes/greenwar";
+        //    }
+        //    else if (classId == CLASS_KNIGHT)
+        //    {
+        //        zString = "Heroes/knight";
+        //    }
+        //    else if (classId == CLASS_LANCER)
+        //    {
+        //        zString = "Heroes/warrior";
+        //    }
+        //    else if (classId == CLASS_MEDIATOR)
+        //    {
+        //        zString = "Heroes/surgeon_zombie";
+        //    }
+        //    else if (classId == CLASS_MIME)
+        //    {
+        //        zString = "Heroes/box_man";
+        //    }
+        //    else if (classId == CLASS_MONK)
+        //    {
+        //        zString = "Heroes/war_bear";
+        //    }
+        //    else if (classId == CLASS_NINJA)
+        //    {
+        //        zString = "Heroes/undeath_2";
+        //    }
+        //    else if (classId == CLASS_ORACLE)
+        //    {
+        //        zString = "Heroes/woopa";
+        //    }
+        //    else if (classId == CLASS_PRIEST)
+        //    {
+        //        zString = "Heroes/magic_plant";
+        //    }
+        //    else if (classId == CLASS_SAMURAI)
+        //    {
+        //        zString = "Heroes/vam";
+        //    }
+        //    else if (classId == CLASS_SQUIRE)
+        //    {
+        //        zString = "Heroes/pirate";
+        //    }
+        //    else if (classId == CLASS_SUMMONER)
+        //    {
+        //        zString = "Heroes/nurse";
+        //    }
+        //    else if (classId == CLASS_THIEF)
+        //    {
+        //        zString = "Heroes/fogaman";
+        //    }
+        //    else if (classId == CLASS_TIME_MAGE)
+        //    {
+        //        zString = "Heroes/king";
+        //    }
+        //    else if (classId == CLASS_WIZARD)
+        //    {
+        //        zString = "Heroes/wizard";
+        //    }
+        //}
+        //return zString;
     }
 
     //public static readonly string WEAPON_SLOT = "weapon";

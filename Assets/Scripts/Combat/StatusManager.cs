@@ -15,9 +15,11 @@ public class StatusManager : Singleton<StatusManager>
     private int redGolemHP;
     private int deathMode;
 
-    //PhotonView photonView;
+	const int COMBAT_LOG_TYPE_STATUS_MANAGER = 7;
+	const int COMBAT_LOG_STATUS_REMOVE = 0;
+	//const int COMBAT_LOG_STATUS_ADD = 1;
 
-    void Awake()
+	void Awake()
     {
         //photonView = PhotonView.Get(this);
     }
@@ -64,11 +66,16 @@ public class StatusManager : Singleton<StatusManager>
                 if (s.GetTicksLeft() <= 0)
                 {
                     PlayerManager.Instance.RemoveFromStatusList(s.GetUnitId(),s.GetStatusId());
-                    sStatusTickList.Remove(s); Debug.Log("removing status from tick list " + s.GetStatusId() );
-                    CombatLogClass cll = new CombatLogClass("status " + NameAll.GetStatusString(s.GetStatusId()) + " ends", s.GetUnitId());
-                    cll.SendNotification();
-                    //sStatusTickTemp.Add(s);
-                }
+                    sStatusTickList.Remove(s); //Debug.Log("removing status from tick list " + s.GetStatusId() );
+					if( PlayerManager.Instance.GetRenderMode() != NameAll.PP_RENDER_NONE)
+					{
+						CombatLogClass cll = new CombatLogClass("status " + NameAll.GetStatusString(s.GetStatusId()) + " ends", s.GetUnitId(), PlayerManager.Instance.GetRenderMode());
+						cll.SendNotification();
+					}
+
+					PlayerManager.Instance.AddCombatLogSaveObject(COMBAT_LOG_TYPE_STATUS_MANAGER, NameAll.COMBAT_LOG_SUBTYPE_STATUS_REMOVE, statusValue:s.GetStatusId());
+					//sStatusTickTemp.Add(s);
+				}
             }
             //Debug.Log("decremented status id, " + s.GetStatusId() + " " + s.GetTicksLeft());
         }
@@ -405,9 +412,9 @@ public class StatusManager : Singleton<StatusManager>
     //PunRPC called where the actual writes are done and not here
     public void AddStatusAndOverrideOthers(int effect, int unitId, int statusId)
     {
-        //if (!PhotonNetwork.offlineMode && !PhotonNetwork.isMasterClient)
-        //    return; //only want master to run this. other gets the effects. for example called in PU but don't want other calling it internally
-
+		//if (!PhotonNetwork.offlineMode && !PhotonNetwork.isMasterClient)
+		//    return; //only want master to run this. other gets the effects. for example called in PU but don't want other calling it internally
+		PlayerManager.Instance.AddCombatLogSaveObject(NameAll.COMBAT_LOG_TYPE_STATUS_MANAGER, NameAll.COMBAT_LOG_SUBTYPE_STATUS_ADD, statusValue: statusId);
         if (statusId == NameAll.STATUS_ID_LIFE)
         {
             Debug.Log("hitting unit with life 1");
@@ -449,7 +456,7 @@ public class StatusManager : Singleton<StatusManager>
             Debug.Log("adding crystal ");
             if (IsUndead(unitId) && effect != NameAll.MOVEMENT_CRUNCH) //zombies get CRUNCHED too, stupid zombies
             {
-                if( CalculationResolveAction.RollForSuccess(50))
+                if( PlayerManager.Instance.IsRollSuccess(50, 1, 100, NameAll.NULL_INT, NameAll.COMBAT_LOG_SUBTYPE_UNDEAD_REVIVE_ROLL, null, null, null, unitId))
                 {
                     Debug.Log("undead revival");
                     AddStatusAndOverrideOthers(NameAll.UNDEAD_OVERRIDE, unitId, NameAll.STATUS_ID_LIFE);
@@ -473,7 +480,7 @@ public class StatusManager : Singleton<StatusManager>
                 List<int> tempList = new List<int>();
                 tempList.Add(NameAll.STATUS_ID_CRYSTAL);
                 tempList.Add(unitId);
-                if (CalculationResolveAction.RollForSuccess(50))
+				if (PlayerManager.Instance.IsRollSuccess(50, 1, 100, NameAll.NULL_INT, NameAll.COMBAT_LOG_SUBTYPE_CRYSTAL_ROLL, null, null, null, unitId))
                     tempList.Add(1);
                 else
                     tempList.Add(0);
@@ -1761,8 +1768,11 @@ public class StatusManager : Singleton<StatusManager>
             if (add_unable_to_fight)
             {
                 PlayerManager.Instance.SetAbleToFight(unitId, false);
-                CombatLogClass cll = new CombatLogClass("is unable to fight due to " + NameAll.GetStatusString(statusId), unitId);
-                cll.SendNotification();
+				if( PlayerManager.Instance.GetRenderMode() != NameAll.PP_RENDER_NONE)
+				{
+					CombatLogClass cll = new CombatLogClass("is unable to fight due to " + NameAll.GetStatusString(statusId), unitId, PlayerManager.Instance.GetRenderMode());
+					cll.SendNotification();
+				}
                 //pul.get().setAbleToFight(unitId, false); //able to fight set to false ie unable
             }
             if (statusId == NameAll.STATUS_ID_PETRIFY)
@@ -1808,34 +1818,36 @@ public class StatusManager : Singleton<StatusManager>
 
     //adds dead to a unit
     //online: Other can call this in online (through PlayerUnit, though it shouldn't as long as the timing isn't shit). don't duplicate the RPC's that are sent
-    public void AddDead(int unitId)
+    public void AddDead(int unitId, SpellName sn=null, PlayerUnit actor=null, int rollResult = -1919, int rollChance = -1919, int combatLogSubType = -1919)
     {
         if (true) //PhotonNetwork.offlineMode || PhotonNetwork.isMasterClient
 		{
-            SoundManager.Instance.PlaySoundClip(3);
+            
             RemoveStatusTickByUnit(unitId, NameAll.STATUS_ID_DEAD); //doesn't Remove reraise; is an RPC
             SpellManager.Instance.RemoveSpellSlowByUnitId(unitId); //is an rpc
             SpellManager.Instance.RemoveSpellReactionByUnitId(unitId); //NOT an rpc but Other never sees these
             if (PlayerManager.Instance.GetPlayerUnit(unitId).ClassId == NameAll.CLASS_MIME)
                 SpellManager.Instance.RemoveSpellMimeByUnitId(unitId); //NOT an rpc but Other never sees these
 
-            PlayerManager.Instance.RemoveLife(0, 0, unitId, NameAll.ITEM_ELEMENTAL_NONE, true);//is RPC; removes remaining HP
+            PlayerManager.Instance.RemoveLife(0, 0, unitId, NameAll.ITEM_ELEMENTAL_NONE, true, sn: sn, actor:actor, rollResult:rollResult, rollChance:rollChance,
+				combatLogSubType:combatLogSubType);//is RPC; removes remaining HP
             PlayerManager.Instance.AddToStatusList(unitId, NameAll.STATUS_ID_DEAD_3); //NOT RPC; special, normal dead done elsewhere
             PlayerManager.Instance.SetAbleToFight(unitId, false); //is an RPC
 
             AddStatusToTickList(unitId, NameAll.STATUS_ID_DEAD); //is an rpc, sent to other player. only have master call this
 
-            PlayerManager.Instance.SetPlayerObjectAnimation(unitId, "dead", false); //NO LONGER AN RPC EACH UNIT CALLS THIS ITSELF
-
-            //if (!PhotonNetwork.offlineMode)
-            //{
-            //    //tells P2 to not only do the dead animation but to do the 'Dead 3' icon above unit head
-            //    PlayerManager.Instance.SendPlayerObjectAnimation(unitId, "dead", false);
-            //}
-                
-
-            CombatLogClass cll = new CombatLogClass("dies", unitId);
-            cll.SendNotification();
+			//if (!PhotonNetwork.offlineMode)
+			//{
+			//    //tells P2 to not only do the dead animation but to do the 'Dead 3' icon above unit head
+			//    PlayerManager.Instance.SendPlayerObjectAnimation(unitId, "dead", false);
+			//}
+			if (PlayerManager.Instance.GetRenderMode() != NameAll.PP_RENDER_NONE)
+			{
+				SoundManager.Instance.PlaySoundClip(3);
+				PlayerManager.Instance.SetPlayerObjectAnimation(unitId, "dead", false); //NO LONGER AN RPC EACH UNIT CALLS THIS ITSELF
+				CombatLogClass cll = new CombatLogClass("dies", unitId, PlayerManager.Instance.GetRenderMode());
+				cll.SendNotification();
+			}
         }
         
     }
@@ -2098,7 +2110,7 @@ public class StatusManager : Singleton<StatusManager>
                 //zString = "sleep";
                 statusOut = NameAll.STATUS_ID_SLEEP;
             }
-        }
+		}
         else if (statusId == NameAll.STATUS_ID_NAMELESS_SONG)
         {
             //reraise, Regen, Protect, Shell, Reflect

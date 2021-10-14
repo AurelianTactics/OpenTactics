@@ -45,13 +45,19 @@ public class CombatController : StateMachine
 
 	public int combatMode; //helps with various game logic depending on how combat was entered and what game mode it is in
 	public bool isFirstCombatInit; //allows reseting from CombatStateInit
+	public int renderMode; //none for faster game play
+	public bool isRLMode; //true sets RL drivers for units
 
     void Start()
     {
 		//cpu = new CombatComputerPlayer();
 		isFirstCombatInit = true;
         int initState = PlayerPrefs.GetInt(NameAll.PP_INIT_STATE, NameAll.INIT_STATE_COMBAT);
-        PlayerManager.Instance.SetGameMode(initState); //sets game mode so no longer have to read off of PP
+		renderMode = PlayerPrefs.GetInt(NameAll.PP_RENDER_MODE, NameAll.PP_RENDER_NORMAL);
+		isRLMode = PlayerPrefs.GetInt(NameAll.PP_RL_MODE, NameAll.PP_RL_MODE_FALSE) != 0;
+		PlayerManager.Instance.SetRenderMode(renderMode);
+
+		PlayerManager.Instance.SetGameMode(initState); //sets game mode so no longer have to read off of PP
         if (initState == NameAll.INIT_STATE_COMBAT)
         {
 			//Debug.Log("starting combat, not WA mode");

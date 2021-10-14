@@ -10,17 +10,6 @@ public class ScrollListSimple : MonoBehaviour {
 
     int notificationType = NameAll.NULL_INT;
     
-
-    void Awake()
-    {
-
-    }
-
-    void Start()
-    {
-
-    }
-
     public void Open<T>(List<T> genericList, int notificationInt = -1919)
     {
         gameObject.SetActive(true);

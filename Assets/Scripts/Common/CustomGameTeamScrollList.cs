@@ -4,7 +4,13 @@ using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
 
-
+/// <summary>
+/// Handles logic for UI interactions with team lists of units
+/// Scroll list appears in CustomGame scene so players can select units for combat
+/// </summary>
+/// <remarks>
+/// Additional logic for various draft modes used for selecting units
+/// </remarks>
 public class CustomGameTeamScrollList : MonoBehaviour {
 
     [SerializeField]

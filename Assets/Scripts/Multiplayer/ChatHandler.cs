@@ -1,4 +1,4 @@
-﻿using ExitGames.Client.Photon;
+﻿/*using ExitGames.Client.Photon;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -649,3 +649,4 @@ public class ChatFriend
     public int Status;
     public string StatusMessage;
 }
+*/

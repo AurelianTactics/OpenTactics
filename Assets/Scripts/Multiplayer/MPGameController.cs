@@ -5,11 +5,19 @@ using System.Linq;
 using System;
 using UnityEngine.SceneManagement;
 
-//handles the scene CustomGame and is the pre-game for multiplayer
-//handles the menu button clicks (start, exit, options, changing level, etc) and the team scroll lists (ie what units each team will have in the upcoming battle)
-//works with MPDraftInfo script for draft info behavior
-//creates an object called pmo (PlayerManagerObject) that persists from this scene to combat launching, one of the scripts attached to that is PlayerManager which has the unit info for each team
-//green is team one (currently orange), red is team 2 (currently purple)
+
+/// <summary>
+/// Handles UI actions on CustomGame scene, which sets up the units and config for a battle
+/// </summary>
+/// <remarks>
+/// handles the scene CustomGame and is the pre-game for multiplayer
+/// handles the menu button clicks (start, exit, options, changing level, etc) and the team scroll lists (ie what units each team will have in the upcoming battle)
+/// works with MPDraftInfo script for draft info behavior
+/// creates an object called pmo (PlayerManagerObject) that persists from this scene to combat launching, one of the scripts attached to that is PlayerManager which has the unit info for each team
+/// green is team one (sometimes orange), red is team 2 (sometimes purple)
+/// bunch of old code in here for when online used to work
+/// </remarks>
+
 
 public class MPGameController : MonoBehaviour
 {
@@ -455,15 +463,17 @@ public class MPGameController : MonoBehaviour
     //remove unit from red team
     public void RemoveRedUnitAndPopulateList()
     {
-        //if (!PhotonNetwork.offlineMode && !PhotonNetwork.isMasterClient)
-        //{
-        //    photonView.RPC("RemoveFromList", PhotonTargets.MasterClient, new object[] { NameAll.TEAM_ID_RED, NameAll.TEAM_LIST_REMOVE });      
-        //}
-        //else
-        //{
-        //    EditTeamList(pu, NameAll.TEAM_ID_RED, NameAll.TEAM_LIST_REMOVE);
-        //}
-        SetStartButtonActive();
+		EditTeamList(pu, NameAll.TEAM_ID_RED, NameAll.TEAM_LIST_REMOVE);
+
+		//if (!PhotonNetwork.offlineMode && !PhotonNetwork.isMasterClient)
+		//{
+		//    photonView.RPC("RemoveFromList", PhotonTargets.MasterClient, new object[] { NameAll.TEAM_ID_RED, NameAll.TEAM_LIST_REMOVE });      
+		//}
+		//else
+		//{
+		//    EditTeamList(pu, NameAll.TEAM_ID_RED, NameAll.TEAM_LIST_REMOVE);
+		//}
+		SetStartButtonActive();
     }
 
     //remove a unit from the green team

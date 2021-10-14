@@ -57,7 +57,6 @@ public class CombatComputerPlayer : MonoBehaviour
         else
         {
             int actorCharmTeam = actor.GetCharmTeam();
-            PlayerUnitObject actorPUO = PlayerManager.Instance.GetPlayerUnitObjectComponent(actor.TurnOrder);
 
             //try to kill a hurt enemy
             puList = PlayerManager.Instance.GetAIList(actorCharmTeam, NameAll.AI_LIST_HURT_ENEMY);// Debug.Log("testing whether to target hurt enemy: list count is " + puList.Count);
@@ -67,7 +66,7 @@ public class CombatComputerPlayer : MonoBehaviour
                 do
                 {
                     //Debug.Log("targetting a hurt enemy " + puList.Count);
-                    poa = rap.PickEnemyHurt(poa, actor, actorPUO, zCount); //attack, first dmg ability, 2nd dmg ability
+                    poa = rap.PickEnemyHurt(poa, actor, zCount); //attack, first dmg ability, 2nd dmg ability
                     poa = EvaluateDirectionMovePUList(poa, puList);
                     zCount += 1;
                 } while (poa.spellName == null && zCount < 3 );
@@ -81,26 +80,26 @@ public class CombatComputerPlayer : MonoBehaviour
                     
             }
             //try to revive a fallen ally
-            if (actorPUO.isReviveSpell)
+            if (actor.isReviveSpell)
             {
                 puList = PlayerManager.Instance.GetAIList(actorCharmTeam, NameAll.AI_LIST_DEAD_ALLY);
                 if (puList.Count > 0)
                 {
                     //Debug.Log("targetting a dead player " + puList.Count);
-                    poa = rap.PickAllyDead(poa, actorPUO);
+                    poa = rap.PickAllyDead(poa, actor);
                     poa = EvaluateDirectionMovePUList(poa, puList);
                 }
                 if (poa.spellName != null)
                     return poa;
             }
             //try to cure a hurt ally
-            if (actorPUO.isCureSpell)
+            if (actor.isCureSpell)
             {
                 puList = PlayerManager.Instance.GetAIList(actorCharmTeam, NameAll.AI_LIST_HURT_ALLY);
                 if (puList.Count > 0)
                 {
                     //Debug.Log("targetting a hurt ally " + puList.Count);
-                    poa = rap.PickAllyHurt(poa, actorPUO);
+                    poa = rap.PickAllyHurt(poa, actor);
                     poa = EvaluateDirectionMovePUList(poa, puList);
                 }
                 if (poa.spellName != null)

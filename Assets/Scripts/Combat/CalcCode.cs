@@ -508,6 +508,12 @@ public static class CalcCode {
         }
     }
 
+	public static void SaveCombatLogSaveObjectList(List<CombatLogSaveObject> clsoList, string fileName)
+	{
+		fileName = Application.dataPath + "/" + fileName;
+		Serializer.Save<List<CombatLogSaveObject>>(fileName, clsoList);
+	}
+
 	#region WalkAround Mode
 	//save and load Dictionary that stores map data (seed, time_int, which maps have been linked)
 	public static void LoadWalkAroundMapData(int seed, int time_int)

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+/*
 public class FocusOnMe : MonoBehaviour
 {
     float timerForDoubleClick = 0.0f;
@@ -41,3 +41,4 @@ public class FocusOnMe : MonoBehaviour
         }
     }
 }
+*/

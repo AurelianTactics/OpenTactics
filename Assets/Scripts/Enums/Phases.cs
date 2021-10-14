@@ -15,6 +15,7 @@ public enum Phases
     Standby, //used in MP, in GameLoopState waiting for opponent
     Prephase, //used in MP, prior to phases being started
     WaitTick, //used in WalkAround, gives players time between ticks to input
-    NonCombat //used in WalkAround, move around the map, can check menus and do actions
+    NonCombat, //used in WalkAround, move around the map, can check menus and do actions
+	RLWait //sent notification to RL, waiting to receive input options back
 }
 

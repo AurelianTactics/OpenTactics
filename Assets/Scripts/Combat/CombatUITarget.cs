@@ -20,7 +20,7 @@ public class CombatUITarget : MonoBehaviour
 
     public void SetActor(PlayerUnit pu )
     {
-        if( gameObject.activeSelf == false )
+		if ( gameObject.activeSelf == false )
             Open(); //Debug.Log("in set actor, team is " + pu.TeamId);
 
         actorPanelId = pu.TurnOrder;

@@ -37,12 +37,6 @@ public class AbilityScrollList : MonoBehaviour
         unitAbilityObject = null;
     }
 
-    void Start()
-    {
-        //backButtonUI = backButton.GetComponent<UIBackButton>();
-
-    }
-
     public void Open(PlayerUnit puIn )
     {
         //Debug.Log("wtf who opened");

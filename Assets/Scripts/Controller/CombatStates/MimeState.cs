@@ -49,8 +49,9 @@ public class MimeState : CombatState
             //modify the spellName for reaction
             ssTurn.spellName = CalculationAT.ModifyReactionSpellName(sr, ssTurn.actor.TurnOrder);
 
-            yield return StartCoroutine( owner.calcMono.DoFastActionInner(board, ssTurn, isActiveTurn: false, isSlowActionPhase: false, isReaction: false, isMime: true) );
-            SpellManager.Instance.RemoveMimeQueueByObject(sr);
+			owner.calcMono.DoFastAction(board, ssTurn, isActiveTurn: false, isReaction: false, isMime: true, renderMode: owner.renderMode);
+			//yield return StartCoroutine( owner.calcMono.DoFastActionInner(board, ssTurn, isActiveTurn: false, isSlowActionPhase: false, isReaction: false, isMime: true) );
+			SpellManager.Instance.RemoveMimeQueueByObject(sr);
             HighlightActorTile(ssTurn.actor, false); //unhighlight
             board.DeSelectTiles(ssTurn.targets); //deselect the tiles
         }

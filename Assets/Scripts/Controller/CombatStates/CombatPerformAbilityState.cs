@@ -62,9 +62,10 @@ public class CombatPerformAbilityState : CombatState
 
         //Debug.Log("starting call for fastaction inner from perform ability state");
         owner.battleMessageController.Display(turn.spellName.AbilityName); //owner.calcMono.DoFastAction(board, turn, isActiveTurn: true, isSlowAction: false, isReaction: false, isMime: false);
-        yield return StartCoroutine(owner.calcMono.DoFastActionInner(board, turn, isActiveTurn: true, isSlowActionPhase: false, isReaction: false, isMime: false));
-        //Debug.Log("past call for fastaction inner from perform ability state");
-        yield return null;
+		owner.calcMono.DoFastAction(board, turn, isActiveTurn: true, isReaction: false, isMime: false, renderMode: owner.renderMode);
+		//yield return StartCoroutine(owner.calcMono.DoFastActionInner(board, turn, isActiveTurn: true, isSlowActionPhase: false, isReaction: false, isMime: false));
+		//Debug.Log("past call for fastaction inner from perform ability state");
+		yield return null;
 
 
         if (turn.spellName.CommandSet == NameAll.COMMAND_SET_JUMP)

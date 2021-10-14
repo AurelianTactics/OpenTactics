@@ -11,6 +11,7 @@ using System.Collections.Generic;
 //controls the physical PlayerUnit Object representation
 	//for example, moving the unit on the gameboard calls a function here, showing unit statuses calls a function here
 //some other misc stuff is randomly thrown in here like some AI and ability stuff which may be better moved elsewhere
+//animation is disabled for now. see parts labelled '//Animation Disabled' to turn it back on
 
 public class PlayerUnitObject : MonoBehaviour {
 
@@ -21,7 +22,12 @@ public class PlayerUnitObject : MonoBehaviour {
         set { unitId = value; }
     }
 
-    float placeY = 0.1f;
+	#region Const
+	// for teleporting, turn scale of PUO back to original scal. I don't get why it's done this way
+	public const float teleportScale = 0.7f;
+	#endregion
+
+	float placeY = 0.1f;
     bool isDead = false;
 
     public GameObject statusImageObject; //set in the prefab, keep this public
@@ -32,25 +38,25 @@ public class PlayerUnitObject : MonoBehaviour {
     private float updateStatusImage;
     private Image statusImageImage;
 
-    //movement related functions
-    Directions dir;
+
+
+	//movement related functions
+	Directions dir;
     //Tile tile; meh not holding this here though i could
     Transform jumper; 
     float walkSpeed = 0.2f;
     bool isAttackingCheck = false;
     bool isDamageCheck = false;
     int safetyCheck = 0;
-    public List<int> primaryAbilityIdList;
-    public List<int> secondaryAbilityIdList;
     //public int primaryAbilityCount { get; set; }
     //public int secondaryAbilityCount { get; set; }
 
-    //ai related things
-    public Drivers puoDriver; //set at beginning of battled and checked to see if if human or AI controlled
-    public List<SpellNameAI> aiSpellList; //used to help speed AI ability checks, used in CombatComputerPlayer to help select an action
-    public bool isDamageSpell; //used to help speed AI ability checks, used in CombatComputerPlayer to see if player can cast DamageSPell
-	public bool isReviveSpell; //used to help speed AI ability checks, used in CombatComputerPlayer to see if player can cast ReviveSpell
-	public bool isCureSpell; //used to help speed AI ability checks, used in CombatComputerPlayer to see if player can cast CureSpell
+    //ai related things moved to PU
+	//public Drivers puoDriver; //set at beginning of battled and checked to see if if human or AI controlled
+	//public List<SpellNameAI> aiSpellList; //used to help speed AI ability checks, used in CombatComputerPlayer to help select an action
+	//public bool isDamageSpell; //used to help speed AI ability checks, used in CombatComputerPlayer to see if player can cast DamageSPell
+	//public bool isReviveSpell; //used to help speed AI ability checks, used in CombatComputerPlayer to see if player can cast ReviveSpell
+	//public bool isCureSpell; //used to help speed AI ability checks, used in CombatComputerPlayer to see if player can cast CureSpell
 
 	//walk around
 	public Tile walkAroundEndTile; //don't always end up in the tile that you targetted in walkAround
@@ -97,25 +103,31 @@ public class PlayerUnitObject : MonoBehaviour {
 
         if (isAttackingCheck)
         {
-            //Debug.Log("update check " + _animator.GetCurrentAnimatorStateInfo(0).IsName("idle2"));
-            //Debug.Log("update check " + _animator.GetCurrentAnimatorStateInfo(0).IsName("atk2"));
-            if (_animator.GetCurrentAnimatorStateInfo(0).IsName("atk2"))
-            {
-                isAttackingCheck = false;
-                SetAnimation("setIdle", true);
-            }
+			//Animation Disabled
+			isAttackingCheck = false;
 
-        }
+			//Debug.Log("update check " + _animator.GetCurrentAnimatorStateInfo(0).IsName("idle2"));
+			//Debug.Log("update check " + _animator.GetCurrentAnimatorStateInfo(0).IsName("atk2"));
+			//if (_animator.GetCurrentAnimatorStateInfo(0).IsName("atk2"))
+			//{
+			//    isAttackingCheck = false;
+			//    SetAnimation("setIdle", true);
+			//}
 
-        if( isDamageCheck)
+		}
+
+		if ( isDamageCheck)
         {
-            //Debug.Log("in is dmgCheck");
-            if (_animator.GetCurrentAnimatorStateInfo(0).IsName("damage"))
-            {
-                //Debug.Log("in is dmgCheck");
-                isDamageCheck = false;
-                SetAnimation("setIdle", true);
-            }
+			//Animation Disabled
+			isDamageCheck = false;
+
+			//Debug.Log("in is dmgCheck");
+			//if (_animator.GetCurrentAnimatorStateInfo(0).IsName("damage"))
+   //         {
+   //             //Debug.Log("in is dmgCheck");
+   //             isDamageCheck = false;
+   //             SetAnimation("setIdle", true);
+   //         }
         }
 
     }
@@ -237,47 +249,47 @@ public class PlayerUnitObject : MonoBehaviour {
         {
             if (!isDead)
             {
-                _animator.SetInteger("animation", 0);
-                //Debug.Log("asdf " + _animator.GetCurrentAnimatorStateInfo(0).IsName("idle2"));
-            }
+				//Animation Disabled// _animator.SetInteger("animation", 0);
+				//Debug.Log("asdf " + _animator.GetCurrentAnimatorStateInfo(0).IsName("idle2"));
+			}
 
-        }
+		}
         else
         {
             if (animation.Equals("moving"))
             {
-                _animator.SetInteger("animation", 13); //Debug.Log("is moving?");
-                //Debug.Log("asdf " + _animator.GetCurrentAnimatorStateInfo(0).IsName("run"));
-            }
-            //else if(animation.Equals("OnAttack"))
-            //{
-            //    _animator.SetTrigger("OnAttack"); Debug.Log("is attacking?");
-            //}
-            else if (animation.Equals("attacking"))
+				//Animation Disabled// _animator.SetInteger("animation", 13); //Debug.Log("is moving?");
+				//Debug.Log("asdf " + _animator.GetCurrentAnimatorStateInfo(0).IsName("run"));
+			}
+			//else if(animation.Equals("OnAttack"))
+			//{
+			//    _animator.SetTrigger("OnAttack"); Debug.Log("is attacking?");
+			//}
+			else if (animation.Equals("attacking"))
             {
                 //attacking = true;
                 //_animator.SetBool("attacking", attacking);
                 isAttackingCheck = true;
                 safetyCheck = 0;
-                _animator.SetInteger("animation", 1); //Debug.Log("is attacking?");
-                //Debug.Log("asdf " + _animator.GetCurrentAnimatorStateInfo(0).IsName("idle2"));
-                //Debug.Log("asdf " + _animator.GetCurrentAnimatorStateInfo(0).IsName("atk2") );
-                //StartCoroutine(SetBackToIdle());
-                //_animator.SetInteger("animation", 0); Debug.Log("not attacking");
-            }
-            else if (animation.Equals("damage"))
+				//Animation Disabled// _animator.SetInteger("animation", 1); //Debug.Log("is attacking?");
+				//Debug.Log("asdf " + _animator.GetCurrentAnimatorStateInfo(0).IsName("idle2"));
+				//Debug.Log("asdf " + _animator.GetCurrentAnimatorStateInfo(0).IsName("atk2") );
+				//StartCoroutine(SetBackToIdle());
+				//_animator.SetInteger("animation", 0); Debug.Log("not attacking");
+			}
+			else if (animation.Equals("damage"))
             {
                 isDamageCheck = true;
-                //_animator.SetBool("attacking", attacking);
-                _animator.SetInteger("animation", 7);//Debug.Log("is taking damage?" + isDamageCheck);
-            }
-            else if (animation.Equals("dead"))
+				//_animator.SetBool("attacking", attacking);
+				//Animation Disabled// _animator.SetInteger("animation", 7);//Debug.Log("is taking damage?" + isDamageCheck);
+			}
+			else if (animation.Equals("dead"))
             {
-                //isDead = true;
-                //isDeadAnimation = true;
-                _animator.SetInteger("animation", 11);//Debug.Log("Adding dead animation");
-            }
-            else if (animation.Equals("life"))
+				//isDead = true;
+				//isDeadAnimation = true;
+				//Animation Disabled// _animator.SetInteger("animation", 11);//Debug.Log("Adding dead animation");
+			}
+			else if (animation.Equals("life"))
             {
                 //isDead = false;
                 //isRise = true;
@@ -289,8 +301,8 @@ public class PlayerUnitObject : MonoBehaviour {
 
     IEnumerator BringBackToLife()
     {
-        _animator.SetInteger("animation", 6);
-        yield return new WaitForSeconds(0.5f);
+		//Animation Disabled// _animator.SetInteger("animation", 6);
+		yield return new WaitForSeconds(0.1f);
         Turn(PlayerManager.Instance.GetPlayerUnit(this.UnitId).Dir);
         SetAnimation("idle",true);
     }
@@ -649,10 +661,10 @@ public class PlayerUnitObject : MonoBehaviour {
     protected IEnumerator Turn(Directions newDir)
     {
         TransformLocalEulerTweener t = (TransformLocalEulerTweener)transform.RotateToLocal(newDir.ToEuler(), 0.25f, EasingEquations.EaseInOutQuad);
-        
-        // When rotating between North and West, we must make an exception so it looks like the unit
-        // rotates the most efficient way (since 0 and 360 are treated the same)
-        if (Mathf.Approximately(t.startTweenValue.y, 0f) && Mathf.Approximately(t.endTweenValue.y, 270f))
+		t.endTweenValue.y += 25.0f; //yeah I don't know why i need this
+		// When rotating between North and West, we must make an exception so it looks like the unit
+		// rotates the most efficient way (since 0 and 360 are treated the same)
+		if (Mathf.Approximately(t.startTweenValue.y, 0f) && Mathf.Approximately(t.endTweenValue.y, 270f))
             t.startTweenValue = new Vector3(t.startTweenValue.x, 360f, t.startTweenValue.z);
         else if (Mathf.Approximately(t.startTweenValue.y, 270) && Mathf.Approximately(t.endTweenValue.y, 0))
             t.endTweenValue = new Vector3(t.startTweenValue.x, 360f, t.startTweenValue.z);
@@ -816,7 +828,7 @@ public class PlayerUnitObject : MonoBehaviour {
         //yield return new WaitForSeconds(0.25f);
         transform.position = tile.center;
         //yield return new WaitForSeconds(0.25f);
-        Tweener grow = transform.ScaleTo(new Vector3(1.5f, 1.5f, 1.5f), 0.5f, EasingEquations.EaseOutBack);
+        Tweener grow = transform.ScaleTo(new Vector3(teleportScale, teleportScale, teleportScale), 0.5f, EasingEquations.EaseOutBack);
         while (grow != null)
             yield return null;
     }
@@ -861,84 +873,8 @@ public class PlayerUnitObject : MonoBehaviour {
     //move direction mid turn
     public void SetAttackDirection(Directions dir)
     {
-        //Debug.Log("turning?");
+        //Debug.Log("fucking turning?");
         StartCoroutine(Turn(dir)); //dir already updated
-    }
-
-    //initialize driver at beginning of battle. drivers are used for telling if AI should kick in when entering CombatState for each unit
-    public void SetDriver(Drivers d)
-    {
-        this.puoDriver = d;
-        //gets the number of primary and secondary abilities for use in random selecting an ability
-        SetAbilityList();
-    }
-
-    //sets the number of primary and secondary abilities, used for AI in CombatComputerPlayer.cs
-    void SetAbilityList()
-    {
-        int damageType = 0;
-        SpellNameAI snai;
-        this.aiSpellList = new List<SpellNameAI>();
-		this.isDamageSpell = false;
-		this.isCureSpell = false;
-		this.isReviveSpell = false;
-        
-        PlayerUnit pu = PlayerManager.Instance.GetPlayerUnit(this.UnitId);
-        List<SpellName> primaryList = SpellManager.Instance.GetSpellNamesByCommandSet(pu.ClassId, pu);
-        for( int i = 0; i < primaryList.Count; i++)
-        {
-            primaryAbilityIdList.Add(primaryList[i].SpellId); //Debug.Log(primaryAbilityIdList[i]);
-
-            snai = new SpellNameAI(primaryList[i]);
-            if (snai.isReviveType)
-            {
-				this.aiSpellList.Add(snai);
-				this.isReviveSpell = true;
-            }
-            else if (snai.isCureType)
-            {
-				this.aiSpellList.Add(snai);
-				this.isCureSpell = true;
-            }
-            else if( snai.isDamageType && damageType < 3)
-            {
-                damageType += 1;
-				this.aiSpellList.Add(snai);
-				this.isDamageSpell = true;
-            }
-        }
-
-        if( pu.AbilitySecondaryCode == NameAll.SECONDARY_NONE)
-        {
-            secondaryAbilityIdList = new List<int>();
-        }
-        else
-        {
-            List<SpellName> secondaryList = SpellManager.Instance.GetSpellNamesByCommandSet(pu.AbilitySecondaryCode, pu);
-            for (int i = 0; i < secondaryList.Count; i++)
-            {
-                secondaryAbilityIdList.Add(secondaryList[i].SpellId);
-
-                snai = new SpellNameAI(secondaryList[i]);
-                if (snai.isReviveType)
-                {
-					this.aiSpellList.Add(snai);
-					this.isReviveSpell = true;
-                }
-                else if (snai.isCureType)
-                {
-					this.aiSpellList.Add(snai);
-					this.isCureSpell = true;
-                }
-                else if (snai.isDamageType && damageType < 3)
-                {
-                    damageType += 1;
-					this.aiSpellList.Add(snai);
-					this.isDamageSpell = true;
-                }
-            }
-        }
-        
     }
 	#endregion
 

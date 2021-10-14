@@ -4,6 +4,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// Mess of a class. Should be overhauled.
+/// Does some math based on the SpellName, actor, target, and key variable and returns 4 things for calculation mod.
+/// Based on the output turns into what the action result actually is
+/// returns 4 things which can vary. generally: hit chance, effect value, crit, misc (last thing used for MP effect twice and throw once)
+/// </summary>
 /*
   //returns hitDamage numbers based on the damage formula type
    * unknown:

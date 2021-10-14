@@ -3,8 +3,7 @@ using System.Linq;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using EckTechGames.FloatingCombatText;
-//using ExitGames = ExitGames.Client.Photon.Hashtable;
+using PlayerUnitObjectText.PUOText;
 
 public class PlayerManager : Singleton<PlayerManager>
 {
@@ -33,6 +32,7 @@ public class PlayerManager : Singleton<PlayerManager>
 	static readonly string TickKey = "roomTick";
 	public static CombatMultiplayerObject sMPObject;
 	public static int sGameMode; //combat or walkaround
+	public static int sRenderMode; //normal or no render. not really no render mode more like don't do game object or stuff that slows us down
 
 	static int sUniqueTeamId;
 	Dictionary<Point, Alliances> sAllianceDict; //during battle this dictionary is called to check alliances. No sets, no tuples so using point for the two team Ids. fucking stupid
@@ -47,6 +47,14 @@ public class PlayerManager : Singleton<PlayerManager>
 
 	private static Dictionary<Tuple<int, int>, Tuple<int, int>> sWalkAroundMapDictionary; //stores map data like seed, current maps, and maps visited. x,y coordinates are the tuples where applicable
 
+	//saving combatLog stuff
+	static List<CombatLogSaveObject> sCombatLogList; //stores CombatLogSaveObject for saving to file
+	static int COMBAT_LOG_SAVE_EVERY = 100;
+	int combatLogId;  //actual idea of the combat log save
+	int timeInt; //used for saving things like the CombatLog
+	bool isSaveCombatLog;
+
+
 	void Awake()
 	{
 		//photonView = PhotonView.Get(this);
@@ -55,6 +63,11 @@ public class PlayerManager : Singleton<PlayerManager>
 		sLocalTeamId = NameAll.TEAM_ID_GREEN;
 		isWalkAroundMoveAllowed = false;
 		walkAroundTick = 0;
+
+		isSaveCombatLog = true;
+		timeInt = (int)Time.time;
+		combatLogId = -1;
+		sCombatLogList = new List<CombatLogSaveObject>();
 	}
 
 
@@ -143,6 +156,19 @@ public class PlayerManager : Singleton<PlayerManager>
 		//	sWalkAroundSpellSlowQueue[i] = new List<SpellSlow>();
 		//}
 
+		sAllianceDict = new Dictionary<Point, Alliances>();
+		sTempIdToTeamIdDict = new Dictionary<int, int>();
+		sTeamIdToType = new Dictionary<int, int>();
+		sTeamIdToIsAbleToFight = new Dictionary<int, bool>();
+		sTeamIdToPU = new Dictionary<int, List<int>>();
+		sTeamEnemyDict = new Dictionary<Point, bool>();
+		walkAroundTick = 0;
+	}
+
+	public void ClearForReset()
+	{
+		sPlayerUnitList = new List<PlayerUnit>();
+		sPlayerObjectList = new List<GameObject>();
 		sAllianceDict = new Dictionary<Point, Alliances>();
 		sTempIdToTeamIdDict = new Dictionary<int, int>();
 		sTeamIdToType = new Dictionary<int, int>();
@@ -391,8 +417,8 @@ public class PlayerManager : Singleton<PlayerManager>
 
 
 		//}
-
-		this.PostNotification(TickMenuAdd, tempDict);
+		if( sRenderMode != NameAll.PP_RENDER_NONE)
+			this.PostNotification(TickMenuAdd, tempDict);
 	}
 
 	public PlayerUnit GetNextActiveTurnPlayerUnit(bool isSetQuickFlagToFalse)
@@ -474,7 +500,8 @@ public class PlayerManager : Singleton<PlayerManager>
 		//}
 	}
 
-	public void KnockbackPlayer(Board board, int unitId, Tile moveTile)
+	public void KnockbackPlayer(Board board, int unitId, Tile moveTile, SpellName sn = null, PlayerUnit actor = null, int rollResult = -1919, 
+		int rollChance = -1919, int combatLogSubType = -1919)
 	{
 		//if (!PhotonNetwork.offlineMode && PhotonNetwork.isMasterClient)
 		//{
@@ -482,38 +509,56 @@ public class PlayerManager : Singleton<PlayerManager>
 		//    int tileY = moveTile.pos.y;
 		//    photonView.RPC("KnockbackPlayerRPC", PhotonTargets.Others, new object[] { unitId, tileX, tileY });
 		//}
-		Debug.Log("knocking back player ");
-		MapTileManager.Instance.MoveMarker(unitId, moveTile);
-		PlayerUnitObject puo = GetPlayerUnitObject(unitId).GetComponent<PlayerUnitObject>(); ;
-		puo.InitializeKnockback(moveTile);
+		//Debug.Log("knocking back player ");
+		if( sRenderMode != NameAll.PP_RENDER_NONE)
+		{
+			MapTileManager.Instance.MoveMarker(unitId, moveTile);
+			PlayerUnitObject puo = GetPlayerUnitObject(unitId).GetComponent<PlayerUnitObject>(); ;
+			puo.InitializeKnockback(moveTile);
+		}
+
 		PlayerUnit pu = GetPlayerUnit(unitId);
 
-		if (true)//if(PhotonNetwork.offlineMode || PhotonNetwork.isMasterClient) //Other doesn't do falldamage, only master
-			DoFallDamage(pu, pu.TileZ, moveTile.height);
-
+		//if (true)//if(PhotonNetwork.offlineMode || PhotonNetwork.isMasterClient) //Other doesn't do falldamage, only master
+		int fallDamage = DoFallDamage(pu, pu.TileZ, moveTile.height, sn, actor, rollResult, rollChance, NameAll.COMBAT_LOG_SUBTYPE_KNOCKBACK_DAMAGE);
 		SetUnitTile(board, unitId, moveTile);
+
+
+		if (isSaveCombatLog)
+		{
+			CombatTurn logTurn = new CombatTurn();
+			logTurn.actor = GetPlayerUnit(unitId);
+			logTurn.targetTile = moveTile;
+			//roll chances captured through do fallDamage. this captures the movement efect
+			AddCombatLogSaveObject(NameAll.COMBAT_LOG_TYPE_MISC, NameAll.COMBAT_LOG_SUBTYPE_KNOCKBACK_MOVE, cTurn: logTurn, effectValue: fallDamage);
+		}
+
 	}
 
 	//[PunRPC]
-	public void KnockbackPlayerRPC(int unitId, int tileX, int tileY)
-	{
-		//only arguments that matter are first 3 and last 1
-		CombatMultiplayerMove cmm = new CombatMultiplayerMove(unitId, tileX, tileY, false, NameAll.NULL_INT, isKnockback: true);
-		this.PostNotification(MultiplayerMove, cmm);
-	}
+	//public void KnockbackPlayerRPC(int unitId, int tileX, int tileY)
+	//{
+	//	//only arguments that matter are first 3 and last 1
+	//	CombatMultiplayerMove cmm = new CombatMultiplayerMove(unitId, tileX, tileY, false, NameAll.NULL_INT, isKnockback: true);
+	//	this.PostNotification(MultiplayerMove, cmm);
+	//}
 
-	void DoFallDamage(PlayerUnit actor, int startHeight, int endHeight)
+	int DoFallDamage(PlayerUnit target, int startHeight, int endHeight, SpellName sn= null, PlayerUnit actor = null, 
+		int rollResult = -1919, int rollChance = -1919, int combatLogSubType=-1919)
 	{
-		if (actor.AbilityMovementCode == NameAll.MOVEMENT_FLY)
+		if (target.AbilityMovementCode == NameAll.MOVEMENT_FLY)
 		{
-			return;
+			return 0;
 		}
 		int fallDistance = startHeight - endHeight;
-		if (fallDistance > actor.StatTotalJump)
+		if (fallDistance > target.StatTotalJump)
 		{
-			int fallDamage = (int)Math.Ceiling((fallDistance - (double)actor.StatTotalJump) * (double)actor.StatTotalMaxLife / 10);
-			AlterUnitStat(NameAll.ALTER_STAT_DAMAGE, fallDamage, NameAll.STAT_TYPE_HP, actor.TurnOrder);
+			int fallDamage = (int)Math.Ceiling((fallDistance - (double)target.StatTotalJump) * (double)target.StatTotalMaxLife / 10);
+			AlterUnitStat(NameAll.ALTER_STAT_DAMAGE, fallDamage, NameAll.STAT_TYPE_HP, target.TurnOrder, element_type: 0, sn:sn, actor:actor, rollResult:rollResult,
+				rollChance:rollChance, combatLogSubType: combatLogSubType);
+			return fallDamage;
 		}
+		return 0;
 	}
 
 	//called if a weapon is broken, charge attack is broken
@@ -529,98 +574,100 @@ public class PlayerManager : Singleton<PlayerManager>
 	}
 
 
-	//called in CombatMoveSequenceState in online game.
+	//called in CombatMoveSequenceState in online game. DEPRECATED FOR NOW
 	//if master, tells other what movement to mirror
 	//if other receives an RPC, raises a notification, notification then starts the movement action
 	//master has to do the move in CombatMoveSequenceState AND other has to be in gameeloop state or the timing will be fucked up
-	public void ConfirmMove(Board board, PlayerUnit actor, Tile targetTile, bool isClassicClass, int swapUnitId)
-	{
+	//public void ConfirmMove(Board board, PlayerUnit actor, Tile targetTile, bool isClassicClass, int swapUnitId)
+	//{
 
-		//if( !PhotonNetwork.offlineMode )
-		//{
-		//    if( PhotonNetwork.isMasterClient)
-		//    {
-		//        int actorId = actor.TurnOrder;
-		//        int tileX = targetTile.pos.x;
-		//        int tileY = targetTile.pos.y;
-		//        Debug.Log("sending confirm move to other");
-		//        photonView.RPC("ConfirmMoveRPC", PhotonTargets.Others, new object[] { actorId, tileX, tileY, isClassicClass, swapUnitId });
-		//    }
-		//    else
-		//    {
-		//        StartCoroutine(ConfirmMoveInner(board, actor, targetTile, isClassicClass, swapUnitId));
-		//    }
+	//	//if( !PhotonNetwork.offlineMode )
+	//	//{
+	//	//    if( PhotonNetwork.isMasterClient)
+	//	//    {
+	//	//        int actorId = actor.TurnOrder;
+	//	//        int tileX = targetTile.pos.x;
+	//	//        int tileY = targetTile.pos.y;
+	//	//        Debug.Log("sending confirm move to other");
+	//	//        photonView.RPC("ConfirmMoveRPC", PhotonTargets.Others, new object[] { actorId, tileX, tileY, isClassicClass, swapUnitId });
+	//	//    }
+	//	//    else
+	//	//    {
+	//	//        StartCoroutine(ConfirmMoveInner(board, actor, targetTile, isClassicClass, swapUnitId));
+	//	//    }
 
-		//}
+	//	//}
 
-	}
+	//}
 
-	const string MultiplayerMove = "Multiplayer.Move";
+	//const string MultiplayerMove = "Multiplayer.Move";
 
+	//was an online thing, deprecated
 	//Other is doing the actual move, sends the coordinates P2 in the notification so P2 can do the move on its side
 	//[PunRPC]
-	public void ConfirmMoveRPC(int actorId, int tileX, int tileY, bool isClassicClass, int swapUnitId)
-	{
-		//Debug.Log("other has received the move RPC, sending a notification so other can start the move");
-		//sends a notification to P2, P2 gets it then calls ConfirmMove
-		CombatMultiplayerMove cmm = new CombatMultiplayerMove(actorId, tileX, tileY, isClassicClass, swapUnitId, false);
-		this.PostNotification(MultiplayerMove, cmm);
-	}
+	//public void ConfirmMoveRPC(int actorId, int tileX, int tileY, bool isClassicClass, int swapUnitId)
+	//{
+	//	//Debug.Log("other has received the move RPC, sending a notification so other can start the move");
+	//	//sends a notification to P2, P2 gets it then calls ConfirmMove
+	//	CombatMultiplayerMove cmm = new CombatMultiplayerMove(actorId, tileX, tileY, isClassicClass, swapUnitId, false);
+	//	this.PostNotification(MultiplayerMove, cmm);
+	//}
 
-	IEnumerator ConfirmMoveInner(Board board, PlayerUnit actor, Tile targetTile, bool isClassicClass, int swapUnitId)
-	{
-
-
-		//Debug.Log("other is moving a unit in confirmMoveInner 0");
-		Tile actorStartTile = board.GetTile(actor); //used in case of movement ability swap
-
-		MapTileManager.Instance.MoveMarker(actor.TurnOrder, targetTile);
-		PlayerUnitObject puo = GetPlayerUnitObjectComponent(actor.TurnOrder);
-		puo.GetTilesInRange(board, actorStartTile, actor); //movement relies on knowing link to previous tile (t.prev); this sets the links)
-		puo.SetAnimation("moving", false);
-
-		if (actor.IsSpecialMoveRange())
-		{
-			//Debug.Log("other is moving a unit in confirmMoveInner 1");
-			if (isClassicClass)
-			{
-				if (actor.AbilityMovementCode == NameAll.MOVEMENT_FLY)
-					yield return StartCoroutine(puo.TraverseFly(targetTile));
-				else if (actor.AbilityMovementCode == NameAll.MOVEMENT_TELEPORT_1)
-					yield return StartCoroutine(puo.TraverseTeleport(targetTile)); //Debug.Log("Decide on movement details and remove this yield return null");
-				else
-					yield return StartCoroutine(puo.Traverse(targetTile));
-			}
-			else
-			{
-				if (actor.AbilityMovementCode == NameAll.MOVEMENT_UNSTABLE_TP
-					|| actor.AbilityMovementCode == NameAll.MOVEMENT_WINDS_OF_FATE)
-					yield return StartCoroutine(puo.TraverseTeleport(targetTile));
-				else if (actor.AbilityMovementCode == NameAll.MOVEMENT_LEAP)
-					yield return StartCoroutine(puo.TraverseFly(targetTile));
-				else
-					yield return StartCoroutine(puo.Traverse(targetTile));
-			}
-		}
-		else
-		{
-			//Debug.Log("other is moving a unit in confirmMoveInner 2");
-			yield return StartCoroutine(puo.Traverse(targetTile));
-		}
+	//was an online thing, deprecated
+	//IEnumerator ConfirmMoveInner(Board board, PlayerUnit actor, Tile targetTile, bool isClassicClass, int swapUnitId)
+	//{
 
 
-		puo.SetAnimation("idle", true);
-		SetUnitTile(board, actor.TurnOrder, targetTile);
+	//	//Debug.Log("other is moving a unit in confirmMoveInner 0");
+	//	Tile actorStartTile = board.GetTile(actor); //used in case of movement ability swap
 
-		yield return new WaitForFixedUpdate(); //not sure if needed but want at least a slight delay for the swap
-		if (swapUnitId != NameAll.NULL_UNIT_ID)
-			SetUnitTileSwap(board, swapUnitId, actorStartTile);
+	//	MapTileManager.Instance.MoveMarker(actor.TurnOrder, targetTile);
+	//	PlayerUnitObject puo = GetPlayerUnitObjectComponent(actor.TurnOrder);
+	//	puo.GetTilesInRange(board, actorStartTile, actor); //movement relies on knowing link to previous tile (t.prev); this sets the links)
+	//	puo.SetAnimation("moving", false);
 
-	}
+	//	if (actor.IsSpecialMoveRange())
+	//	{
+	//		//Debug.Log("other is moving a unit in confirmMoveInner 1");
+	//		if (isClassicClass)
+	//		{
+	//			if (actor.AbilityMovementCode == NameAll.MOVEMENT_FLY)
+	//				yield return StartCoroutine(puo.TraverseFly(targetTile));
+	//			else if (actor.AbilityMovementCode == NameAll.MOVEMENT_TELEPORT_1)
+	//				yield return StartCoroutine(puo.TraverseTeleport(targetTile)); //Debug.Log("Decide on movement details and remove this yield return null");
+	//			else
+	//				yield return StartCoroutine(puo.Traverse(targetTile));
+	//		}
+	//		else
+	//		{
+	//			if (actor.AbilityMovementCode == NameAll.MOVEMENT_UNSTABLE_TP
+	//				|| actor.AbilityMovementCode == NameAll.MOVEMENT_WINDS_OF_FATE)
+	//				yield return StartCoroutine(puo.TraverseTeleport(targetTile));
+	//			else if (actor.AbilityMovementCode == NameAll.MOVEMENT_LEAP)
+	//				yield return StartCoroutine(puo.TraverseFly(targetTile));
+	//			else
+	//				yield return StartCoroutine(puo.Traverse(targetTile));
+	//		}
+	//	}
+	//	else
+	//	{
+	//		//Debug.Log("other is moving a unit in confirmMoveInner 2");
+	//		yield return StartCoroutine(puo.Traverse(targetTile));
+	//	}
+
+
+	//	puo.SetAnimation("idle", true);
+	//	SetUnitTile(board, actor.TurnOrder, targetTile);
+
+	//	yield return new WaitForFixedUpdate(); //not sure if needed but want at least a slight delay for the swap
+	//	if (swapUnitId != NameAll.NULL_UNIT_ID)
+	//		SetUnitTileSwap(board, swapUnitId, actorStartTile);
+
+	//}
 
 	//called in CombatmoveSequenceState, sets the correct unit tile
 	//called in PlayerUnitObject WalkAroundTraverse
-	public void SetUnitTile(Board board, int unitId, Tile t, bool isSetMarker = false)
+	public void SetUnitTile(Board board, int unitId, Tile t, bool isSetMarker = false, bool isAddCombatLog = false)
 	{
 		//GetPlayerUnitObject(unitId); //set as the animation occurs
 		//Debug.Log("setting unit tile " + t.GetTileSummary());
@@ -628,8 +675,17 @@ public class PlayerManager : Singleton<PlayerManager>
 		GetPlayerUnit(unitId).SetUnitTile(t); //updates the PlayerUnit with the correct x,y,z
 		if (isSetMarker)
 			MapTileManager.Instance.MoveMarker(unitId, t);
+
+		if (isAddCombatLog && isSaveCombatLog)
+		{
+			CombatTurn logTurn = new CombatTurn();
+			logTurn.actor = GetPlayerUnit(unitId);
+			logTurn.targetTile = t;
+			AddCombatLogSaveObject(NameAll.COMBAT_LOG_TYPE_MOVE, cTurn: logTurn);
+		}
 	}
 
+	//UnitId is unit to be swapped, tile t is starting position of the the actor that does the swapping
 	public void SetUnitTileSwap(Board board, int unitId, Tile t)
 	{
 
@@ -637,7 +693,14 @@ public class PlayerManager : Singleton<PlayerManager>
 		GetPlayerUnit(unitId).SetUnitTile(t); //updates the PlayerUnit with the correct x,y,z
 		MapTileManager.Instance.MoveMarker(unitId, t);
 		StartCoroutine(GetPlayerUnitObjectComponent(unitId).TraverseTeleport(t)); //moves the swapped player
-
+		if(isSaveCombatLog)
+		{
+			//swapper already updated in CombatMoveSequenceState, swappee is occuring now
+			CombatTurn logSwappeeTurn = new CombatTurn();
+			logSwappeeTurn.targetTile = t;
+			logSwappeeTurn.actor = GetPlayerUnit(unitId);
+			AddCombatLogSaveObject(NameAll.COMBAT_LOG_TYPE_MOVE, NameAll.COMBAT_LOG_SUBTYPE_MOVE_SWAP, logSwappeeTurn);
+		}
 	}
 
 	//Called in CombatEndFacingState if alive, ActiveTurnState if dead
@@ -659,10 +722,13 @@ public class PlayerManager : Singleton<PlayerManager>
 		else
 		{
 			actor.Dir = turn.endDir;
-			SetPUODirectionEndTurn(actor.TurnOrder);
+			if( sRenderMode != NameAll.PP_RENDER_NONE)
+				SetPUODirectionEndTurn(actor.TurnOrder);
 			//Debug.Log("do the playerunitobject turn shit here or in combatEndFacingState");
 			actor.EndTurnCT(turn);
 		}
+
+		AddCombatLogSaveObject(NameAll.COMBAT_LOG_TYPE_END_TURN, cTurn: turn, effectValue: actor.CT);		
 	}
 
 	//[PunRPC]
@@ -692,7 +758,7 @@ public class PlayerManager : Singleton<PlayerManager>
 
 	//called in InitCombatState & WalkAroundInitState to set the initial facing direction of the unit
 	//no RPC needed as both sides call it locally (forcing an RPC call would result in errors
-	//to do: make this based on where you spawn on the map
+	//to do: make facing direction based on where you spawn on the map
 	public void SetInitialFacingDirection(int unitId, Directions dir = Directions.North, bool isDefault = true)
 	{
 		if (isDefault)
@@ -711,7 +777,8 @@ public class PlayerManager : Singleton<PlayerManager>
 		{
 			GetPlayerUnit(unitId).Dir = dir;
 		}
-		GetPlayerUnitObjectComponent(unitId).SetAttackDirection(GetPlayerUnit(unitId).Dir);
+		if(sRenderMode != NameAll.PP_RENDER_NONE)
+			GetPlayerUnitObjectComponent(unitId).SetAttackDirection(GetPlayerUnit(unitId).Dir);
 	}
 
 	public void SetFacingDirectionMidTurn(int unitId, Tile startTile, Tile endTile) //based on actor and target's tiles, like jumping
@@ -830,22 +897,26 @@ public class PlayerManager : Singleton<PlayerManager>
 
 	//called in calculationResolveaction
 	//[PunRPC]
-	public void AlterUnitStat(int alter_stat, int effect, int statType, int unitId, int element_type = 0)
+	public void AlterUnitStat(int alter_stat, int effect, int statType, int unitId, int element_type = 0, SpellName sn=null, PlayerUnit actor = null, 
+		int rollResult = -1919, int rollChance = -1919, int combatLogSubType = -1919)
 	{
 		//if (!PhotonNetwork.offlineMode && PhotonNetwork.isMasterClient)
 		//{
 		//    photonView.RPC("AlterUnitStat", PhotonTargets.Others, new object[] { alter_stat, effect, statType, unitId, element_type });
 		//}
 		//Debug.Log("alter stat is " + alter_stat + " statType, elementType " + statType + ", " + element_type );
-		SetPlayerObjectAnimation(unitId, "damage", false);
+		if( sRenderMode != NameAll.PP_RENDER_NONE)
+			SetPlayerObjectAnimation(unitId, "damage", false);
 		if (statType == NameAll.STAT_TYPE_HP)
 		{
-			GetPlayerUnit(unitId).SetHP(effect, alter_stat, element_type, false);
+			GetPlayerUnit(unitId).SetHP(effect, alter_stat, element_type, false, isSaveCombatLog: isSaveCombatLog, sn:sn, actor:actor, rollResult:rollResult,
+				rollChance:rollChance, combatLogSubType: combatLogSubType);
 		}
 		else
 		{
 			//Debug.Log("altering unit stat " + effect);
-			GetPlayerUnit(unitId).AlterStat(alter_stat, effect, statType, element_type);
+			GetPlayerUnit(unitId).AlterStat(alter_stat, effect, statType, element_type, isSaveCombatLog: isSaveCombatLog, sn: sn, actor: actor, rollResult: rollResult,
+				rollChance: rollChance, combatLogSubType: combatLogSubType);
 		}
 		//could make the alter stat be worth more than HP dmg at some point
 		int z1 = NameAll.STATS_DAMAGE_DONE;
@@ -858,9 +929,11 @@ public class PlayerManager : Singleton<PlayerManager>
 	const string ActorStatChangeNotification = "CombatUITarget.ActorStatChangeNotification"; //updates the actor panel
 
 	//[PunRPC]
-	public void RemoveLife(int effect, int remove_stat, int unitId, int elemental_type, bool removeAll = false)
+	public void RemoveLife(int effect, int remove_stat, int unitId, int elemental_type, bool removeAll = false, SpellName sn = null, PlayerUnit actor = null,
+		int rollResult = -1919, int rollChance = -1919, int combatLogSubType = -1919)
 	{
-		GetPlayerUnit(unitId).SetHP(effect, remove_stat, elemental_type, removeAll);
+		GetPlayerUnit(unitId).SetHP(effect, remove_stat, elemental_type, removeAll, isSaveCombatLog:isSaveCombatLog, sn:sn, actor:actor, rollResult: rollResult,
+			rollChance:rollChance, combatLogSubType:combatLogSubType);
 		TallyCombatStats(unitId, NameAll.STATS_KILLS_DONE, 1);
 		//if (!PhotonNetwork.offlineMode && PhotonNetwork.isMasterClient)
 		//{
@@ -1063,6 +1136,8 @@ public class PlayerManager : Singleton<PlayerManager>
 	//[PunRPC]
 	public void ShowFloatingText(int unitId, int type, string value, bool isCrit = false)
 	{
+		if (sRenderMode == NameAll.PP_RENDER_NONE)
+			return;
 		//Debug.Log("showing floating text " + type + " " + value );
 		//if( !PhotonNetwork.offlineMode && PhotonNetwork.isMasterClient)
 		//{
@@ -1073,45 +1148,50 @@ public class PlayerManager : Singleton<PlayerManager>
 
 		if (type == 0) //miss
 		{
-			OverlayCanvasController.instance.ShowCombatText(GetPlayerUnitObject(unitId), CombatTextType.Miss, "MISS!");
+			PUOTextOverlayCanvasController.instance.ShowPUOText(GetPlayerUnitObject(unitId), PUOTextType.Miss, "MISS!");
 		}
 		else if (type == 1) //damage, not doing crit for now
 		{
-			OverlayCanvasController.instance.ShowCombatText(GetPlayerUnitObject(unitId), CombatTextType.Hit, value);
+			PUOTextOverlayCanvasController.instance.ShowPUOText(GetPlayerUnitObject(unitId), PUOTextType.Hit, value);
 			//if(isCrit)
 			//{
-			//    OverlayCanvasController.instance.ShowCombatText(GetPlayerUnitObject(unitId), CombatTextType.CriticalHit, value);
+			//    PUOTextOverlayCanvasController.instance.ShowPUOText(GetPlayerUnitObject(unitId), PUOTextType.CriticalHit, value);
 			//}
 			//else
 			//{
-			//    OverlayCanvasController.instance.ShowCombatText(GetPlayerUnitObject(unitId), CombatTextType.Hit, value);
+			//    PUOTextOverlayCanvasController.instance.ShowPUOText(GetPlayerUnitObject(unitId), PUOTextType.Hit, value);
 			//}
 		}
 		else if (type == 2) //heal
 		{
-			OverlayCanvasController.instance.ShowCombatText(GetPlayerUnitObject(unitId), CombatTextType.Heal, value);
+			Debug.Log(" testing what is null 0 ");
+			GetPlayerUnitObject(unitId);
+			Debug.Log(" testing what is null 1 " + value + " " + PUOTextType.Heal);
+			Debug.Log(" testing what is null 2 " );
+			PUOTextOverlayCanvasController.instance.ShowPUOText(GetPlayerUnitObject(unitId), PUOTextType.Heal, value);
 		}
 		else if (type == 7) //status
 		{
-			OverlayCanvasController.instance.ShowCombatText(GetPlayerUnitObject(unitId), CombatTextType.AddStatus, value);
+			PUOTextOverlayCanvasController.instance.ShowPUOText(GetPlayerUnitObject(unitId), PUOTextType.AddStatus, value);
 		}
 		else if (type == 5) //heal mp or other stat
 		{
 			//Debug.Log("showing heal mp?");
-			OverlayCanvasController.instance.ShowCombatText(GetPlayerUnitObject(unitId), CombatTextType.HealMP, value);
+			PUOTextOverlayCanvasController.instance.ShowPUOText(GetPlayerUnitObject(unitId), PUOTextType.HealMP, value);
 		}
 		else if (type == 6) //damage mp or other stat
 		{
-			OverlayCanvasController.instance.ShowCombatText(GetPlayerUnitObject(unitId), CombatTextType.HitMP, value);
+			PUOTextOverlayCanvasController.instance.ShowPUOText(GetPlayerUnitObject(unitId), PUOTextType.HitMP, value);
 		}
 		else if (type == 19) //custome message
 		{
-			OverlayCanvasController.instance.ShowCombatText(GetPlayerUnitObject(unitId), CombatTextType.Miss, value);
+			PUOTextOverlayCanvasController.instance.ShowPUOText(GetPlayerUnitObject(unitId), PUOTextType.Miss, value);
 		}
 
-		//OverlayCanvasController.instance.ShowCombatText(hitObject, CombatTextType.Hit, value);
+		//PUOTextOverlayCanvasController.instance.ShowPUOText(hitObject, PUOTextType.Hit, value);
 		//Debug.Log("asdf2");
 	}
+
 
 	//should update playerunit teamId with enums at some point
 	public Teams CheckForDefeat()
@@ -1255,30 +1335,35 @@ public class PlayerManager : Singleton<PlayerManager>
 	}
 
 
-
 	public void EndOfTurnTick(int unitId, int type) //0 for poison, 1 for regen
 	{
+		int combatLogSubType = NameAll.COMBAT_LOG_SUBTYPE_END_TURN_TICK_REGEN;
+		if (type == 0)
+			combatLogSubType = NameAll.COMBAT_LOG_SUBTYPE_END_TURN_TICK_POISON;
+
 		PlayerUnit pu = GetPlayerUnit(unitId);
 		int z1 = pu.StatTotalMaxLife / 8;
 		if (type == 0)
 		{
 			if (CalculationResolveAction.MPSwitchCheck(GetPlayerUnit(unitId)))
 			{
-				AlterUnitStat(1, z1, NameAll.STAT_TYPE_MP, unitId);
+				AlterUnitStat(1, z1, NameAll.STAT_TYPE_MP, unitId, combatLogSubType: combatLogSubType);
 			}
 			else
 			{
 				//pu.SetHP(z1, 1); //1 for the type that removes a stat
-				RemoveLife(z1, 1, unitId, NameAll.ITEM_ELEMENTAL_NONE);
+				RemoveLife(z1, 1, unitId, NameAll.ITEM_ELEMENTAL_NONE, combatLogSubType: combatLogSubType);
 			}
 
 		}
 		else if (type == 1)
 		{
 			//pu.SetHP(z1, 0, "undead");
-			RemoveLife(z1, 0, unitId, NameAll.ITEM_ELEMENTAL_UNDEAD);
+			RemoveLife(z1, 0, unitId, NameAll.ITEM_ELEMENTAL_UNDEAD, combatLogSubType: combatLogSubType);
 		}
+
 	}
+
 
 	//called in character builder scene
 	public void ClearPlayerLists()
@@ -1922,13 +2007,12 @@ public class PlayerManager : Singleton<PlayerManager>
 	//check alliance for local player vs. a teamId
 	public Alliances GetAlliances(int teamId1)
 	{
-		Debug.Log("alliances for team1,team " + teamId1 + ", " + sLocalTeamId);
-		Debug.Log("outputting contents of sAllianceDict");
-
-		foreach (KeyValuePair<Point, Alliances> entry in sAllianceDict)
-		{
-			Debug.Log("outputting contents of sAllianceDict " + entry.Key + "--" + entry.Value);
-		}
+		//Debug.Log("alliances for team1,team " + teamId1 + ", " + sLocalTeamId);
+		//Debug.Log("outputting contents of sAllianceDict");
+		//foreach (KeyValuePair<Point, Alliances> entry in sAllianceDict)
+		//{
+		//	Debug.Log("outputting contents of sAllianceDict " + entry.Key + "--" + entry.Value);
+		//}
 		return sAllianceDict[new Point(teamId1, sLocalTeamId)];
 	}
 
@@ -2421,8 +2505,8 @@ public class PlayerManager : Singleton<PlayerManager>
 		{
 			List<int> lockList = LockWalkAroundTargets(board, waao);
 			//if slow action with CTR > 0 add to queue
-			yield return StartCoroutine(calcMono.DoFastActionInner(board, waao.turn, isActiveTurn: true, isSlowActionPhase: false,
-				isReaction: false, isMime: false, isWAMode: true));
+			calcMono.DoFastAction(board, waao.turn, isActiveTurn: true, isReaction: false, isMime: false, isWAMode: true, renderMode: sRenderMode);
+			//yield return StartCoroutine(calcMono.DoFastActionInner(board, waao.turn, isActiveTurn: true, isSlowActionPhase: false,isReaction: false, isMime: false, isWAMode: true));
 			foreach (int i in lockList)
 			{
 				RemoveWalkAroundLock(i);
@@ -2595,6 +2679,16 @@ public class PlayerManager : Singleton<PlayerManager>
 	public void SetGameMode(int mode)
 	{
 		sGameMode = mode;
+	}
+
+	public void SetRenderMode(int mode)
+	{
+		sRenderMode = mode;
+	}
+
+	public int GetRenderMode()
+	{
+		return sRenderMode;
 	}
 
 	public int GetGameMode()
@@ -3092,7 +3186,7 @@ public class PlayerManager : Singleton<PlayerManager>
     }
 	#endregion
 
-#region Handle persistent stuff when going from one map to another in WA mode
+	#region Handle persistent stuff when going from one map to another in WA mode
 	//get saved units
 	public List<PlayerUnit> GetPersistentUnits()
 	{
@@ -3102,6 +3196,242 @@ public class PlayerManager : Singleton<PlayerManager>
 		return retList;
 	}
 
+	#endregion
+
+	#region CombatLog
+	/// <summary>
+	/// Handles all true/false rolls. Done here for easier logging if logging is enabled.
+	/// </summary>
+	/// <param name="rollChance"></param>
+	/// <param name="rollLow">Min is inclusive</param>
+	/// <param name="rollSpread">Max is exclusive</param>
+	/// <param name="logType"></param>
+	/// <param name="logSubType"></param>
+	/// <param name="sName"></param>
+	/// <param name="puActor"></param>
+	/// <param name="puTarget"></param>
+	/// <param name="effectValue"></param>
+	/// <param name="statusValue"></param>
+	/// <returns>bool: true if roll result <= rollChance </returns>
+	public bool IsRollSuccess(int rollChance, int rollLow = 1, int rollSpread = 100, int logType = -1919, int logSubType = -1919, 
+		SpellName sName = null, PlayerUnit puActor = null, PlayerUnit puTarget = null, int effectValue = -1919, int statusValue = -1919)
+	{
+		bool retValue;
+		int rollResult = GetRollResult(rollChance, rollLow, rollSpread, logType, logSubType, sName, puActor, puTarget, effectValue, statusValue);
+		if ( rollResult <= rollChance) //min is inclusive, max is exclusive
+		{
+			retValue = true;
+		}
+		else
+		{
+			retValue = false;
+		}
+
+		return retValue;
+	}
+
+
+	/// <summary>
+	/// Returns result of a roll with a number. Some functions prefer the number rather than the actual true/false result
+	/// </summary>
+	/// <param name="rollChance"></param>
+	/// <param name="rollLow"></param>
+	/// <param name="rollSpread"></param>
+	/// <param name="logType"></param>
+	/// <param name="logSubType"></param>
+	/// <param name="sName"></param>
+	/// <param name="puActor"></param>
+	/// <param name="puTarget"></param>
+	/// <param name="effectValue"></param>
+	/// <param name="statusValue"></param>
+	/// <returns></returns>
+	public int GetRollResult(int rollChance, int rollLow = 1, int rollSpread = 100, int logType = -1919, int logSubType = -1919,
+		SpellName sName = null, PlayerUnit puActor = null, PlayerUnit puTarget = null, int effectValue = -1919, int statusValue = -1919)
+	{
+		int rollHigh = rollLow + rollSpread;
+		int rollResult = UnityEngine.Random.Range(rollLow, rollHigh);
+
+		if (isSaveCombatLog)
+		{
+			if (logType == NameAll.NULL_INT)
+				logType = NameAll.COMBAT_LOG_TYPE_ROLL;
+			CombatTurn logTurn = new CombatTurn();
+			logTurn.spellName = sName;
+			logTurn.actor = puActor;
+			if (puTarget == null)
+				logTurn.targetUnitId = NameAll.NULL_UNIT_ID;
+			AddCombatLogSaveObject(logType, logSubType, logTurn, rollResult, rollChance, effectValue, statusValue);
+		}
+
+		return rollResult;
+	}
+
+
+
+	//int logId;
+	//int tick;
+	//int logType;
+	//int logSubType
+	//int turnsNumber;
+	//int rollResult;
+	//int rollChance;
+	//int spellNameId;
+	//int actorId;
+	//int targetId
+	//int targetTileX;
+	//int targetTileY;
+	//int targetTileZ;
+
+	public void AddCombatLogSaveObject(int logType, int logSubType=-1919, CombatTurn cTurn = null, int rollResult=-1919, int rollChance=-1919, int effectValue=-1919, int statusValue=-1919)
+	{
+		CombatLogSaveObject clso = null;
+		if (isSaveCombatLog)
+		{
+			clso = new CombatLogSaveObject(combatLogId, currentTick, logType, logSubType, effectValue, statusValue, rollResult, rollChance, cTurn);
+			StoreCombatLogSaveObject(clso);
+			combatLogId += 1;
+			/*
+			//rest of this function is so I have notes on what all the shit means when it comes time to decode the combatLog
+			
+			if (logType == NameAll.COMBAT_LOG_TYPE_END_TURN)
+			{
+				//actorID is unit who ended turn (stored through turn), effectValue is actor's new CT after ending turn
+				clso = new CombatLogSaveObject(combatLogId, currentTick, logType, logSubType, effectValue, statusValue, rollResult, rollChance, cTurn);
+			}
+			else if (logType == NameAll.COMBAT_LOG_TYPE_MOVE)
+			{
+				if(logSubType == NameAll.NULL_INT)
+				{
+					//default move type, override of SetUnitTile. stores unit moving and destination in logTurn
+					clso = new CombatLogSaveObject(combatLogId, currentTick, logType, logSubType, effectValue, statusValue, rollResult, rollChance, cTurn);
+				}
+				else if(logSubType == NameAll.COMBAT_LOG_SUBTYPE_MOVE_TELEPORT_ROLL)
+				{
+					//if roll > rollChance, succeeds if not fails. rest of values null
+					clso = new CombatLogSaveObject(combatLogId, currentTick, logType, logSubType, effectValue, statusValue, rollResult, rollChance, cTurn);
+				}
+				else if (logSubType == NameAll.COMBAT_LOG_SUBTYPE_MOVE_EFFECT)
+				{
+					//turn has the actorId of the unit doing the on move effect ability and effectValue is the movement
+					//called after the movement reaction is created in GameLoopState or CombatMoveSequenceState
+					clso = new CombatLogSaveObject(combatLogId, currentTick, logType, logSubType, effectValue, statusValue, rollResult, rollChance, cTurn);
+				}
+				else if(logSubType == NameAll.COMBAT_LOG_SUBTYPE_MOVE_SWAP)
+				{
+					//for swap, a unit swaps places with another unit with the other unit going to the swapper's start position
+					//the swapper has already been updated in setunittile, this updates the swapee
+					//actor in turn is the swappee, move tile is the original tile the swapper started at
+					clso = new CombatLogSaveObject(combatLogId, currentTick, logType, logSubType, effectValue, statusValue, rollResult, rollChance, cTurn);
+				}
+			}
+			else if( logType == NameAll.COMBAT_LOG_TYPE_ACTION)
+			{
+				if(logType == NameAll.COMBAT_LOG_SUBTYPE_SET_HP)
+				{
+					//ability causes HP healing/dmg. actorId is the caster, targetId is the unit that took the hp change. effectValue is final HP, status is how much HP changed
+					clso = new CombatLogSaveObject(combatLogId, currentTick, logType, logSubType, effectValue, statusValue, rollResult, rollChance, cTurn);
+				}
+				else if (logType == NameAll.COMBAT_LOG_SUBTYPE_SET_HP_REMOVE_ALL)
+				{
+					//ability causes unit HP to go to 0. actorId is the caster, targetId is the unit that took the hp loss. effectValue is hp (in this case 0)
+					clso = new CombatLogSaveObject(combatLogId, currentTick, logType, logSubType, effectValue, statusValue, rollResult, rollChance, cTurn);
+				}
+			}
+			else if (logType == NameAll.COMBAT_LOG_TYPE_REACTION)
+			{
+
+			}
+			else if (logType == NameAll.COMBAT_LOG_TYPE_SLOW_ACTION)
+			{
+				if( logSubType == NameAll.COMBAT_LOG_SUBTYPE_SLOW_ACTION_UNABLE_TO_CAST)
+				{
+					//spell unable to resolve due to some status ailment. handled in own function before being rerouted to this one to create the CLSO
+					clso = new CombatLogSaveObject(combatLogId, currentTick, logType, logSubType, effectValue, statusValue, rollResult, rollChance, cTurn);
+				}
+			}
+			else if(logType == NameAll.COMBAT_LOG_TYPE_STATUS_MANAGER)
+			{
+				//for now just removing status from status manager. logType, subLogType, and statusValue for status removed
+				clso = new CombatLogSaveObject(combatLogId, currentTick, logType, logSubType, effectValue, statusValue, rollResult, rollChance, cTurn);
+			}
+			else if (logType == NameAll.COMBAT_LOG_TYPE_MISC)
+			{
+				//AddCombatLogSaveObject(COMBAT_LOG_TYPE_MISC, NameAll.COMBAT_LOG_SUBTYPE_KNOCKBACK, cTurn: logTurn, effectValue: fallDamage, rollResult: rollResult, rollChance: rollChance);
+				if(logSubType == NameAll.COMBAT_LOG_SUBTYPE_KNOCKBACK_MOVE)
+				{
+					//knockback eligible and roll passed (roll logged elsewhere). here storing tile went to through turn and the falldamage in effectValue
+					clso = new CombatLogSaveObject(combatLogId, currentTick, logType, logSubType, effectValue, statusValue, rollResult, rollChance, cTurn);
+				}
+				else if (logSubType == NameAll.COMBAT_LOG_SUBTYPE_KNOCKBACK_DAMAGE)
+				{
+					//shouldn't reach here, handled through AlterUnitStat. Basic AlterUnitState except unique subtype
+					clso = new CombatLogSaveObject(combatLogId, currentTick, logType, logSubType, effectValue, statusValue, rollResult, rollChance, cTurn);
+				}
+			}
+			else if(logType == NameAll.COMBAT_LOG_TYPE_ALTER_STAT_ADD || logType == NameAll.COMBAT_LOG_TYPE_ALTER_STAT_REMOVE)
+			{
+				//statusValue is the stat that is altered. effect value is how much stat is altered.
+				//actor is the caster of the ability, target is the unit having the stat altered
+				//logSubType can be for COMBAT_LOG_SUBTYPE_END_TURN_TICK_REGEN or COMBAT_LOG_SUBTYPE_END_TURN_TICK_POISON or null
+				clso = new CombatLogSaveObject(combatLogId, currentTick, logType, logSubType, effectValue, statusValue, rollResult, rollChance, cTurn);
+			}
+			else if(logType == NameALl.COMBAT_LOG_TYPE_ROLL){
+				clso = new CombatLogSaveObject(combatLogId, currentTick, logType, logSubType, effectValue, statusValue, rollResult, rollChance, cTurn);
+				//COMBAT_LOG_SUBTYPE_STATUS_ADD_ROLL
+				//some abilities have a chance to add a status. this is a roll for this. statusValue is the status to add
+				//COMBAT_LOG_SUBTYPE_ITEM_ON_HIT_CHANCE
+				//attacks from some items have a chance to have an on hit effect. this is the roll for this. EffectValue is the items effect. can later be dodged/miss I think
+				//COMBAT_LOG_SUBTYPE_KATANA_BREAK
+				//15% chance the katana breaks
+				//COMBAT_LOG_SUBTYPE_REACTION_BRAVE_ROLL
+				//roll to see if reaction goes off
+				//COMBAT_LOG_SUBTYPE_UNDEAD_REVIVE_ROLL: 50% chance undead revive when counter reaches 0. effect value is unit id
+				//COMBAT_LOG_SUBTYPE_CRYSTAL_ROLL: 50% chance to turn into crystal. effect value is unit id
+			}
+
+			if (clso != null)
+			{
+				StoreCombatLogSaveObject(clso);
+				combatLogId += 1;
+			}
+			else
+			{
+				Debug.Log("Possible error, CombatLogSaveObject not added " + logType + " " + logSubType);
+			}
+			*/
+		}
+	}
+
+	/// <summary>
+	/// Handles adding spellslow objects to combat log. For now just ones that cannot be resolved.
+	/// </summary>
+	/// <param name="logType"></param>
+	/// <param name="logSubType"></param>
+	/// <param name="ss"></param>
+	public void AddCombatLogSaveObject(int logType, int logSubType, SpellSlow ss)
+	{
+		if (isSaveCombatLog)
+		{
+			CombatTurn logTurn = new CombatTurn();
+			logTurn.spellName = SpellManager.Instance.GetSpellNameByIndex(ss.SpellIndex);
+			logTurn.actor = GetPlayerUnit(ss.UnitId);
+			logTurn.targetUnitId = ss.TargetUnitId;
+			AddCombatLogSaveObject(logType, logSubType, logTurn);
+		}
+	}
+
+	//collect CombatLogSaveObjects. Periodically write to file
+	public void StoreCombatLogSaveObject(CombatLogSaveObject clso)
+	{
+		sCombatLogList.Add(clso);
+		if(sCombatLogList.Count > COMBAT_LOG_SAVE_EVERY)
+		{
+			int combatLogSaveCount = combatLogId / COMBAT_LOG_SAVE_EVERY;
+			string fileName = Application.dataPath + "/CombatLevels/combat_log_save_" + timeInt + "_"+ combatLogSaveCount + ".dat";
+			Serializer.Save<List<CombatLogSaveObject>>(fileName, sCombatLogList);
+			sCombatLogList = new List<CombatLogSaveObject>();
+		}
+	}
 	#endregion
 }
 

@@ -106,7 +106,6 @@ public class SpellManager : Singleton<SpellManager>
             List<SpellLearnedSet> asList = enumerable.ToList(); //Debug.Log("asdf " + asList.Count);
             for (int i = 0; i < asList.Count; i++)
             {
-                //Debug.Log("CommandSet, Id " + asList[i].CommandSet + "," + asList[i].SpellIndex);
                 retList.Add(GetSpellNameByIndex(asList[i].SpellIndex)); //Debug.Log( "SpellName, CommandSet, Id " + retList[i].AbilityName + "," + retList[i].CommandSet + "," + retList[i].SpellId);
             }
         }
@@ -116,7 +115,6 @@ public class SpellManager : Singleton<SpellManager>
             List<SpellCommandSet> asList = enumerable.ToList(); //Debug.Log("asdf " + asList.Count);
             for (int i = 0; i < asList.Count; i++)
             {
-                //Debug.Log("CommandSet, Id " + asList[i].CommandSet + "," + asList[i].SpellIndex);
                 retList.Add(GetSpellNameByIndex(asList[i].SpellIndex)); //Debug.Log( "SpellName, CommandSet, Id " + retList[i].AbilityName + "," + retList[i].CommandSet + "," + retList[i].SpellId);
             }
         }
@@ -377,7 +375,7 @@ public class SpellManager : Singleton<SpellManager>
     //online: sends message to P2 to add spellslow. can't serialize spell slow so send the info over then add it
     private void AddSpellSlow(SpellSlow ss)
     {
-		Debug.Log("new spell CTR is " + ss.CTR);
+		//Debug.Log("new spell CTR is " + ss.CTR);
         sSpellSlowList.Add(ss);
         //if (!PhotonNetwork.offlineMode && PhotonNetwork.isMasterClient)
         //{
@@ -637,13 +635,13 @@ public class SpellManager : Singleton<SpellManager>
         //Debug.Log("index is " + index);
         if( index < 10000) 
         {
-            //Debug.Log("testting, loading this now...");
+            //Debug.Log("testing, loading this now...");
             SpellNameData snd = Resources.Load<SpellNameData>("SpellNames/sn_" + index);
-            //if( snd == null)
-            //{
-            //    Debug.Log("snd is null...");
-            //}
-            SpellName sn = new SpellName(snd); //Debug.Log("loadign sn " + snd.Index + "," + sn.Index +"," + index);
+			if (snd == null)
+			{
+				Debug.Log("ERROR snd is null...");
+			}
+			SpellName sn = new SpellName(snd); //Debug.Log("loading sn " + snd.Index + "," + sn.Index +"," + index);
             snd = null;
             Resources.UnloadAsset(snd);
             return sn;
@@ -696,6 +694,7 @@ public class SpellManager : Singleton<SpellManager>
     //creates the spellslow and adds it to the queue
     public void CreateSpellSlow(CombatTurn turn, bool isWAMode = false)
     {
+		PlayerManager.Instance.AddCombatLogSaveObject(NameAll.COMBAT_LOG_TYPE_ACTION, NameAll.COMBAT_LOG_SUBTYPE_SPELL_SLOW_ADD, turn);
         //SpellSlow(int zCtr, int zUnitId, int zSpellIndex, int zTargetUnitId, int zMapTileId)
         SpellSlow ss = new SpellSlow(turn);
 		if (isWAMode)

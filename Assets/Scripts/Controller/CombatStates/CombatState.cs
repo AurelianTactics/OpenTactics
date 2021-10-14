@@ -56,11 +56,11 @@ public abstract class CombatState : State
 
     public override void Enter()
     {
+		Debug.Log("entering state");
         //driver = (turn.actor != null) ? turn.actor.GetComponent<Driver>() : null;
         if( turn.actor != null)
         {
-            driver = PlayerManager.Instance.GetPlayerUnitObjectComponent(turn.actor.TurnOrder).puoDriver;
-
+			driver = PlayerManager.Instance.GetPlayerUnit(turn.actor.TurnOrder).puDriver;
         }
         else
         {
@@ -134,7 +134,7 @@ public abstract class CombatState : State
 
     protected virtual bool IsBattleOver()
     {
-		var zBool = owner.GetComponent<CombatVictoryCondition>().Victor != Teams.None;
+		//var zBool = owner.GetComponent<CombatVictoryCondition>().Victor != Teams.None;
 		//Debug.Log("testing for is battle over " + zBool);
         return owner.GetComponent<CombatVictoryCondition>().Victor != Teams.None;
     }

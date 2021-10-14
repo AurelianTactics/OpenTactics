@@ -215,9 +215,10 @@ public class WalkAroundMainState : CombatState
             ssTurn.spellName = CalculationAT.ModifySlowActionSpellName(ssTurn.spellName, ssTurn.actor.TurnOrder);
             StatusManager.Instance.CheckChargingJumping(ssTurn.actor.TurnOrder, ssTurn.spellName);
 
-            yield return StartCoroutine(owner.calcMono.DoFastActionInner(board, ssTurn, isActiveTurn: false, isSlowActionPhase: true, isReaction: false, isMime: false));
+			owner.calcMono.DoFastAction(board, ssTurn, isActiveTurn: false, isReaction: false, isMime: false, renderMode: owner.renderMode);
+			//yield return StartCoroutine(owner.calcMono.DoFastActionInner(board, ssTurn, isActiveTurn: false, isSlowActionPhase: true, isReaction: false, isMime: false));
 
-            SpellName sn = SpellManager.Instance.GetSpellNameByIndex(ss.SpellIndex);
+			SpellName sn = SpellManager.Instance.GetSpellNameByIndex(ss.SpellIndex);
             //if performing, add a new instance of it Ctr into the future
             if (sn.CommandSet == NameAll.COMMAND_SET_SING || sn.CommandSet == NameAll.COMMAND_SET_DANCE
                 || (sn.CommandSet == NameAll.COMMAND_SET_ARTS && sn.CTR % 10 == 1))

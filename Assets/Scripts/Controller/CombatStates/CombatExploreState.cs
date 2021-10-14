@@ -1,19 +1,25 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public class CombatExploreState : CombatState
 {
-    public override void Enter()
+	//when clicking on a turns list ability, highlight the tiles indicated by tiles
+	List<Tile> tiles;
+
+	public override void Enter()
     {
         base.Enter();
         targetPanel.SetTargetPreview(board,pos);
+		tiles = new List<Tile>();
         
     }
 
     public override void Exit()
     {
-        base.Exit();
+		board.DeSelectTiles(tiles);
+		base.Exit();
         targetPanel.Close();
     }
 
@@ -59,4 +65,68 @@ public class CombatExploreState : CombatState
             }
         }
     }
+
+	// notifications
+	// when turns list is clicked, highlight the board/aoe effect
+	const string TurnsListClickPU = "TurnsListClick.PlayerUnit";
+	const string TurnsListClickTurnObject = "TurnsListClick.TurnObject";
+
+	void OnEnable()
+	{
+		this.AddObserver(OnTurnsListClickPU, TurnsListClickPU);
+		this.AddObserver(OnTurnsListClickTurnObject, TurnsListClickTurnObject);
+	}
+
+	void OnDisable()
+	{
+		this.RemoveObserver(OnTurnsListClickPU, TurnsListClickPU);
+		this.RemoveObserver(OnTurnsListClickTurnObject, TurnsListClickTurnObject);
+	}
+
+	void OnTurnsListClickPU(object sender, object args)
+	{
+		//this.PostNotification(TurnsListClickPU, unitId);
+		Debug.Log("Recievign args: " + args);
+		int unitID = (int)args;
+		if (unitID != NameAll.NULL_UNIT_ID)
+		{
+			PlayerUnit pu = PlayerManager.Instance.GetPlayerUnit(unitID);
+			SelectTile(pu);
+			targetPanel.SetTargetPreview(pu);
+		}
+	}
+
+	void OnTurnsListClickTurnObject(object sender, object args)
+	{
+		TurnObject to = (TurnObject)args;
+		if( to != null)
+		{
+			if( to.targetX != NameAll.NULL_INT && to.targetY != NameAll.NULL_INT)
+			{
+
+				Tile t = owner.board.GetTile(to.targetX, to.targetY);
+				targetPanel.SetTargetPreview(t);
+				if (to.spellName != null)
+				{
+					//select tiles for the spell
+					PlayerUnit pu = PlayerManager.Instance.GetPlayerUnit(to.GetActorId());
+					CombatAbilityArea aa = new CombatAbilityArea();
+					tiles = aa.GetTilesInArea(owner.board, pu, to.spellName, t, pu.Dir);
+					turn.targetTile = currentTile;
+					board.SelectTiles(tiles);
+				}
+				else
+				{
+					SelectTile(t.pos);
+				}
+			}
+			else if(to.GetActorId() != NameAll.NULL_UNIT_ID)
+			{
+				PlayerUnit pu = PlayerManager.Instance.GetPlayerUnit(to.GetActorId());
+				SelectTile(pu);
+				targetPanel.SetTargetPreview(pu);
+			}
+		}
+	}
+
 }

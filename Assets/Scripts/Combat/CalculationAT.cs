@@ -157,7 +157,7 @@ public static class CalculationAT {
             sn = SpellManager.Instance.GetSpellNameByIndex(spellIndex);
             sn.BaseQ = chargeK;// sn.ModifyBaseQForAttack(chargeK);
             //sn = SpellManager.Instance.SetBaseQForAttack(SceneCreate.activeSpellIndex, chargeK);
-            Debug.Log("testing command set charge" + sn.Index);
+            //Debug.Log("testing command set charge" + sn.Index);
         }
 
         return sn;
@@ -305,5 +305,7 @@ public static class CalculationAT {
         return strList;
         //previewPanel.SetHitPreview(strList[0], strList[1], strList[2], strList[3], strList[4]);
     }
+
+	
 
 }

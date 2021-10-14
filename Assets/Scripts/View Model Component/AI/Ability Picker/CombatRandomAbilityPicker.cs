@@ -10,7 +10,6 @@ public class CombatRandomAbilityPicker : CombatBaseAbilityPicker
 	{
         //List<SpellName> primaryList = SpellManager.Instance.GetSpellNamesByCommandSet(pu.ClassId, pu);
         //List<SpellName> secondaryList = SpellManager.Instance.GetSpellNamesByCommandSet(pu.AbilitySecondaryCode, pu);
-        PlayerUnitObject puo = PlayerManager.Instance.GetPlayerUnitObjectComponent(pu.TurnOrder);
 
         int z1 = Random.Range(0, 4); //Debug.Log("FORCING AI TO CHOOSE A SECONDARY ABILITY, DISABLE THIS AFTER TESTING " + z1);
         if( z1 == 0) //default/attack
@@ -20,15 +19,15 @@ public class CombatRandomAbilityPicker : CombatBaseAbilityPicker
         }
         else if( z1 == 1) //grab from secondary
         {
-            if (puo.secondaryAbilityIdList.Count <= 0)
+            if (pu.secondaryAbilityIdList.Count <= 0)
             {
                 combatPlan.spellName = Default(pu); //Debug.Log("grabbing from secondary but no abilities " + puo.secondaryAbilityIdList.Count);
                 combatPlan.target = Targets.Foe;
             }
             else
             {
-                int z2 = Random.Range(0, (puo.secondaryAbilityIdList.Count - 1)); //Debug.Log("random ability " + z2 + "," + puo.secondaryAbilityIdList[z2]);
-                combatPlan.spellName = SpellManager.Instance.GetSpellNameByIndex(puo.secondaryAbilityIdList[z2]);
+                int z2 = Random.Range(0, (pu.secondaryAbilityIdList.Count - 1)); //Debug.Log("random ability " + z2 + "," + puo.secondaryAbilityIdList[z2]);
+                combatPlan.spellName = SpellManager.Instance.GetSpellNameByIndex(pu.secondaryAbilityIdList[z2]);
                 if (SpellManager.Instance.IsSpellPositive(combatPlan.spellName))
                 {
                     combatPlan.target = Targets.Ally;
@@ -43,15 +42,15 @@ public class CombatRandomAbilityPicker : CombatBaseAbilityPicker
         }
         else //grab from primary
         {
-            if( puo.primaryAbilityIdList.Count <= 0)
+            if( pu.primaryAbilityIdList.Count <= 0)
             {
                 combatPlan.spellName = Default(pu);
                 combatPlan.target = Targets.Foe;
             }
             else
             {
-                int z2 = Random.Range(0, (puo.primaryAbilityIdList.Count - 1));
-                combatPlan.spellName = SpellManager.Instance.GetSpellNameByIndex(puo.primaryAbilityIdList[z2]); //Debug.Log("random ability " + z2 + "," + puo.primaryAbilityIdList[z2]);
+                int z2 = Random.Range(0, (pu.primaryAbilityIdList.Count - 1));
+                combatPlan.spellName = SpellManager.Instance.GetSpellNameByIndex(pu.primaryAbilityIdList[z2]); //Debug.Log("random ability " + z2 + "," + puo.primaryAbilityIdList[z2]);
                 combatPlan.target = Targets.Foe;
 
                 if (SpellManager.Instance.IsSpellPositive(combatPlan.spellName))
@@ -119,7 +118,7 @@ public class CombatRandomAbilityPicker : CombatBaseAbilityPicker
         return combatPlan;
     }
 
-    public CombatPlanOfAttack PickEnemyHurt(CombatPlanOfAttack poa, PlayerUnit pu, PlayerUnitObject puo, int attempt)
+    public CombatPlanOfAttack PickEnemyHurt(CombatPlanOfAttack poa, PlayerUnit pu, int attempt)
     {
         poa.spellName = null; //have to reset as this is called multiple times and the spellName will persist between attempts
         attempt = attempt % 3; //Debug.Log("attempt is " + attempt);
@@ -129,7 +128,7 @@ public class CombatRandomAbilityPicker : CombatBaseAbilityPicker
         }
         else
         {
-            foreach(SpellNameAI snai in puo.aiSpellList)
+            foreach(SpellNameAI snai in pu.aiSpellList)
             {
                 if( snai.isDamageType) //looks for next is damage type spell, called multiple times so don't watn to keep grabbign the same ability (ie 1st time grab 1st ability, 2nd time 2nd ability etc)
                 {
@@ -150,11 +149,11 @@ public class CombatRandomAbilityPicker : CombatBaseAbilityPicker
         return poa;
     }
 
-    public CombatPlanOfAttack PickAllyHurt(CombatPlanOfAttack poa, PlayerUnitObject puo)
+    public CombatPlanOfAttack PickAllyHurt(CombatPlanOfAttack poa, PlayerUnit pu)
     {
         poa.target = Targets.Ally;
         List<SpellName> tempList = new List<SpellName>();
-        foreach (SpellNameAI snai in puo.aiSpellList)
+        foreach (SpellNameAI snai in pu.aiSpellList)
         {
             if (snai.isCureType)
             {
@@ -176,11 +175,11 @@ public class CombatRandomAbilityPicker : CombatBaseAbilityPicker
         return poa;
     }
 
-    public CombatPlanOfAttack PickAllyDead(CombatPlanOfAttack poa, PlayerUnitObject puo)
+    public CombatPlanOfAttack PickAllyDead(CombatPlanOfAttack poa, PlayerUnit pu)
     {
         poa.target = Targets.Ally;
         List<SpellName> tempList = new List<SpellName>();
-        foreach (SpellNameAI snai in puo.aiSpellList)
+        foreach (SpellNameAI snai in pu.aiSpellList)
         {
             if (snai.isReviveType)
             {

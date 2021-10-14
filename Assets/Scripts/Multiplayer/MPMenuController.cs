@@ -4,11 +4,13 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
-
+/// <summary>
+/// DEPRECATED OLD WAY OF DOING MULTIPLAYER
+/// </summary>
 //controls the MP "lobby" scene. connects to network, allows player to find game, create game or chat
 //to do
 //add a JoinOrCreateRoom function for private rooms, tutorial page about matchmaking has more details
-public class MPMenuController //: Photon.PunBehaviour
+public class MPMenuController : MonoBehaviour //: Photon.PunBehaviour
 {
     //[SerializeField]
     //GameObject mpMenuPanel;
@@ -210,8 +212,8 @@ public class MPMenuController //: Photon.PunBehaviour
             //expectedProperties.Add(RoomProperty.Draft, draft);
             //expectedProperties.Add(RoomProperty.Version, version);
             //expectedProperties.Add("curScn", "MultiplayerMenu");
-            ExitGames.Client.Photon.Hashtable tempHash = new ExitGames.Client.Photon.Hashtable();
-            tempHash = CreateRoomProperties();
+            //ExitGames.Client.Photon.Hashtable tempHash = new ExitGames.Client.Photon.Hashtable();
+            //tempHash = CreateRoomProperties();
             //Debug.Log(" expected properties are " + tempHash.ToStringFull() );
             //byte zByte = (byte)2;
             //PhotonNetwork.JoinRandomRoom(tempHash,2); //if join fails, random room created
@@ -333,20 +335,20 @@ public class MPMenuController //: Photon.PunBehaviour
         SceneManager.LoadScene(NameAll.SCENE_MAIN_MENU);
     }
 
-    ExitGames.Client.Photon.Hashtable CreateRoomProperties()
-    {
-        return new ExitGames.Client.Photon.Hashtable
-        {
-            {RoomProperty.Version, PlayerPrefs.GetInt(NameAll.PP_MP_OPTIONS_VERSION, NameAll.VERSION_AURELIAN)},
-            {RoomProperty.Draft, PlayerPrefs.GetInt(NameAll.PP_MP_OPTIONS_DRAFT, NameAll.DRAFT_TYPE_TIMED_PICK)}
-        };
+    //ExitGames.Client.Photon.Hashtable CreateRoomProperties()
+    //{
+    //    return new ExitGames.Client.Photon.Hashtable
+    //    {
+    //        {RoomProperty.Version, PlayerPrefs.GetInt(NameAll.PP_MP_OPTIONS_VERSION, NameAll.VERSION_AURELIAN)},
+    //        {RoomProperty.Draft, PlayerPrefs.GetInt(NameAll.PP_MP_OPTIONS_DRAFT, NameAll.DRAFT_TYPE_TIMED_PICK)}
+    //    };
 
-        //roomOptions.customRoomProperties = new ExitGames.Client.Photon.Hashtable();
-        //int version = PlayerPrefs.GetInt(NameAll.PP_MP_OPTIONS_VERSION, 1);
-        //int draft = PlayerPrefs.GetInt(NameAll.PP_MP_OPTIONS_DRAFT, 1);
-        //roomOptions.customRoomProperties.Add(RoomProperty.Version, version);
-        //roomOptions.customRoomProperties.Add(RoomProperty.Draft, draft);
-    }
+    //    //roomOptions.customRoomProperties = new ExitGames.Client.Photon.Hashtable();
+    //    //int version = PlayerPrefs.GetInt(NameAll.PP_MP_OPTIONS_VERSION, 1);
+    //    //int draft = PlayerPrefs.GetInt(NameAll.PP_MP_OPTIONS_DRAFT, 1);
+    //    //roomOptions.customRoomProperties.Add(RoomProperty.Version, version);
+    //    //roomOptions.customRoomProperties.Add(RoomProperty.Draft, draft);
+    //}
 
     string[] CreateRoomPropertiesForLobby()
     {

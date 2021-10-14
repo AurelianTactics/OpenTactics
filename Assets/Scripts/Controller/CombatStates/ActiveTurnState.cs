@@ -3,6 +3,7 @@ using System.Collections;
 
 //entered from GameLoopState
 	//seems kind of unnecessary. could probably put most of this in CombatCommandSelectionState or maybe part of it in GameLoopState
+	//assuming that never come here if rendermode is none or get some game breaking change state things
 public class ActiveTurnState : CombatState
 {
 
@@ -12,8 +13,8 @@ public class ActiveTurnState : CombatState
     {
         base.Enter();
         isOffline = PlayerManager.Instance.IsOfflineGame();
-        //EnableObservers();
-        StartCoroutine(DoPhase());
+		//EnableObservers();
+		DoPhase();
     }
 
     public override void Exit()
@@ -24,82 +25,64 @@ public class ActiveTurnState : CombatState
         //statPanelController.HidePrimary();
     }
 
-    IEnumerator DoPhase()
-    {
-        PlayerUnit pu = PlayerManager.Instance.GetNextActiveTurnPlayerUnit(isSetQuickFlagToFalse: true);//sets quickFlag to false if it was true
-        
-        if (pu != null) //probably an unnecessary check
-        {
-            turn.Change(pu);
+	void DoPhase()
+	{
+		PlayerUnit pu = PlayerManager.Instance.GetNextActiveTurnPlayerUnit(isSetQuickFlagToFalse: true);//sets quickFlag to false if it was true
+		//Debug.Log("in do phase top");
+		
+		if (pu != null) //probably an unnecessary check
+		{
+			turn.Change(pu);
 
-            actorPanel.SetActor(turn.actor); //stat panel showing unit and details
-            cameraMain.Open(board.GetTile(turn.actor));
-            cameraMain.FollowUnit(turn.actor.TurnOrder);
-            if (!isOffline)
-            {
-                PlayerManager.Instance.SendMPActiveTurnPreTurn(pu.TurnOrder); //so Other can highlight the proper unit and know whose turn it is
-                if ( pu.TeamId == NameAll.TEAM_ID_GREEN)
-                    owner.battleMessageController.Display("Your Turn for: " + turn.actor.UnitName);
-                else
-                    owner.battleMessageController.Display("Opponent Turn for: " + turn.actor.UnitName);
+			actorPanel.SetActor(turn.actor); //stat panel showing unit and details
+			cameraMain.Open(board.GetTile(turn.actor));
+			cameraMain.FollowUnit(turn.actor.TurnOrder);
 
-            }
-                
+			if (!isOffline)
+			{
+				PlayerManager.Instance.SendMPActiveTurnPreTurn(pu.TurnOrder); //so Other can highlight the proper unit and know whose turn it is
+				if (pu.TeamId == NameAll.TEAM_ID_GREEN)
+					owner.battleMessageController.Display("Your Turn for: " + turn.actor.UnitName);
+				else
+					owner.battleMessageController.Display("Opponent Turn for: " + turn.actor.UnitName);
 
-            //handles dead, reraise, chicken etc. if unit is dead and unable to act returns a true
-            bool skipTurn = StatusManager.Instance.CheckStatusAtBeginningOfTurn(turn.actor.TurnOrder); //handles dead and reraise, not sure if this is the best place to do it
-            yield return null;
-            SelectTile(turn.actor);
-            
-            yield return null;
-            if( skipTurn)
-            {
-                yield return new WaitForSeconds(1.0f);
-                PlayerManager.Instance.EndCombatTurn(turn,true);
-                actorPanel.Close();
-                owner.ChangeState<GameLoopState>();
-            }
-            else
-            {
-                owner.ChangeState<CombatCommandSelectionState>();
-            }
-            
-        }
-        else
-        {
-            actorPanel.Close();
-            owner.ChangeState<GameLoopState>();
-        }
-    }
+			}
 
-    //#region notifications //moved to GameLoopState
 
-    //const string DidStatusManager = "StatusManager.Did";
+			//handles dead, reraise, chicken etc. if unit is dead and unable to act returns a true
+			bool skipTurn = StatusManager.Instance.CheckStatusAtBeginningOfTurn(turn.actor.TurnOrder); //handles dead and reraise, not sure if this is the best place to do it
+			if (skipTurn)
+			{
+				StartCoroutine(SkipTurnCoroutine());
+			}
+			else
+			{
+				StartCoroutine(GoToCombatCommandSelectionState());
+			}
+			//Debug.Log("in do phase near end");
+		}
+		else
+		{
+			if (owner.renderMode != NameAll.PP_RENDER_NONE)
+				actorPanel.Close();
+			owner.ChangeState<GameLoopState>();
+		}
+	}
 
-    //void EnableObservers()
-    //{
-    //    this.AddObserver(OnStatusManagerNotification, DidStatusManager);
-    //}
+	IEnumerator GoToCombatCommandSelectionState()
+	{
+		yield return null;
+		owner.ChangeState<CombatCommandSelectionState>();
+	}
 
-    //void DisableObservers()
-    //{
-    //    this.RemoveObserver(OnStatusManagerNotification, DidStatusManager);
-    //}
+	IEnumerator SkipTurnCoroutine()
+	{
+		yield return null;
+		SelectTile(turn.actor);
+		yield return new WaitForSeconds(1.0f);
+		PlayerManager.Instance.EndCombatTurn(turn, true);
+		actorPanel.Close();
+		owner.ChangeState<GameLoopState>();
+	}
 
-    //void OnStatusManagerNotification(object sender, object args)
-    //{
-    //    string str = (string)args;
-    //    if( str.Equals(NameAll.STATUS_NAME_CRYSTAL))
-    //    {
-    //        //roll for crystal
-    //        if (CalculationResolveAction.RollForSuccess(50))
-    //        {
-    //            //turn object holds the player shit
-    //            board.SetTilePickUp(turn.actor, true, 1);
-    //        }
-    //        board.DisableUnit(turn.actor);
-    //        PlayerManager.Instance.DisableUnit(turn.actor.TurnOrder);
-    //    }
-    //}
-    //    #endregion
 }

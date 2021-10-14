@@ -50,8 +50,9 @@ public class ReactionState : CombatState
             //modify the spellName for reaction
             ssTurn.spellName = CalculationAT.ModifyReactionSpellName(sr, ssTurn.actor.TurnOrder);
 
-            yield return StartCoroutine(owner.calcMono.DoFastActionInner(board, ssTurn, isActiveTurn: false, isSlowActionPhase: false, isReaction: true, isMime: false));
-            SpellManager.Instance.RemoveSpellReactionByObject(sr); //disables player reaction flag in here
+			owner.calcMono.DoFastAction(board, ssTurn, isActiveTurn: false, isReaction: true, isMime: false, renderMode: owner.renderMode);
+			//yield return StartCoroutine(owner.calcMono.DoFastActionInner(board, ssTurn, isActiveTurn: false, isSlowActionPhase: false, isReaction: true, isMime: false));
+			SpellManager.Instance.RemoveSpellReactionByObject(sr); //disables player reaction flag in here
             HighlightActorTile(ssTurn.actor, false); //unhighlight
             board.DeSelectTiles(ssTurn.targets); //deselect the tiles
         }

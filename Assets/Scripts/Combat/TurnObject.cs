@@ -14,8 +14,9 @@ public class TurnObject {
     string title;
     int teamId;
     public int CTR; //ticks til resolution
+	public SpellName spellName;
 
-    public TurnObject(int zOrder, int zActorId, int zTargetX, int zTargetY, int zEffectXY, int zEffectZ, string zTitle, int zCTR)
+	public TurnObject(int zOrder, int zActorId, int zTargetX, int zTargetY, int zEffectXY, int zEffectZ, string zTitle, int zCTR, SpellName sn)
     {
         this.turnId = zOrder;
         this.actorId = zActorId;
@@ -25,6 +26,7 @@ public class TurnObject {
         this.effectZ = zEffectZ;
         this.title = zTitle;
         this.CTR = zCTR;
+		this.spellName = sn;
         SetTeamId(this.actorId);
     }
 
@@ -39,6 +41,7 @@ public class TurnObject {
         this.effectZ = sss.effectZ;
         this.title =  sss.name;
         this.CTR = zCTR;
+		this.spellName = sss.spellName;
         SetTeamId(this.actorId);
     }
 
@@ -52,6 +55,7 @@ public class TurnObject {
         this.effectZ = 1919;
         this.title = spu.name + " ("+spu.actorId+")";
         this.CTR = zCTR;
+		this.spellName = null;
         SetTeamId(this.actorId);
     }
 
@@ -66,6 +70,7 @@ public class TurnObject {
         this.effectZ = sn.EffectZ;
         this.title = "Unselected: " + sn.AbilityName;
         this.CTR = zCTR;
+		this.spellName = sn;
         if( zTeamId != NameAll.NULL_UNIT_ID)
         {
             SetTeamId(this.actorId);

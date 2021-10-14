@@ -2,6 +2,11 @@
 using System.Collections;
 
 public class StatusCheckState : CombatState {
+	/// <summary>
+	/// DEPRECATED FOR NOW
+	/// just doing the status managercheck from gameloop state to speed things up a bit
+	/// </summary>
+
     //decrement the current statuses
         //create an array that shows the expired but not shown
         //use that array with this state to do whatever you need, empty that array at the end

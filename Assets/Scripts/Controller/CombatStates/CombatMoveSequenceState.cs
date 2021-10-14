@@ -26,8 +26,8 @@ public class CombatMoveSequenceState : CombatState
             if (turn.actor.AbilityMovementCode == NameAll.MOVEMENT_TELEPORT_1)
             {
                 int rollChance = 100 + (turn.actor.StatTotalMove - MapTileManager.Instance.GetDistanceBetweenTiles(turn.actor.TileX, turn.actor.TileY, owner.currentTile.pos.x, owner.currentTile.pos.y)) * 10;
-                int roll = UnityEngine.Random.Range(1, 101);
-                if (roll > rollChance)
+				int roll = PlayerManager.Instance.GetRollResult(rollChance, 1, 100, NameAll.COMBAT_LOG_TYPE_MOVE, NameAll.COMBAT_LOG_SUBTYPE_MOVE_TELEPORT_ROLL, null, turn.actor);
+				if (roll > rollChance)
                 {
                     confirmMove = false;
                     owner.battleMessageController.Display("Teleport fails!");
@@ -105,9 +105,12 @@ public class CombatMoveSequenceState : CombatState
                         StatusManager.Instance.AddStatusAndOverrideOthers(NameAll.MOVEMENT_CRUNCH, crunchUnitId, NameAll.STATUS_ID_CRYSTAL);
                         PlayerManager.Instance.DisableUnit(crunchUnitId); //online: RPC call to other; also sends notification if other is calling this
                         board.DisableUnit(PlayerManager.Instance.GetPlayerUnit(crunchUnitId));
-
-                        CombatLogClass cll = new CombatLogClass("is hit by Crunch and is ground to dust...", crunchUnitId);
-                        cll.SendNotification();
+						if( PlayerManager.Instance.GetRenderMode() != NameAll.PP_RENDER_NONE)
+						{
+							CombatLogClass cll = new CombatLogClass("is hit by Crunch and is ground to dust...", crunchUnitId, PlayerManager.Instance.GetRenderMode());
+							cll.SendNotification();
+						}
+                        
                     }
                 }
                 else if (turn.actor.AbilityMovementCode == NameAll.MOVEMENT_SWAP) //know who to swap right away but can't do it due to tile updating sequence til after actor moves
@@ -126,7 +129,7 @@ public class CombatMoveSequenceState : CombatState
             if(!isOffline)
             {
                 //Debug.Log("sending confirm move to other");
-                PlayerManager.Instance.ConfirmMove(board, turn.actor, owner.currentTile, isClassicClass, swapUnitId);
+                //PlayerManager.Instance.ConfirmMove(board, turn.actor, owner.currentTile, isClassicClass, swapUnitId);
             }
                 
 
@@ -162,7 +165,7 @@ public class CombatMoveSequenceState : CombatState
                 yield return StartCoroutine(puo.Traverse(owner.currentTile));
 
             puo.SetAnimation("idle", true);
-            PlayerManager.Instance.SetUnitTile(board, turn.actor.TurnOrder, owner.currentTile);
+            PlayerManager.Instance.SetUnitTile(board, turn.actor.TurnOrder, owner.currentTile, isAddCombatLog:true);
 
             yield return new WaitForFixedUpdate(); //not sure if needed but want at least a slight delay for the swap
             if (swapUnitId != NameAll.NULL_UNIT_ID)
@@ -171,7 +174,7 @@ public class CombatMoveSequenceState : CombatState
         }
         
         
-        DoTilePickUp(); //Debug.Log("calling coroutine move effect is " + moveEffect);
+        DoTilePickUp(owner.renderMode); //Debug.Log("calling coroutine move effect is " + moveEffect);
         StartCoroutine(OnMoveEffect()); //Phase change happens in here after the result of the OnMoveEffect inner function, could move out here and do yield return StartCoroutine()
 
         //yield return new WaitForFixedUpdate();//in case confirmMove fails, need to wait a frame before changing the state
@@ -184,7 +187,7 @@ public class CombatMoveSequenceState : CombatState
         owner.ChangeState<CombatCommandSelectionState>();
     }
 
-    void DoTilePickUp()
+    void DoTilePickUp(int renderMode)
     {
         Tile t = board.GetTile(turn.actor);
         if (t.PickUpId == 1) //crystal
@@ -192,10 +195,12 @@ public class CombatMoveSequenceState : CombatState
             if (!isOffline)
                 PlayerManager.Instance.SendMPRemoveTilePickUp( t.pos.x, t.pos.y, false, t.PickUpId);
 
-            board.SetTilePickUp(turn.actor.TileX,turn.actor.TileY, false, t.PickUpId);
+            board.SetTilePickUp(turn.actor.TileX,turn.actor.TileY, false, renderMode, t.PickUpId);
             //fully restores HP and MP
-            PlayerManager.Instance.AlterUnitStat(NameAll.REMOVE_STAT_HEAL, turn.actor.StatTotalMaxLife,NameAll.STAT_TYPE_HP,turn.actor.TurnOrder);
-            PlayerManager.Instance.AlterUnitStat(NameAll.REMOVE_STAT_HEAL, turn.actor.StatTotalMaxMP, NameAll.STAT_TYPE_MP, turn.actor.TurnOrder);
+            PlayerManager.Instance.AlterUnitStat(NameAll.REMOVE_STAT_HEAL, turn.actor.StatTotalMaxLife, NameAll.STAT_TYPE_HP, turn.actor.TurnOrder, 
+				combatLogSubType:NameAll.COMBAT_LOG_SUBTYPE_CRYSTAL_PICK_UP);
+            PlayerManager.Instance.AlterUnitStat(NameAll.REMOVE_STAT_HEAL, turn.actor.StatTotalMaxMP, NameAll.STAT_TYPE_MP, turn.actor.TurnOrder,
+				combatLogSubType: NameAll.COMBAT_LOG_SUBTYPE_CRYSTAL_PICK_UP);
         }
     }
 
@@ -205,7 +210,8 @@ public class CombatMoveSequenceState : CombatState
         {
             //Debug.Log("just prior to CalcResovleAction move effect is " + moveEffect);
             CalculationResolveAction.CreateSpellReactionMove( turn.actor.ClassId, turn.actor.AbilityMovementCode, turn.actor.TurnOrder, moveEffect);
-            yield return null;
+			PlayerManager.Instance.AddCombatLogSaveObject(NameAll.COMBAT_LOG_TYPE_MOVE, NameAll.COMBAT_LOG_SUBTYPE_MOVE_EFFECT, cTurn: turn, effectValue: turn.actor.AbilityMovementCode);
+			yield return null;
             StartCoroutine(DoPhase());
         }
         else
@@ -245,9 +251,10 @@ public class CombatMoveSequenceState : CombatState
             //modify the spellName for reaction
             ssTurn.spellName = CalculationAT.ModifyReactionSpellName(sr, ssTurn.actor.TurnOrder);
 
-            yield return StartCoroutine(owner.calcMono.DoFastActionInner(board, ssTurn, isActiveTurn: false, isSlowActionPhase: false, isReaction: true, isMime: false));
-            //owner.calcMono.DoFastAction(board, ssTurn, isActiveTurn: false, isSlowAction: false, isReaction: true, isMime: false);
-            SpellManager.Instance.RemoveSpellReactionByObject(sr); //disables player reaction flag in here
+			owner.calcMono.DoFastAction(board, ssTurn, isActiveTurn: false, isReaction: true, isMime: false, renderMode: owner.renderMode);
+			//yield return StartCoroutine(owner.calcMono.DoFastActionInner(board, ssTurn, isActiveTurn: false, isSlowActionPhase: false, isReaction: true, isMime: false));
+			//owner.calcMono.DoFastAction(board, ssTurn, isActiveTurn: false, isSlowAction: false, isReaction: true, isMime: false);
+			SpellManager.Instance.RemoveSpellReactionByObject(sr); //disables player reaction flag in here
         }
         ChangeState();
     }

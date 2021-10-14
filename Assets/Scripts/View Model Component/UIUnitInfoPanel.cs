@@ -3,6 +3,12 @@ using System.Collections;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
+/// <summary>
+/// Ugly placeholder that holds information and stats about units
+/// </summary>
+/// <remarks>
+/// At some point, need to make allow players to navigate and request help on various terms and stats
+/// </remarks>
 public class UIUnitInfoPanel : MonoBehaviour {
 
     public Text nameText;

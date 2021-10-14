@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+//used in PUO for status image object
 public class CameraFacingBillboard : MonoBehaviour
 {
     public Camera m_Camera;
@@ -17,3 +18,4 @@ public class CameraFacingBillboard : MonoBehaviour
             m_Camera.transform.rotation * Vector3.up);
     }
 }
+

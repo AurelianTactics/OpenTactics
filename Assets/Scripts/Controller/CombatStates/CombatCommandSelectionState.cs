@@ -12,8 +12,8 @@ public class CombatCommandSelectionState : BaseCombatAbilityMenuState
     bool isMasterClient;
 
 	// notifications
-	const string RLSendAction = "ReinforcementLearning.SendAction"; //get action from ML
-	const string RLRequestAction = "ReinforcementLearning.RequestAction";  //send request for action to ML
+	const string RLSendAction = "ReinforcementLearning.SendAction"; //get action from RL
+	const string RLRequestAction = "ReinforcementLearning.RequestAction";  //send request for action to RL
 
 	public override void Enter()
     {
@@ -23,7 +23,8 @@ public class CombatCommandSelectionState : BaseCombatAbilityMenuState
         isMasterClient = PlayerManager.Instance.isMPMasterClient();
 
         EnableObservers();
-        actorPanel.SetActor(turn.actor);
+
+		actorPanel.SetActor(turn.actor);
         
 
         turn.CheckStatuses(); //act/move based on statuses
@@ -216,7 +217,7 @@ public class CombatCommandSelectionState : BaseCombatAbilityMenuState
         
         if( !turn.hasUnitActed || !turn.hasUnitMoved)
         {
-            activeMenu.SetMenuTop(turn,owner.battleMessageController); //Debug.Log("reached here a");
+			activeMenu.SetMenuTop(turn,owner.battleMessageController); //Debug.Log("reached here a");
         }
         else
         {

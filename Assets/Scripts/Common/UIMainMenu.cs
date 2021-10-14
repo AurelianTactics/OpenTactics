@@ -1,14 +1,16 @@
-﻿/*
-Used in MainMenu Scene
-Handles various OnClick button functions
-Launches game modes and builders
- */
-
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Used in MainMenu Scene
+/// Handles various OnClick button functions
+/// Launches game modes and builders
+/// </summary>
+/// <remarks>
+/// Some scene object might be missing scripts due to downgrading from paid menu UI to free UI
+/// </remarks>
 public class UIMainMenu : MonoBehaviour {
 
     public Button RLButton;
@@ -120,7 +122,7 @@ public class UIMainMenu : MonoBehaviour {
         playCustomGameButton.gameObject.SetActive(zBool);
         playCampaignButton.gameObject.SetActive(zBool);
         playStoryButton.gameObject.SetActive(zBool);
-        playOnlineButton.gameObject.SetActive(zBool);
+        //playOnlineButton.gameObject.SetActive(zBool);
         playOpenWorldButton.gameObject.SetActive(zBool);
     }
 

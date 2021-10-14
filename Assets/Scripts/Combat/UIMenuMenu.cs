@@ -11,14 +11,16 @@ public class UIMenuMenu : MonoBehaviour {
     public Button logButton;
     public Button statsButton;
     public Button wheelButton;
-    public Button quitButton;
+	public Button resetButton;
+	public Button quitButton;
 
     UIGenericButton menuButtonUI;
     UIGenericButton atButtonUI;
     UIGenericButton wheelButtonUI;
     UIGenericButton logButtonUI;
     UIGenericButton statsButtonUI;
-    UIGenericButton quitButtonUI;
+	UIGenericButton resetButtonUI;
+	UIGenericButton quitButtonUI;
 
     [SerializeField]
     GameObject combatLogMenuField;
@@ -47,7 +49,8 @@ public class UIMenuMenu : MonoBehaviour {
         wheelButtonUI = wheelButton.GetComponent<UIGenericButton>();
         logButtonUI = logButton.GetComponent<UIGenericButton>();
         statsButtonUI = statsButton.GetComponent<UIGenericButton>();
-        quitButtonUI = quitButton.GetComponent<UIGenericButton>();
+		resetButtonUI = resetButton.GetComponent<UIGenericButton>();
+		quitButtonUI = quitButton.GetComponent<UIGenericButton>();
 
         menuButtonUI.SetText("Menu");
         atButtonUI.SetText("Turns");
@@ -55,7 +58,8 @@ public class UIMenuMenu : MonoBehaviour {
         //wheelButtonUI.SetText("Wheel");
         logButtonUI.SetText("Log");
         statsButtonUI.SetText("Stats");
-        quitButtonUI.SetText("Quit");
+		resetButtonUI.SetText("Reset");
+		quitButtonUI.SetText("Quit");
         toggleMaximize = true;
         Minimize();
 
@@ -110,7 +114,7 @@ public class UIMenuMenu : MonoBehaviour {
 
     public void ShowWheelMenu()
     {
-
+		//to do: so people can use color/number wheel for compat at some point
     }
 
     public void ShowCombatMenu()
@@ -160,7 +164,12 @@ public class UIMenuMenu : MonoBehaviour {
         GetComponent<DialogController>().Show("Quit Game", "Are you sure you want to quit?", ConfirmExit, null);
     }
 
-    public void ShowCombatStats(CombatStats cs = null)
+	public void ShowResetMenu()
+	{
+		GetComponent<DialogController>().Show("Reset Level", "Are you sure you want to reset?", ConfirmReset, null);
+	}
+
+	public void ShowCombatStats(CombatStats cs = null)
     {
         if (cs == null)
             cs = PlayerManager.Instance.GetCombatStats();
@@ -193,7 +202,15 @@ public class UIMenuMenu : MonoBehaviour {
         
     }
 
-    void OpenMenu()
+	void ConfirmReset()
+	{
+		//Debug.Log("confirming reset");
+		bool isSelfReset = true;
+		this.PostNotification(NameAll.NOTIFICATION_RESET_GAME, isSelfReset);
+
+	}
+
+	void OpenMenu()
     {
         Maximize();
     }
@@ -210,7 +227,8 @@ public class UIMenuMenu : MonoBehaviour {
         //wheelButtonUI.Close();
         logButtonUI.Close();
         statsButtonUI.Close();
-        quitButtonUI.Close();
+		resetButtonUI.Close();
+		quitButtonUI.Close();
     }
 
     void Maximize()
@@ -220,7 +238,8 @@ public class UIMenuMenu : MonoBehaviour {
         //wheelButtonUI.Open();
         logButtonUI.Open();
         statsButtonUI.Open();
-        quitButtonUI.Open();
+		resetButtonUI.Open();
+		quitButtonUI.Open();
     }
 
     #region notifications

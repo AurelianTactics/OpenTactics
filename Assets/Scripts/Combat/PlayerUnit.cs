@@ -1944,13 +1944,26 @@ public class PlayerUnit {
         //PlayerManager.Instance.SetPlayerObjectAnimation(this.TurnOrder, "rise", false); //calling this in statusmanager
     }
 
-    public void SetHP(int effect, int remove_stat, int elemental_type = 0, bool removeAll = false)
+    public void SetHP(int effect, int remove_stat, int elemental_type = 0, bool removeAll = false, bool isSaveCombatLog = false, SpellName sn = null,
+		PlayerUnit actor = null, int rollResult = -1919, int rollChance = -1919, int combatLogSubType = -1919)
     {
-        //Debug.Log("doing a call to set hp. effect, removeStat, elementalType, removeAll " + effect + ", " + remove_stat + ", " + elemental_type + ", " + removeAll);
-        if( removeAll)
+		//parameters used for Combat logging: bool isSaveCombatLog = false, SpellName sn = null, PlayerUnit actor = null, int rollValue = -1919, int rollChance = -1919
+		//Debug.Log("doing a call to set hp. effect, removeStat, elementalType, removeAll " + effect + ", " + remove_stat + ", " + elemental_type + ", " + removeAll);
+		if ( removeAll)
         {
             this.StatTotalLife = 0; //killing the unit like with death sentence
             //DON'T CALL ADD DEAD, ADD DEAD CALLS THIS
+			if(isSaveCombatLog)
+			{
+				if (combatLogSubType == NameAll.NULL_INT)
+					combatLogSubType = NameAll.COMBAT_LOG_SUBTYPE_SET_HP_REMOVE_ALL;
+				CombatTurn logTurn = new CombatTurn();
+				logTurn.actor = actor;
+				logTurn.spellName = sn;
+				logTurn.targetUnitId = this.TurnOrder;
+				PlayerManager.Instance.AddCombatLogSaveObject(NameAll.COMBAT_LOG_TYPE_ACTION, combatLogSubType, logTurn, rollResult,
+					rollChance, this.StatTotalLife);
+			}
         }
         else
         {
@@ -1964,7 +1977,7 @@ public class PlayerUnit {
                 if (elemental_type == NameAll.ITEM_ELEMENTAL_UNDEAD && StatusManager.Instance.IsUndead(this.TurnOrder) ) 
                 {
                     this.StatTotalLife -= effect;
-                    AddDead();
+                    AddDead(sn, actor, rollResult, rollChance, combatLogSubType);
                     PlayerManager.Instance.ShowFloatingText(this.TurnOrder, 1, "" + effect); //damage
                 }
                 else {
@@ -1994,8 +2007,8 @@ public class PlayerUnit {
                 else //does damage
                 {
                     this.StatTotalLife -= effect;
-                    AddDead();
-                    PlayerManager.Instance.ShowFloatingText(this.TurnOrder, 1, "" + effect); //damage
+					AddDead(sn, actor, rollResult, rollChance, combatLogSubType);
+					PlayerManager.Instance.ShowFloatingText(this.TurnOrder, 1, "" + effect); //damage
                 }
             }
             else if( remove_stat == NameAll.REMOVE_STAT_ABSORB)
@@ -2014,8 +2027,8 @@ public class PlayerUnit {
                 else
                 {
                     this.StatTotalLife -= effect;
-                    AddDead();
-                    PlayerManager.Instance.ShowFloatingText(this.TurnOrder, 1, "" + effect); //damage
+					AddDead(sn, actor, rollResult, rollChance, combatLogSubType);
+					PlayerManager.Instance.ShowFloatingText(this.TurnOrder, 1, "" + effect); //damage
                 }
             }
 
@@ -2032,7 +2045,19 @@ public class PlayerUnit {
                 }
             }
 
-            if( this.StatTotalLife <= hpStart && this.StatTotalLife > 0)
+			if (isSaveCombatLog)
+			{
+				if (combatLogSubType == NameAll.NULL_INT)
+					combatLogSubType = NameAll.COMBAT_LOG_SUBTYPE_SET_HP_REMOVE_ALL;
+				CombatTurn logTurn = new CombatTurn();
+				logTurn.actor = actor;
+				logTurn.spellName = sn;
+				logTurn.targetUnitId = this.TurnOrder;
+				PlayerManager.Instance.AddCombatLogSaveObject(NameAll.COMBAT_LOG_TYPE_ACTION, combatLogSubType, logTurn, rollResult,
+					rollChance, effect, this.StatTotalLife);
+			}
+
+			if ( this.StatTotalLife <= hpStart && this.StatTotalLife > 0)
             {
                 //no need to do a check since if they don't have them then they won't be removed
                 StatusManager.Instance.RemoveStatusTickByUnit(this.TurnOrder, NameAll.STATUS_ID_CHARM, isBeingCalledFromPlayerUnit: true);
@@ -2052,23 +2077,28 @@ public class PlayerUnit {
         return false;
     }
     
+
     //called in setHP, adds dead
-    private void AddDead()
+	//all arguments are for combat logging
+    private void AddDead(SpellName sn = null, PlayerUnit actor=null, int rollResult = -1919, int rollChance = -1919, int combatLogSubType = -1919)
     {
         if (this.StatTotalLife <= 0)
         {
             this.StatTotalLife = 0;
             if( !StatusManager.Instance.IfStatusByUnitAndId(this.TurnOrder,NameAll.STATUS_ID_DEAD))
             {
-                StatusManager.Instance.AddDead(this.TurnOrder); //StatusManager.Instance.addDead(this.TurnOrder, SpellLab.Get(), PlayerUnitLab.Get()); //this sets status to unable to fight
+                StatusManager.Instance.AddDead(this.TurnOrder, sn, actor, rollResult, rollChance, combatLogSubType); //StatusManager.Instance.addDead(this.TurnOrder, SpellLab.Get(), PlayerUnitLab.Get()); //this sets status to unable to fight
             }
         }
     }
 
 
-    public void AlterStat(int alterStat, int effect, int statType, int elementalType)
+    public void AlterStat(int alterStat, int effect, int statType, int elementalType, bool isSaveCombatLog = false, SpellName sn = null,
+		PlayerUnit actor = null, int rollResult = -1919, int rollChance = -1919, int combatLogSubType = -1919)
     {
-        int max_speed;
+		//only used for combat log: bool isSaveCombatLog = false, SpellName sn = null, PlayerUnit actor = null, int rollResult = -1919, int rollChance = -1919
+
+		int max_speed;
         int max_stat;
         int max_stat2;
         int max_move;
@@ -2251,7 +2281,7 @@ public class PlayerUnit {
             }
             else if (statType == NameAll.STAT_TYPE_MAX_HP)
             {
-                SetHP(effect, NameAll.REMOVE_STAT_REMOVE,elementalType);
+                SetHP(effect, NameAll.REMOVE_STAT_REMOVE, elementalType, false, isSaveCombatLog:false );
                 //this.StatUnitMaxLife -= effect;
                 //if (this.StatUnitMaxLife <= 0) //not letting this kill anyone
                 //{
@@ -2263,6 +2293,16 @@ public class PlayerUnit {
             {
                 Debug.LogError("ERROR: stat should have been subtraced but nothing happened");
             }
+
+			if(isSaveCombatLog)
+			{
+				CombatTurn logTurn = new CombatTurn();
+				logTurn.actor = actor;
+				logTurn.spellName = sn;
+				logTurn.targetUnitId = this.TurnOrder;
+				PlayerManager.Instance.AddCombatLogSaveObject(NameAll.COMBAT_LOG_TYPE_ALTER_STAT_REMOVE, combatLogSubType, cTurn: logTurn, rollResult: rollResult,
+					rollChance: rollChance, effectValue: effect, statusValue: statType);
+			}
 
             if (calculate_stats)
             {
@@ -2368,7 +2408,7 @@ public class PlayerUnit {
             }
             else if (statType == NameAll.STAT_TYPE_MAX_MP) //effects MP, not MP max
             {
-                AlterStat(NameAll.REMOVE_STAT_HEAL, effect, NameAll.STAT_TYPE_MP,elementalType);
+                AlterStat(NameAll.REMOVE_STAT_HEAL, effect, NameAll.STAT_TYPE_MP, elementalType);
                 //this.StatUnitMaxMP -= effect;
                 //if (this.StatUnitMaxMP < min_stat)
                 //{
@@ -2404,7 +2444,17 @@ public class PlayerUnit {
             }
             if (statType != NameAll.STAT_TYPE_MAX_HP && statType != NameAll.STAT_TYPE_MAX_MP)
                 PlayerManager.Instance.ShowFloatingText(this.TurnOrder, 5, "+" + effect + " " + NameAll.GetStatTypeString(statType)); Debug.Log("howing floating text");
-        }
+
+			if (isSaveCombatLog)
+			{
+				CombatTurn logTurn = new CombatTurn();
+				logTurn.actor = actor;
+				logTurn.spellName = sn;
+				logTurn.targetUnitId = this.TurnOrder;
+				PlayerManager.Instance.AddCombatLogSaveObject(NameAll.COMBAT_LOG_TYPE_ALTER_STAT_ADD, combatLogSubType, cTurn: logTurn, rollResult: rollResult,
+					rollChance: rollChance, effectValue: effect, statusValue: statType);
+			}
+		}
     }
 
     //called in player manager, board stuff done there
@@ -3142,6 +3192,90 @@ public class PlayerUnit {
 
         return true;
     }
+
+	#region AI stuff
+	//AI stuff moved from PUO to PU for faster mode
+	public Drivers puDriver; //set at beginning of battled and checked to see if if human or AI controlled
+	public List<SpellNameAI> aiSpellList; //used to help speed AI ability checks, used in CombatComputerPlayer to help select an action
+	public bool isDamageSpell; //used to help speed AI ability checks, used in CombatComputerPlayer to see if player can cast DamageSPell
+	public bool isReviveSpell; //used to help speed AI ability checks, used in CombatComputerPlayer to see if player can cast ReviveSpell
+	public bool isCureSpell; //used to help speed AI ability checks, used in CombatComputerPlayer to see if player can cast CureSpell
+	public List<int> primaryAbilityIdList;
+	public List<int> secondaryAbilityIdList;
+
+	//initialize driver at beginning of battle. drivers are used for telling if AI should kick in when entering CombatState for each unit
+	public void SetDriver(Drivers d)
+	{
+		this.puDriver = d;
+		//gets the number of primary and secondary abilities for use in random selecting an ability
+		SetAbilityList();
+	}
+
+	//sets the number of primary and secondary abilities, used for AI in CombatComputerPlayer.cs
+	void SetAbilityList()
+	{
+		int damageType = 0;
+		SpellNameAI snai;
+		this.aiSpellList = new List<SpellNameAI>();
+		this.primaryAbilityIdList = new List<int>();
+		this.secondaryAbilityIdList = new List<int>();
+		this.isDamageSpell = false;
+		this.isCureSpell = false;
+		this.isReviveSpell = false;
+
+		PlayerUnit pu = PlayerManager.Instance.GetPlayerUnit(this.TurnOrder);
+		List<SpellName> primaryList = SpellManager.Instance.GetSpellNamesByCommandSet(pu.ClassId, pu);
+		for (int i = 0; i < primaryList.Count; i++)
+		{
+			primaryAbilityIdList.Add(primaryList[i].SpellId); //Debug.Log(primaryAbilityIdList[i]);
+
+			snai = new SpellNameAI(primaryList[i]);
+			if (snai.isReviveType)
+			{
+				this.aiSpellList.Add(snai);
+				this.isReviveSpell = true;
+			}
+			else if (snai.isCureType)
+			{
+				this.aiSpellList.Add(snai);
+				this.isCureSpell = true;
+			}
+			else if (snai.isDamageType && damageType < 3)
+			{
+				damageType += 1;
+				this.aiSpellList.Add(snai);
+				this.isDamageSpell = true;
+			}
+		}
+
+		if (pu.AbilitySecondaryCode != NameAll.SECONDARY_NONE)
+		{
+			List<SpellName> secondaryList = SpellManager.Instance.GetSpellNamesByCommandSet(pu.AbilitySecondaryCode, pu);
+			for (int i = 0; i < secondaryList.Count; i++)
+			{
+				secondaryAbilityIdList.Add(secondaryList[i].SpellId);
+
+				snai = new SpellNameAI(secondaryList[i]);
+				if (snai.isReviveType)
+				{
+					this.aiSpellList.Add(snai);
+					this.isReviveSpell = true;
+				}
+				else if (snai.isCureType)
+				{
+					this.aiSpellList.Add(snai);
+					this.isCureSpell = true;
+				}
+				else if (snai.isDamageType && damageType < 3)
+				{
+					damageType += 1;
+					this.aiSpellList.Add(snai);
+					this.isDamageSpell = true;
+				}
+			}
+		}
+	}
+	#endregion
 }
 
 //public enum ClassNames

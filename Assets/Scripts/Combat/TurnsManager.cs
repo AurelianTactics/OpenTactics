@@ -56,17 +56,18 @@ public class ShadowSS //fake SpellSlows from teh spell slow queue
     public int effectXY;
     public int effectZ;
     public int uniqueId;
+	public SpellName spellName;
 
     public ShadowSS(SpellSlow ss)
     {
         this.ctr = ss.CTR;
         this.actorId = ss.UnitId;
-        SpellName sn = SpellManager.Instance.GetSpellNameByIndex(ss.SpellIndex);
-        this.name = sn.AbilityName;
+		this.spellName = SpellManager.Instance.GetSpellNameByIndex(ss.SpellIndex);
+        this.name = spellName.AbilityName;
         this.targetX = ss.TargetX;
         this.targetY = ss.TargetY;
-        this.effectXY = sn.EffectXY;
-        this.effectZ = sn.EffectZ;
+        this.effectXY = spellName.EffectXY;
+        this.effectZ = spellName.EffectZ;
         this.uniqueId = ss.UniqueId;
     }
 }

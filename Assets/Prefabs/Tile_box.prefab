@@ -41,7 +41,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1000014037306690}
-  m_Mesh: {fileID: 4300000, guid: 818c643fea0cf6940b27d0bf1e38a010, type: 3}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!65 &65000013596481628
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -73,7 +73,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f4d5c807043f0d249ac9a8b3dbb69104, type: 2}
+  - {fileID: 2100000, guid: 1d9574115221f4a81a90d78747328501, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -106,11 +106,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 863a5deb4bd33472f88485506fe4f672, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  material: {fileID: 2100000, guid: f4d5c807043f0d249ac9a8b3dbb69104, type: 2}
+  material: {fileID: 2100000, guid: 1d9574115221f4a81a90d78747328501, type: 2}
   team2Highlight: {fileID: 2800000, guid: 1661c8fd4a14539479a7e90f45f77ba1, type: 3}
   team3Highlight: {fileID: 2800000, guid: 37e43b9d76ec42d4b82ff82d3be25322, type: 3}
   tileHighlight: {fileID: 2800000, guid: b3ab8104b67c49e44a79315db0cc64b5, type: 3}
-  tileExitMapMaterial: {fileID: 2100000, guid: 859fef49acf95234580ed8a10c91bfbd, type: 2}
+  tileExitMapMaterial: {fileID: 2100000, guid: e43bb82b685554a9eb44125a03e7a5c6, type: 2}
   pos:
     x: 0
     y: 0

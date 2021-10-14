@@ -19,18 +19,6 @@ public class GridworldTacticsAgent : Agent
 
 	int NO_ACTION = 0;
 
-	// Start is called before the first frame update
-	void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
 	public override void Initialize()
 	{
 		//m_BehaviorParameters = gameObject.GetComponent<BehaviorParameters>();
