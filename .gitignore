@@ -59,4 +59,4 @@ sysinfo.txt
 crashlytics-build.properties
 
 # unity store package, don't include
-Assets/FloatingCombatText*
+[Aa]ssets/FloatingCombatText/*
