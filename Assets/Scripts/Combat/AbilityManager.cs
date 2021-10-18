@@ -337,7 +337,7 @@ public class AbilityManager : Singleton<AbilityManager>
         {
             return tempList;
         }
-        //Debug.Log("asdf " + slot + "asdf " + sAbilityList.Count);
+        Debug.Log("asdf " + slot + " asdf " + sAbilityList.Count);
         foreach (AbilityObject a in sAbilityList)
         {
             if (a.Slot == slot)
@@ -348,7 +348,8 @@ public class AbilityManager : Singleton<AbilityManager>
 
         if( slot == NameAll.ABILITY_SLOT_PRIMARY && isGetCustomClass)
         {
-            var customList = CalcCode.LoadCustomClassList(modVersion);
+			Debug.Log(" getting customclass list " + modVersion);
+			var customList = CalcCode.LoadCustomClassList(modVersion);
             foreach(ClassEditObject ce in customList)
             {
                 AbilityObject a = new AbilityObject(ce);

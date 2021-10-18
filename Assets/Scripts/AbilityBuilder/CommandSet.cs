@@ -20,7 +20,7 @@ public class CommandSet
 
     public void Save()
     {
-        string fileName = Application.dataPath + "/CommandSets/" + this.CommandSetId + "_command_set.dat";
+        string fileName = Application.dataPath + "/Custom/CommandSets/" + this.CommandSetId + "_command_set.dat";
         Serializer.Save<CommandSet>(fileName, this);
     }
 

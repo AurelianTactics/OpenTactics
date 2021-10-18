@@ -60,7 +60,7 @@ public class ItemManager : Singleton<ItemManager>
         else
             retValue.Add(GetItemObjectById(NameAll.NO_EQUIP));
 
-        for ( int i = 0; i < 1000; i++)
+        for ( int i = 0; i < NameAll.CUSTOM_ITEM_ID_START_VALUE; i++)
         {
             //Debug.Log("i is " + i);
             ItemObject io = GetItemObjectById(i);
@@ -245,38 +245,59 @@ public class ItemManager : Singleton<ItemManager>
 
     string GetItemDataString(int itemId, int field)
     {
-        ItemData id = Resources.Load<ItemData>("Items/item_" + itemId);
+		if (itemId < NameAll.CUSTOM_ITEM_ID_START_VALUE)
+		{
+			ItemData id = Resources.Load<ItemData>("Items/item_" + itemId);
 
-        string zString;
-        if( field == NameAll.ITEM_OBJECT_ITEM_NAME)
-        {
-            zString = id.item_name;
-        }
-        else
-        {
-            zString = id.description;
-        }
+			string zString;
+			if (field == NameAll.ITEM_OBJECT_ITEM_NAME)
+			{
+				zString = id.item_name;
+			}
+			else
+			{
+				zString = id.description;
+			}
+
+
+			id = null;
+			Resources.UnloadAsset(id);// Resources.UnloadUnusedAssets(); //not sure which of these to call
+			return zString;
+		}
+		else
+		{
+			ItemObject io = CalcCode.LoadCustomItemObject(itemId);
+			string itemDataString = "";
+			if (field == NameAll.ITEM_OBJECT_ITEM_NAME)
+				itemDataString = io.ItemName;
+			else
+				itemDataString = io.Description;
+			return itemDataString;
+		}
         
-
-        id = null;
-        Resources.UnloadAsset(id);// Resources.UnloadUnusedAssets(); //not sure which of these to call
-        return zString;
     }
 
     ItemObject GetItemDataObject(int itemId)
     {
-        
-        ItemData id = Resources.Load<ItemData>("Items/item_" + itemId);
-        //Debug.Log("in item data id object is" + id.item_name + "asdf" + itemId);
-        ItemObject io = null;
-        if( id != null)
-        {
-            io = new ItemObject(id);
-            id = null;
-        }
-        //Debug.Log("in item data is object is" + io.GetItemName() + "asdf" + io.StatusName);
-        Resources.UnloadAsset(id);// Resources.UnloadUnusedAssets(); //not sure which of these to call
-        return io;
+        if( itemId < NameAll.CUSTOM_ITEM_ID_START_VALUE)
+		{
+			ItemData id = Resources.Load<ItemData>("Items/item_" + itemId);
+			//Debug.Log("in item data id object is" + id.item_name + "asdf" + itemId);
+			ItemObject io = null;
+			if (id != null)
+			{
+				io = new ItemObject(id);
+				id = null;
+			}
+			//Debug.Log("in item data is object is" + io.GetItemName() + "asdf" + io.StatusName);
+			Resources.UnloadAsset(id);// Resources.UnloadUnusedAssets(); //not sure which of these to call
+			return io;
+		}
+		else
+		{
+			//loading custom objects
+			return CalcCode.LoadCustomItemObject(itemId);
+		}
     }
 
     //called in getitemsbyslotandunit, need this because offhands can be weapons

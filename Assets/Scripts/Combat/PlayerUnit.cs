@@ -912,11 +912,12 @@ public class PlayerUnit {
             z1 = NameAll.STAT_TYPE_ACCESSORY;
         }
         UnequipItem(z1);
-        //need code here for removing offhand item if weapon uses both hands and removing two handed weapon if offhand uses it
-        //if ( )
-        //{
-        //    UnequipItem(NameAll.ITEM_SLOT_OFFHAND);
-        //}
+		//need code here for removing offhand item if weapon uses both hands and removing two handed weapon if offhand uses it
+		//if ( )
+		//{
+		//    UnequipItem(NameAll.ITEM_SLOT_OFFHAND);
+		//}
+		Debug.Log("trying to get item for item_id " + item_id);
         ItemObject ist = ItemManager.Instance.GetItemObjectById(item_id, unit_slot);
         //Since Equips only happen out of battle, no need to mess with the status manager here
         //StatusManager.Instance.RemoveStatusItems(this.TurnOrder, item_id, unit_slot);

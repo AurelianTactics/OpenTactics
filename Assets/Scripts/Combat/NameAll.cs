@@ -1503,7 +1503,7 @@ public class NameAll
 
 	/// <summary>
 	/// returns the string needed to instantiate the GameObject for the PlayerUnitObject
-	/// for now just returning a default thing
+	/// for now just returning a default thing but when new stuff is created can actually custom load
 	/// </summary>
 	/// <param name="classId"></param>
 	/// <returns></returns>
@@ -1512,8 +1512,9 @@ public class NameAll
 
         if( classId >= NameAll.CUSTOM_CLASS_ID_START_VALUE)
         {
-            return GetIconStringFromClass(classId);
-        }
+			//return "Heroes/default_puo";
+			return GetIconStringFromClass(classId);
+		}
 		return "Heroes/default_puo";
         //string zString = "Heroes/box_man";
         //if (classId >= CLASS_FIRE_MAGE)
@@ -3783,6 +3784,7 @@ public class NameAll
 
     public static string GetIconString(int iconId)
     {
+		return "Heroes/default_puo"; //restore functionality at some point for this
         string zString = "Heroes/box_man";
        
         if (iconId == ICON_ID_ARCHER)

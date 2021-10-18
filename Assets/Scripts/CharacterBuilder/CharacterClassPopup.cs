@@ -29,7 +29,7 @@ public class CharacterClassPopup : MonoBehaviour {
     List<string> colorList;
 
     const string CharacterBuilderNotification = "CharacterBuilderNotification";
-    const string MiscUnitNotification = "MiscUnitNotification";
+    //const string MiscUnitNotification = "MiscUnitNotification";
 
     void Awake()
     {
@@ -171,10 +171,11 @@ public class CharacterClassPopup : MonoBehaviour {
 
     public void OnSubmitName(string name)
     {
-        //CharacterUIController.pu.UnitName = name; 
+        CharacterUIController.pu.UnitName = name; 
         inputName.text = name;//CharacterUIController.pu.UnitName;
-        this.PostNotification(MiscUnitNotification);
-    }
+        //this.PostNotification(MiscUnitNotification);
+		this.PostNotification(CharacterBuilderNotification);
+	}
 
     public void OnSubmitLevel(string var)
     {

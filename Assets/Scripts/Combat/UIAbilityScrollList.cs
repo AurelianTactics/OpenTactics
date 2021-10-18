@@ -30,10 +30,14 @@ public class UIAbilityScrollList : MonoBehaviour
             if( turn.actor.ClassId >= NameAll.CUSTOM_CLASS_ID_START_VALUE)
             {
                 ClassEditObject ce = CalcCode.LoadCustomClass(turn.actor.ClassId);
-                if (ce != null)
-                    commandSet = ce.CommandSet;
+				Debug.Log("Testing loading custom command set. classId is " + turn.actor.ClassId);
+				if (ce != null)
+				{
+					commandSet = ce.CommandSet;
+				}
                 else
                     commandSet = NameAll.NULL_INT;
+				Debug.Log("Testing loading custom command set. comandset number is " + commandSet);
             }
             else
                 commandSet = turn.actor.ClassId;
@@ -84,7 +88,7 @@ public class UIAbilityScrollList : MonoBehaviour
         //Debug.Log("populating scroll list " + isMathSkill);
         if (!isMathSkill) //is not a math skill ability, just grab the nomral commandset 
         {
-            spellNameList = SpellManager.Instance.GetSpellNamesByCommandSet(commandSet, actor); //Debug.Log("getting command set " + commandSet);
+            spellNameList = SpellManager.Instance.GetSpellNamesByCommandSet(commandSet, actor); Debug.Log("getting command set " + commandSet);
             if (PlayerManager.Instance.IsAbilityEquipped(actor.TurnOrder, NameAll.SUPPORT_DEFEND, NameAll.ABILITY_SLOT_SUPPORT))
             {
                 spellNameList.Add(SpellManager.Instance.GetSpellNameByIndex(NameAll.SPELL_INDEX_DEFEND));

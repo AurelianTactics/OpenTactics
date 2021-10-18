@@ -303,7 +303,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Open World
+  m_Text: Buggy Mode TBA
 --- !u!222 &240179628
 CanvasRenderer:
   m_ObjectHideFlags: 0

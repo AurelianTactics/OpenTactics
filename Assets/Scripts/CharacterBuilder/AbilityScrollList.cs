@@ -54,7 +54,7 @@ public class AbilityScrollList : MonoBehaviour
 
     void PopulateNames(PlayerUnit pu)
     {
-        //Debug.Log("populating turns names neu");
+        Debug.Log("populating ability names " + pu.ClassId + " " + slot);
         itemList = AbilityManager.Instance.GetAbilityList(pu.ClassId, slot, true);
         //Debug.Log("asdf" + itemList.Count);
         //PopulateInner();

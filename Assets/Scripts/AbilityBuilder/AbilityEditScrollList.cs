@@ -5,6 +5,12 @@ using System;
 using System.IO;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// I thin kthis script guides teh AbilityBuilder scene. I don't think it is used elsewhere
+/// Create new abilities (spells) in the AbilityBuider scene. Set various options like what it does, who it hits etc. Can assign to a command set. The command set can be equipped by a class.
+/// A class can be put on a unit or the command set can be used as a secondary ability set to allow units to cast the spells in the game.
+/// </summary>
+
 public class AbilityEditScrollList : MonoBehaviour {
 
     #region variables, constants, initializations

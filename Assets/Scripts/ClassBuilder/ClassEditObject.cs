@@ -1,33 +1,35 @@
 ﻿using System;
+//using System.Reflection;
+//using System.Text;
 
 //allows for ClassEditObjects for the creating new classes in ClassEditController
 //lets user customize classes with the following attributes
 [Serializable]
 public class ClassEditObject  {
 
-    public int ClassId { get; set; }
-    public int Version { get; set; }
+    public int ClassId;
+    public int Version;
 
-    public int Icon { get; set; }
-    public int CommandSet { get; set; }
-    public string ClassName { get; set; }
+    public int Icon;
+    public int CommandSet;
+	public string ClassName;
 
-    public int Move { get; set; }
-    public int Jump { get; set; }
-    public int ClassEvade { get; set; }
+    public int Move;
+    public int Jump;
+    public int ClassEvade;
 
-    public int HPBase { get; set; }
-    public int MPBase { get; set; }
-    public int SpeedBase { get; set; }
-    public int PABase { get; set; }
-    public int MABase { get; set; }
-    public int AgiBase { get; set; }
-    public int HPGrowth { get; set; }
-    public int MPGrowth { get; set; }
-    public int SpeedGrowth { get; set; }
-    public int PAGrowth { get; set; }
-    public int MAGrowth { get; set; }
-    public int AgiGrowth { get; set; }
+    public int HPBase;
+    public int MPBase;
+    public int SpeedBase;
+    public int PABase;
+    public int MABase;
+    public int AgiBase;
+    public int HPGrowth;
+    public int MPGrowth;
+    public int SpeedGrowth;
+    public int PAGrowth;
+    public int MAGrowth;
+    public int AgiGrowth;
 
     public ClassEditObject(int classId, int commandSet, int version)
     {
@@ -73,7 +75,35 @@ public class ClassEditObject  {
             this.MAGrowth = 60;
             this.AgiGrowth = 60;
         }
-    }
+	}
 
+	public string GetCEObjectAsString()
+	{
+		string retString = "";
+		retString = " " + this.ClassId + " " + this.CommandSet + " " + this.Version + " " + this.ClassName + " " + this.Icon
+			+ " " + this.Move + " " + this.Jump + " " + this.ClassEvade + " " + this.HPBase + " etc ";
+
+		return retString;
+	}
+
+
+	//// this should get all ce info but doesn't for some reason
+	//private PropertyInfo[] _PropertyInfos = null;
+
+	//public override string ToString()
+	//{
+	//	if (_PropertyInfos == null)
+	//		_PropertyInfos = this.GetType().GetProperties();
+
+	//	var sb = new StringBuilder();
+
+	//	foreach (var info in _PropertyInfos)
+	//	{
+	//		var value = info.GetValue(this, null) ?? "(null)";
+	//		sb.AppendLine(info.Name + ": " + value.ToString());
+	//	}
+
+	//	return sb.ToString();
+	//}
 
 }

@@ -59,7 +59,7 @@ public class CharacterUIController : MonoBehaviour {
 
     const string CharacterBuilderNotification = "CharacterBuilderNotification";
     const string EquipAbilityNotification = "EquipAbilityNotification";
-    const string MiscUnitNotification = "MiscUnitNotification";
+    //const string MiscUnitNotification = "MiscUnitNotification";
 
     StorySave currentStorySave = null; //used when going between this scene and story mode scene
     #endregion
@@ -144,14 +144,14 @@ public class CharacterUIController : MonoBehaviour {
     {
         this.AddObserver(OnCharacterBuilderNotification, CharacterBuilderNotification);
         this.AddObserver(OnEquipAbilityNotification, EquipAbilityNotification);
-        this.AddObserver(OnMiscUnitNotification, MiscUnitNotification);
+        //this.AddObserver(OnMiscUnitNotification, MiscUnitNotification);
     }
 
     void OnDisable()
     {
         this.RemoveObserver(OnCharacterBuilderNotification, CharacterBuilderNotification);
         this.RemoveObserver(OnEquipAbilityNotification, EquipAbilityNotification);
-        this.RemoveObserver(OnMiscUnitNotification, MiscUnitNotification);
+        //this.RemoveObserver(OnMiscUnitNotification, MiscUnitNotification);
     }
 
 
@@ -180,6 +180,7 @@ public class CharacterUIController : MonoBehaviour {
 
     void OnMiscUnitNotification(object sender, object args)
     {
+		print("misc notification args are " + args);
         PlayerUnit newPU = args as PlayerUnit;
         pu = newPU;
         

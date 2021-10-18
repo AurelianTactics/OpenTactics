@@ -94,7 +94,7 @@ public class SpellManager : Singleton<SpellManager>
 
     public List<SpellName> GetSpellNamesByCommandSet(int commandSet, PlayerUnit pu, int mathSkillOnly = 0)
     {
-        //Debug.Log("get spellname list from scriptable objects");
+        Debug.Log("get spellname list from scriptable objects");
 
         int teamId = pu.TeamId;
         List<SpellName> retList = new List<SpellName>();

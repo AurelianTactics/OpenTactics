@@ -5,6 +5,11 @@ using System;
 using System.IO;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// This script drives the ClassBuilder scene
+/// Build classes here. Classes can be given abilities, commandsets and different base stats.
+/// </summary>
+
 public class ClassEditController : MonoBehaviour {
 
     //display image
@@ -84,13 +89,15 @@ public class ClassEditController : MonoBehaviour {
         currentCEIndex = NameAll.CUSTOM_CLASS_ID_START_VALUE;
         ceObject = CalcCode.LoadCEObject(currentCEIndex);
         LoadPUO();
-        
-        PlayerUnit pu = new PlayerUnit(ceObject);
-        puInfo.PopulatePlayerInfo(pu);
-        //var puls = new PlayerUnitLevelStats();
-        //baseStats = puls.GetCEBaseStats(ceObject);
 
-        commandSetList = CalcCode.LoadCustomCommandSetList(ceObject.Version);
+		//testing this with following two lines off
+		PlayerUnit pu = new PlayerUnit(ceObject);
+		puInfo.PopulatePlayerInfo(pu);
+
+		//var puls = new PlayerUnitLevelStats();
+		//baseStats = puls.GetCEBaseStats(ceObject);
+
+		commandSetList = CalcCode.LoadCustomCommandSetList(ceObject.Version);
     }
 
     #region populating scroll lists, building the lists, and handling input
@@ -323,7 +330,7 @@ public class ClassEditController : MonoBehaviour {
         int maxIndex = PlayerPrefs.GetInt(NameAll.PP_CLASS_EDIT_MAX_INDEX, 1000);
         for (int i = 1000; i <= maxIndex; i++)
         {
-            ClassEditObject ce = CalcCode.LoadCEObject(i); //Debug.Log("loading ceObject");
+            ClassEditObject ce = CalcCode.LoadCEObject(i); Debug.Log("loading ceObject");
             retList.Add(ce);
         }
 
@@ -357,6 +364,7 @@ public class ClassEditController : MonoBehaviour {
     //scrollist is populated with loadable objects
     public void OnClickLoad()
     {
+		Debug.Log("clicking load ");
         ceList = BuildCEList();
         PopulateLoadScrollList(ceList);
     }
@@ -365,14 +373,16 @@ public class ClassEditController : MonoBehaviour {
     {
         PopulateEditScrollList(ceObject);
 
-        PlayerUnit pu = new PlayerUnit(ceObject); //Debug.Log(" pu stats " + pu.StatTotalMove + " " + ceObject.Move);
-        puInfo.PopulatePlayerInfo(pu);
-    }
+		//trying to test this with this off
+		PlayerUnit pu = new PlayerUnit(ceObject); //Debug.Log(" pu stats " + pu.StatTotalMove + " " + ceObject.Move);
+		puInfo.PopulatePlayerInfo(pu);
+	}
+
     //new class is created and ready to edit
     public void OnClickNew()
     {
         int ceIndex = PlayerPrefs.GetInt(NameAll.PP_CLASS_EDIT_MAX_INDEX, NameAll.CUSTOM_CLASS_ID_START_VALUE);
-        string fileName = Application.dataPath + "/Jobs/" + ceIndex + "_ce.dat";
+        string fileName = Application.dataPath + "/Custom/Jobs/" + ceIndex + "_class.dat";
         if (File.Exists(fileName)) //saves sn exists at this place, update the snIndex and the PP
         {
             ceIndex += 1;
@@ -394,13 +404,26 @@ public class ClassEditController : MonoBehaviour {
     //saves the current class
     public void OnClickSave()
     {
-        string filePath = Application.dataPath + "/Jobs/";
-        string filename = filePath + ceObject.ClassId + "_class.dat"; //Debug.Log("filepath: " + filename);
-        Serializer.Save<ClassEditObject>(filename, ceObject);
+		CalcCode.SaveCustomClassEditObject(ceObject);
+		//      string filePath = Application.dataPath + "/Custom/Jobs/";
+		//      string filename = filePath + ceObject.ClassId + "_class.dat"; Debug.Log("trying to save new job filepath: " + filename);
+		//Debug.Log("trying to save ceObject  is: " + ceObject.ToString());
+		//Debug.Log("trying to save ceObject  is: " + ceObject.GetCEObjectAsString());
+		//Serializer.Save<ClassEditObject>(filename, ceObject);
+		//Debug.Log("current ceObject  is: " + ceObject.GetCEObjectAsString());
+		//ClassEditObject testCEObject = CalcCode.LoadCEObject(ceObject.ClassId);
+		//Debug.Log("saved ceObject  is: " + testCEObject.GetCEObjectAsString());
 
-        //if (!Directory.Exists(filePath))
-        //    Directory.CreateDirectory(filePath);
-    }
+		//trying to test save again
+		//filename = filePath + 1019 + "_class.dat"; Debug.Log("trying to save new job filepath: " + filename);
+		//ceObject.ClassName = "WTF IS HAPPENING";
+		//Serializer.Save<ClassEditObject>(filename, ceObject);
+		//testCEObject = CalcCode.LoadCEObject(1019);
+		//Debug.Log("test saved ceObject  is: " + testCEObject.GetCEObjectAsString());
+
+		//if (!Directory.Exists(filePath))
+		//    Directory.CreateDirectory(filePath);
+	}
     #endregion
 
 

@@ -510,6 +510,7 @@ public static class CalcCode {
 
 	public static void SaveCombatLogSaveObjectList(List<CombatLogSaveObject> clsoList, string fileName)
 	{
+		Debug.Log("probably a wrong save path here, all the others ones save to Custom directory ");
 		fileName = Application.dataPath + "/" + fileName;
 		Serializer.Save<List<CombatLogSaveObject>>(fileName, clsoList);
 	}
@@ -561,6 +562,7 @@ public static class CalcCode {
 
 	#endregion
 
+	//To do: wow this is poorly designed. remove the hardcoded in numbers. break when doesn't find stuff not when it misses 10. wtf was I even thinking here
 	public static List<ClassEditObject> LoadCustomClassList(int version)
     {
         List<ClassEditObject> retValue = new List<ClassEditObject>();
@@ -582,7 +584,7 @@ public static class CalcCode {
     public static ClassEditObject LoadCustomClass(int ceIndex, int version)
     {
         ClassEditObject ce;
-        string fileName = Application.dataPath + "/Jobs/" + ceIndex + "_class.dat"; //Debug.Log("filename: " + fileName);
+        string fileName = Application.dataPath + "/Custom/Jobs/" + ceIndex + "_class.dat"; Debug.Log("filename: " + fileName);
         if (File.Exists(fileName)) //saves sn exists at this place, update the snIndex and the PP
         {
             ce = Serializer.Load<ClassEditObject>(fileName); //Debug.Log("fileName found");
@@ -596,7 +598,7 @@ public static class CalcCode {
     public static ClassEditObject LoadCustomClass(int ceIndex)
     {
         ClassEditObject ce;
-        string fileName = Application.dataPath + "/Jobs/" + ceIndex + "_class.dat"; //Debug.Log("filename: " + fileName);
+        string fileName = Application.dataPath + "/Custom/Jobs/" + ceIndex + "_class.dat"; //Debug.Log("filename: " + fileName);
         if (File.Exists(fileName)) //saves sn exists at this place, update the snIndex and the PP
         {
             ce = Serializer.Load<ClassEditObject>(fileName); //Debug.Log("fileName found");
@@ -611,7 +613,7 @@ public static class CalcCode {
     public static ClassEditObject LoadCEObject(int ceIndex)
     {
         ClassEditObject ce;
-        string fileName = Application.dataPath + "/Jobs/" + ceIndex + "_class.dat"; //Debug.Log("filename: " + fileName);
+        string fileName = Application.dataPath + "/Custom/Jobs/" + ceIndex + "_class.dat";// Debug.Log(" trying to load filename: " + fileName);
         if (File.Exists(fileName)) //saves sn exists at this place, update the snIndex and the PP
         {
             ce = Serializer.Load<ClassEditObject>(fileName); //Debug.Log("fileName found");
@@ -1520,5 +1522,18 @@ public static class CalcCode {
         string fileName = Application.dataPath + "/Custom/Items/" + io.ItemId + "_item_object.dat";
         Serializer.Save<ItemObject>(fileName, io);
     }
+
+	public static void SaveCustomClassEditObject(ClassEditObject ceo)
+	{
+		string filePath = Application.dataPath + "/Custom/Jobs/";
+		string filename = filePath + ceo.ClassId + "_class.dat"; Debug.Log("trying to save new job filepath: " + filename);
+		//Debug.Log("trying to save ceObject  is: " + ceo.ToString());
+		//Debug.Log("trying to save ceObject  is: " + ceo.GetCEObjectAsString());
+		Serializer.Save<ClassEditObject>(filename, ceo);
+
+		//Debug.Log("current ceObject  is: " + ceObject.GetCEObjectAsString());
+		//ClassEditObject testCEObject = CalcCode.LoadCEObject(ceo.ClassId);
+		//Debug.Log("saved ceObject  is: " + testCEObject.GetCEObjectAsString());
+	}
 
 }

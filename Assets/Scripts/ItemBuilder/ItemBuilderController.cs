@@ -6,6 +6,9 @@ using System.IO;
 using UnityEngine.SceneManagement;
 using System;
 
+/// <summary>
+/// Guides the ItemBuilder scene. Creates custom items that are saved in Assets/Custom/Items and can be equipped by various characters in for custom game and story mode
+/// </summary>
 public class ItemBuilderController : MonoBehaviour {
 
     //item_id version slot item_type   level item_name   blocks status_name stat_brave stat_c_evade    stat_cunning stat_faith  stat_life stat_jump   stat_m_evade stat_ma stat_move stat_mp stat_p_evade stat_pa stat_speed stat_w_evade    stat_wp elemental_type  on_hit_effect on_hit_chance   stat_agi description

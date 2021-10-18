@@ -31,7 +31,7 @@ public class AbilityObject
         this.SlotId = ce.ClassId;
         this.AbilityName = ce.ClassName;
         this.ClassId = ce.ClassId;
-        this.Description = "custom class";
+        this.Description = ce.ClassName;
         //this.APCost = 0;
     }
 

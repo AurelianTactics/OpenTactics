@@ -8,7 +8,12 @@ using System;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
-//Controller for the MapBuilder scene
+/// <summary>
+/// Controller for the MapBuilder scene
+/// Maps (levels) are used in combat for the various game modes
+/// </summary>
+
+
 
 public class MapCreator : MonoBehaviour
 {
