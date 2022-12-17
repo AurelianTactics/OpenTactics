@@ -126,7 +126,6 @@ GameObject:
   - component: {fileID: 22454938}
   - component: {fileID: 22295362}
   - component: {fileID: 11493620}
-  - component: {fileID: 114000013415885804}
   m_Layer: 5
   m_Name: UnitListText
   m_TagString: Untagged
@@ -194,21 +193,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: Unit List
---- !u!114 &114000013415885804
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 147846}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22d48155db8e2dd489396c295fef29fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
-  m_EffectDistance: {x: 2, y: -2}
-  m_UseGraphicAlpha: 1
 --- !u!1 &158296
 GameObject:
   m_ObjectHideFlags: 0

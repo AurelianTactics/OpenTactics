@@ -94,7 +94,6 @@ public class PlayerUnit {
     public int ItemSlotHead { get; set; }
     public int ItemSlotBody { get; set; }
     public int ItemSlotAccessory { get; set; }
-
     public int AbilitySecondaryCode { get; set; }
     public int AbilityReactionCode { get; set; }
     public int AbilitySupportCode { get; set; }

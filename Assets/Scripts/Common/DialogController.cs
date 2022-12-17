@@ -24,7 +24,7 @@ public class DialogController : MonoBehaviour
     public void Show(string title, string message, Action confirm, Action cancel)
     {
         dialogPanel.SetActive(true);
-        //Debug.Log("asdf 2");
+        //Debug.Log("opening dialogue box " + confirm + " " + cancel);
         titleLabel.text = title;
         messageLabel.text = message;
         onConfirm = confirm;
@@ -52,6 +52,7 @@ public class DialogController : MonoBehaviour
 
 	public void OnConfirmButton ()
 	{
+		//Debug.Log("hitting confirm button");
 		if (onConfirm != null)
 			onConfirm();
 		Hide ();
@@ -59,6 +60,7 @@ public class DialogController : MonoBehaviour
 
 	public void OnCancelButton ()
 	{
+		//Debug.Log("hitting cancel button");
 		if (onCancel != null)
 			onCancel();
 		Hide ();

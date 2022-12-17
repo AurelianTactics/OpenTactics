@@ -16627,7 +16627,7 @@ PrefabInstance:
     - target: {fileID: 11470904, guid: 2a332eac87656f146b464e737ec7aaa8, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 906847460}
     - target: {fileID: 11470904, guid: 2a332eac87656f146b464e737ec7aaa8, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: OnConfirmButton
@@ -16635,7 +16635,7 @@ PrefabInstance:
     - target: {fileID: 11483752, guid: 2a332eac87656f146b464e737ec7aaa8, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 906847460}
     - target: {fileID: 11483752, guid: 2a332eac87656f146b464e737ec7aaa8, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: OnCancelButton

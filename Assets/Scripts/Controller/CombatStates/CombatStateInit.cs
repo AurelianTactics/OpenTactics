@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine.SceneManagement;
+using AurelianTactics.BlackBoxRL;
 
 public class CombatStateInit : CombatState
 {
     bool isOffline;
 	bool isRLMode = false;
+	bool isRLBlackBoxMode = false; //testing RL Black Box MODE
 
     public override void Enter()
     {
@@ -36,12 +38,93 @@ public class CombatStateInit : CombatState
 		else
 		{
 			owner.combatMode = NameAll.COMBAT_MODE_DEFAULT;
-			//standard combat scene
-			StartCoroutine(Init());
+			if (isRLBlackBoxMode)
+			{
+				Debug.Log("WARNING: starting in RLBlackBoxMode, json load will override starting settings");
+				owner.isRLBlackBoxMode = true;
+				owner.worldTimeManager = new WorldTimeManager();
+				StartCoroutine(InitRLBlackBox(owner.isFirstCombatInit));
+				
+
+			}
+			else
+			{
+				//standard combat scene
+				StartCoroutine(Init());
+			}
+			
+			
 		}
 	}
 
-	
+	//to do: way to start combat scene without the ienumerator
+	//set the drivers and control of units and the render mode from the config
+	//use the config to set board size, unit types etc
+	//be able to load a game from midway
+	//not ahve to read from start for the games starting stuff
+		//way too much work done every reset that should only be done once
+	IEnumerator InitRLBlackBox(bool isFirstInit)
+	{
+		//Load text from a JSON file (Assets/Resources/JSONFiles/default_combat.json)
+		var jsonTextFile = Resources.Load<TextAsset>("JSONFiles/default_combat").ToString();
+		//Then use JsonUtility.FromJson<T>() to deserialize jsonTextFile into an object
+		var envConfig = JsonUtility.FromJson<RLEnvConfig>(jsonTextFile);
+
+		LevelData ld;
+
+		//load the board
+		if (isFirstInit)
+		{
+			//add victory conditions
+			AddVictoryCondition(NameAll.VICTORY_TYPE_RL_RESET_EPISODE);
+			//TO DO for now assumes victory type is defeat other part. at some point add other conditons
+			//int victoryType = NameAll.VICTORY_TYPE_DEFEAT_PARTY;
+			//AddVictoryCondition(victoryType, isFirstCombatInit);
+
+			//to do: read from envConfig
+			ld = new LevelData(2, 2);
+			board.Load(ld);
+
+			Point p = new Point((int)ld.tiles[0].x, (int)ld.tiles[0].y);
+			SelectTile(p);
+			cameraMain.Open();
+		}
+		else
+		{
+			//add victory conditions
+			AddVictoryCondition(NameAll.VICTORY_TYPE_RL_RESET_EPISODE, isFirstInit);
+			//already been to CombatStateInit before, doing some clean up before resetting parts of the map
+			ClearMap();
+		}
+
+		//create the playerUnits, one each on green and red
+		List<PlayerUnit> puListGreen = new List<PlayerUnit>();
+		List<PlayerUnit> puListRed = new List<PlayerUnit>();
+		//knight with no equipment or ability
+		puListGreen.Add(new PlayerUnit(NameAll.VERSION_CLASSIC, true, NameAll.CLASS_KNIGHT, true, 10, true));
+		puListRed.Add(new PlayerUnit(NameAll.VERSION_CLASSIC, true, NameAll.CLASS_KNIGHT, true, 10, true));
+		//Debug.Log("TESTING WITH BRAVE = 100, TURN THIS OFF, also TESTING WITH RANDOM ACTIONS TURN THIS OFF TOO");
+		puListGreen[0].SetStatUnitBrave(100);
+		//puListRed[0].SetStatUnitBrave(100);
+		puListGreen[0].UnitName = "greenA";
+		puListRed[0].UnitName = "redB";
+
+		// create the spawn points
+		List<SerializableVector3> spawnList = new List<SerializableVector3>();
+		spawnList.Add(new SerializableVector3(0, 0, NameAll.TEAM_ID_GREEN));
+		spawnList.Add(new SerializableVector3(1, 0, NameAll.TEAM_ID_RED));
+
+		//void SpawnUnits(List<PlayerUnit> green, List<PlayerUnit> red, List<SerializableVector3> spawnList)
+		//Debug.Log("setting drivers to RL drivers");
+		//SpawnUnits(puListGreen, puListRed, spawnList, isRLDriver:true);
+		Debug.Log("changed spawn stuff, need to rewrite this if using it");
+
+		yield return null;
+
+		owner.isFirstCombatInit = false;
+		owner.ChangeState<GameLoopState>();
+	}
+
 	IEnumerator Init()
     {
 		Debug.Log("render mode is " + owner.renderMode);
@@ -54,14 +137,6 @@ public class CombatStateInit : CombatState
 		else
 			owner.ChangeState<CombatCutSceneState>();
 
-        //board.Load(levelData);
-        //Point p = new Point((int)levelData.tiles[0].x, (int)levelData.tiles[0].z);
-        //SelectTile(p);
-        //SpawnTestUnits();
-        //AddVictoryCondition();
-        //owner.round = owner.gameObject.AddComponent<TurnOrderController>().Round();
-        //yield return null;
-        //owner.ChangeState<CutSceneState>();
     }
 
     void InitBoard()

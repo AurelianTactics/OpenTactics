@@ -308,6 +308,10 @@ public class GameLoopState : CombatState {
 			//StartCoroutine(AIStatusTurn());
 			ComputerTurn();
 		}
+		else if( driver == Drivers.BlackBoxRL)
+		{
+			BlackBoxRLTurn();
+		}
 		else if (driver == Drivers.ReinforcementLearning)
 		{
 			// action needed from RL agent
@@ -326,6 +330,40 @@ public class GameLoopState : CombatState {
 
 
 	#region ReinforcementLearning
+	/// <summary>
+	/// Read action from the Avatar and update the env with that action
+	/// </summary>
+	void BlackBoxRLTurn()
+	{
+		// continually hit here until the action is ready. might make sense to change this to a notification style system
+		if(this.owner.worldTimeManager.agentSession.avatar.GetNextActionState() == AurelianTactics.BlackBoxRL.NextActionState.Ready)
+		{
+			List<int> actionList = new List<int>(this.owner.worldTimeManager.agentSession.avatar.actionList);
+			this.owner.worldTimeManager.agentSession.avatar.SetNextActionState(AurelianTactics.BlackBoxRL.NextActionState.InProgress);
+			ExecuteBlackBoxAction(actionList);
+			//to do: after action  executed, move to next thing
+		}
+	}
+
+
+	// execute turn or wait if turn is not valid
+	void ExecuteBlackBoxAction(List<int> aList)
+	{
+		//wait
+		EndActiveTurn();
+
+	}
+
+	// check that turn is valid
+	bool IsValidTurn(CombatTurn tu)
+	{
+		//other checks done in ExecuteBlackBoxTurn
+		if (tu.plan ==  null || (tu.plan.isActFirst && tu.plan.spellName == null))
+			return false;
+
+		return true;
+	}
+
 
 	void ComputerTurn()
 	{

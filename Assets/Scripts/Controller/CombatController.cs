@@ -7,6 +7,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using AurelianTactics.BlackBoxRL;
 
 public class CombatController : StateMachine
 {
@@ -47,6 +48,10 @@ public class CombatController : StateMachine
 	public bool isFirstCombatInit; //allows reseting from CombatStateInit
 	public int renderMode; //none for faster game play
 	public bool isRLMode; //true sets RL drivers for units
+	//RL black box related parts
+	public bool isRLBlackBoxMode; //RL env is a blackbox communicating with an outside source
+	public WorldTimeManager worldTimeManager; //when isRLBlackBoxMode is true; manager RL stuff through this object
+	public RLBlackBoxActions blackBoxActions; //when isRLBlackBoxMode is true helps handle actions
 
     void Start()
     {
@@ -55,6 +60,7 @@ public class CombatController : StateMachine
         int initState = PlayerPrefs.GetInt(NameAll.PP_INIT_STATE, NameAll.INIT_STATE_COMBAT);
 		renderMode = PlayerPrefs.GetInt(NameAll.PP_RENDER_MODE, NameAll.PP_RENDER_NORMAL);
 		isRLMode = PlayerPrefs.GetInt(NameAll.PP_RL_MODE, NameAll.PP_RL_MODE_FALSE) != 0;
+		isRLBlackBoxMode = false;
 		PlayerManager.Instance.SetRenderMode(renderMode);
 
 		PlayerManager.Instance.SetGameMode(initState); //sets game mode so no longer have to read off of PP
