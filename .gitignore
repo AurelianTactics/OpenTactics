@@ -59,8 +59,8 @@ sysinfo.txt
 crashlytics-build.properties
 
 # misc stuff I want to ignore for now due to needing a smaller repo temporarily
-Assets/ML_Agents/*
-Assets/PlayerUnitObjectText/*
-Assets/Prefabs/*
-Assets/Materials/*
-Assets/Textures/*
+/Assets/ML_Agents/*
+/Assets/PlayerUnitObjectText/*
+/Assets/Prefabs/*
+/Assets/Materials/*
+/Assets/Textures/*
