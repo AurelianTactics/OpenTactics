@@ -1,11 +1,236 @@
 
 Code directory
 Assets/Scripts
+
+Assets/Scripts/AbilityBuilder/*
+	AbilityBuilderObject.cs
+	AbilityEditScrollList.cs
+	AbilityEditScrollListButton.cs
+	CommandSet.cs
+Assets/Scripts/CampaignBuilder/*
+	CampaignCampaign.cs
+	CampaignDialogue.cs
+	CampaignEditController.cs
+	CampaignLauncher.cs
+	CampaignLevel.cs
+	CampaignSpawn.cs
+Assets/Scripts/CharacterBuilder/*
+	AbilityScrollList.cs
+	CharacterClassPopup.cs
+	CharacterUIController.cs
+	ItemScrollList.cs
+	ItemScrollListButton.cs
+Assets/Scripts/ClassBuilder/*
+	ClassEditController.cs
+	ClassEditObject.cs
+Assets/Scripts/Combat/*
+	AbilityData.cs
+	AbilityManager.cs
+	AbilityObject.cs
+	CalcCode.cs
+	CalculationAT.cs
+	CalculationEvasion.cs
+	CalculationHitDamage.cs
+	CalculationMod.cs
+	CalculationMono.cs
+	CalculationProjectile.cs
+	CalculationResolveAction.cs
+	CalculationZodiac.cs
+	CameraClick.cs
+	CameraFacingBillboard.cs
+	CombatLogClass.cs
+	CombatLogSaveObject.cs
+	CombatMultiplayerObject.cs
+	CombatStats.cs
+	CombatUITarget.cs
+	FocusOnMe.cs
+	ItemData.cs
+	ItemManager.cs
+	ItemObject.cs
+	MapTileManager.cs
+	NameAbility.cs
+	NameAll.cs
+	ParticleManager.cs
+	PlayerManager.cs
+	PlayerUnit.cs
+	PlayerUnitLevelStats.cs
+	PlayerUnitObject.cs
+	Singleton.cs
+	SoundManager.cs
+	SpellManager.cs
+	SpellName.cs
+	SpellNameAI.cs
+	SpellNameData.cs
+	SpellReaction.cs
+	SpellSlow.cs
+	StatusManager.cs
+	StatusObject.cs
+	TurnObject.cs
+	TurnsManager.cs
+	UIAbilityScrollList.cs
+	UIActiveTurnMenu.cs
+	UICombatLogButton.cs
+	UICombatLogScrollList.cs
+	UICombatStats.cs
+	UIConfirmButton.cs
+	UIGenericButton.cs
+	UIMenuMenu.cs
+	UISampleButton.cs
+	UISpellNameDetails.cs
+	UITurnsListButton.cs
+	UITurnsScrollList.cs
+	UITurnsTop.cs
+	UIUnitListButton.cs
+	UIUnitListScrollList.cs
+Assets/Scripts/Common/*
+	Notification Center/*
+		NotificationCenter.cs
+		NotificationExtensions.cs
+	State Machine/*
+		State.cs
+		StateMachine.cs
+	UI/*
+		Animation/*
+			EasingControl.cs
+			EasingEquation.cs
+			RectTransformAnchorPositionTweener.cs
+			RectTransformAnimationExtensions.cs
+			TransformAnimationExtensions.cs
+			TransformLocalEulerTweener.cs
+			TransformLocalPositionTweener.cs
+			TransformPositionTweener.cs
+			Tweener.cs
+			Vector3Tweener.cs
+		LayoutAnchor.cs
+		Panel.cs
+	CustomGameTeamScrollList.cs
+	DialogController.cs
+	ItemConstants.cs
+	ScrollListSimple.cs
+	UICameraMenu.cs
+	UIMainMenu.cs
+Assets/Scripts/Controller/*
+	CombatStates/*
+		ActiveTurnState.cs
+		BaseCombatAbilityMenuState.cs
+		CombatAbilitySelectState.cs
+		CombatCommandSelectionState.cs
+		CombatConfirmAbilityTargetState.cs
+		CombatCutSceneState.cs
+		CombatEndFacingState.cs
+		CombatEndState.cs
+		CombatExploreState.cs
+		CombatMoveSequenceState.cs
+		CombatMoveTargetState.cs
+		CombatPerformAbilityState.cs
+		CombatState.cs
+		CombatStateInit.cs
+		CombatTargetAbilityState.cs
+		GameLoopState.cs
+		MimeState.cs
+		MultiplayerWaitState.cs
+		PostActiveTurnState.cs
+		ReactionState.cs
+		SlowActionState.cs
+		StatusCheckState.cs
+	Victor Conditions/*
+		CombatVictoryCondition.cs
+	WalkAroundStates/*
+		WalkAroundInitState.cs
+		WalkAroundMainState.cs
+	BattleMessageController.cs
+	CombatController.cs
+	ConversationController.cs
+	GameObjectPoolController.cs
+	InputController.cs
+Assets/Scripts/Enums/*
+	Alliances.cs
+	Directions.cs
+	Drivers.cs
+	EquipSlots.cs
+	Facings.cs
+	Locomotions.cs
+	Phases.cs
+	StatTypes.cs
+	Targets.cs
+	Teams.cs
+	WalkAroundInput.cs
+Assets/Scripts/EventArgs/*
+	InfoEventArgs.cs
+Assets/Scripts/Exceptions/*
+	Modifiers/*
+	BaseException.cs
+	ValueChangeException.cs
+Assets/Scripts/Extensions/*
+	DirectionsExtensions.cs
+	FacingsExtensions.cs
+	GameObjectExtensions.cs
+Assets/Scripts/ItemBuilder/*
+	ItemBuilderController.cs
+Assets/Scripts/MapCreator/*
+	LevelLoad.cs
+	MapCreator.cs
+	SerializableVector3.cs
+	Serializer.cs
+Assets/Scripts/Misc/* 12/22/22 All files documented
+	Demo.cs
+Assets/Scripts/Model/*
+	CombatTurn.cs
+	ConversationData.cs
+	Info.cs
+	LevelData.cs
+	Point.cs
+	PoolData.cs
+	SpeakerData.cs
+Assets/Scripts/Multiplayer/*
+	Deprecated. MP worked in a prior version
+Assets/Scripts/RL/*
+	DuelRLAgent.cs
+	DuelRLArea.cs
+	GridworldTacticsAgent.cs
+	GridworldTacticsArea.cs
+	RLBlackBoxActions.cs
+	RLEnvConfig.cs
+Assets/Scripts/StoryBuilder/*
+	CutSceneController.cs
+	StoryBuilderController.cs
+	StoryCutScene.cs
+	StoryItem.cs
+	StoryModeController.cs
+	StoryObject.cs
+	StoryPartyController.cs
+	StoryPoint.cs
+	StorySave.cs
+	StoryShopController.cs
+	StoryShopScrollList.cs
+Assets/Scripts/View Model Component/*
+	Ability/*
+		CombatAbilityArea.cs
+		CombatAbilityRange.cs
+	Actor/*
+		Alliance.cs
+		Driver.cs
+	AI/*
+		AbilityPicker/*
+			CombatBaseAbilityPicker.cs
+			CombatFixedAbilityPicker.cs
+			CombatRandomAbilityPicker.cs
+		AttackOption.cs
+		CombatComputerPlayer.cs
+		CombatPlanOfAttack.cs
+	Board.cs
+	CameraControls.cs
+	CameraRig.cs
+	ConversationPanel.cs
+	FacingIndicator.cs
+	Poolable.cs
+	Tile.cs
+	UIBackButton.cs
+	UIUnitInfoPanel.cs
 Assets/Scripts/WalkAround/*
-WalkAroundActionObject.cs
-WalkAroundManager.cs
-WalkAroundMapGenerator.cs
-Assets/Scripts/Misc/* 12/22/22 All files documented below as of 
+	WalkAroundActionObject.cs
+	WalkAroundManager.cs
+	WalkAroundMapGenerator.cs
 
 
 [9.1] Misc
@@ -13,6 +238,14 @@ Assets/Scripts/Misc/Demo.cs
 Misc file showing outline of how state behavior works
 Not implementing anywhere but useful for understanding things at a high level
 
+
+/*
+to do
+how to do docs better in general
+if keeping this format
+	auto convert directory into hierarchy
+	auto match the files to the labels below
+*/
 
 
 Below is 12/21/22 chromebook version mixed with new files
