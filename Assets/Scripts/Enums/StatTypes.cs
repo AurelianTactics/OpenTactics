@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-//not implemented, may be used in future versions (with the correct stats) 
-
+/// <summary>
+/// Not implemented may be used in future versions (with the correct stats) 
+/// </summary>
 public enum StatTypes
 {
 	LVL, // Level

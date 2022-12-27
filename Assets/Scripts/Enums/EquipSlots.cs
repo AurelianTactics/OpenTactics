@@ -3,6 +3,9 @@ using System.Collections;
 
 //not implemnted, might be used in future versions (with editing)
 
+/// <summary>
+/// Slots equipment can be equipped on a PlayerUnit
+/// </summary>
 [System.Flags]
 public enum EquipSlots
 {

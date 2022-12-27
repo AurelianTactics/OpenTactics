@@ -143,18 +143,18 @@ Assets/Scripts/Controller/*
 	ConversationController.cs
 	GameObjectPoolController.cs
 	InputController.cs
-Assets/Scripts/Enums/*
-	Alliances.cs
-	Directions.cs
-	Drivers.cs
-	EquipSlots.cs
-	Facings.cs
-	Locomotions.cs
-	Phases.cs
-	StatTypes.cs
-	Targets.cs
-	Teams.cs
-	WalkAroundInput.cs
+Assets/Scripts/Enums/* [9.2] 12/27/22 All files documented
+	Alliances.cs [9.2a]
+	Directions.cs [9.2b]
+	Drivers.cs [9.2c]
+	EquipSlots.cs [9.2d]
+	Facings.cs [9.2e]
+	Locomotions.cs [9.2f]
+	Phases.cs [9.2g]
+	StatTypes.cs [9.2h]
+	Targets.cs [9.2i]
+	Teams.cs [9.2j]
+	WalkAroundInput.cs [9.2k]
 Assets/Scripts/EventArgs/*
 	InfoEventArgs.cs
 Assets/Scripts/Exceptions/*
@@ -238,7 +238,32 @@ Assets/Scripts/Misc/Demo.cs
 Misc file showing outline of how state behavior works
 Not implementing anywhere but useful for understanding things at a high level
 
+[9.2] Enums
+Collection of enums. enum is a special "class" that represents a group of constants.
 
+Assets/Scripts/Enums/*
+	[9.2a] Alliances.cs
+		PlayerUnit relationship status with another PlayerUnit. Ie allied, hostile, etc.
+	[9.2b] Directions.cs
+		Directions a PlayerUnit can face N,E,S,W
+	[9.2c] Drivers.cs
+		How a PlayerUnit has its active turn selected. Ie player input, AI, etc.
+	[9.2d] EquipSlots.cs
+		Slots equipment can be equipped on a PlayerUnit
+	[9.2e] Facings.cs
+		Way a PlayerUnit can face another PlayerUnit/other type of object. Front, Side, Back
+	[9.2f] Locomotions.cs
+		When a PlayerUnit moves, ways the PU can move across the map. Ie walk, fly, teleport.
+	[9.2g] Phases.cs
+		Phases GameLoop.cs can be in
+	[9.2h] StatTypes.cs
+		Not implemented
+	[9.2i] Targets.cs
+		When using an ability, the target types (self, ally, target etc)
+	[9.2j] Teams.cs
+		Not implemented
+	[9.2k] WalkAroundInput.cs
+		WA mode, different types of inputs that can be done for a PlayerUnit turn
 /*
 to do
 how to do docs better in general

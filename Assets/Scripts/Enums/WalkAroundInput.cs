@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// WA mode, different types of inputs that can be done for a PlayerUnit turn
+/// </summary>
 public enum WalkAroundInput
 {
     UnitNone = 0, //no unit highlighted

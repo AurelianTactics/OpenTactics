@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// How a PlayerUnit has its active turn selected. Ie player input, AI, etc.
+/// </summary>
 public enum Drivers
 {
 	None,
