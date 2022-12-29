@@ -1,10 +1,12 @@
-﻿//In WalkAround mode not set turn orders. PlayerManager has a queue, as actions are decided they are coded as CombatTurns, then changed into WalkAroundActionObjects and added to the queue
-//object for PlayerUnit actions in WalkAround mode
-//held in a queue in PlayerManager, which sorts through them for various turns
-
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// object for PlayerUnit actions in WalkAround mode
+/// held in a queue in PlayerManager, which sorts through them for various turns
+/// In WalkAround mode not set turn orders. PlayerManager has a queue, as actions are decided they are coded as CombatTurns, 
+/// then changed into WalkAroundActionObjects and added to the queue
+/// </summary>
 public class WalkAroundActionObject {
     public CombatTurn turn;
     public Tile moveTile;

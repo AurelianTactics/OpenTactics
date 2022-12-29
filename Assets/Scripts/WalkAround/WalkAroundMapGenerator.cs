@@ -1,4 +1,4 @@
-﻿//Generates a map based on a string
+﻿//OLD USAGE UNCLEAR IF/HOW THIS IS USED NOW
 //called from WalkAroundManager
 //in WalkAroundInitState WalkAroundManager BuildLevel is called which builds a level through WalkAroundMapGenerator which calls LevelData
 
@@ -6,6 +6,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Unclear where this is called from or if this is still used
+/// Generates a map based on a string
+/// In WA mode can move from map to map. this helps generate the map
+/// </summary>
 public class WalkAroundMapGenerator {
 
 	public LevelData BuildLevel(string level_string, int seed, int timeInt, int map_x, int map_y, bool isFirstMapVisit = false)

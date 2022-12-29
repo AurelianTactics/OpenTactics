@@ -1,3 +1,20 @@
+focus areas
+how to do other versions (ie classic AT etc). code so it's flexible to do versions in the future
+WA has to be outlined, goals, roadmap, how it can be integrated and see which code can be used
+
+/*
+to do
+how to do docs better in general
+if keeping this format
+	auto convert directory into hierarchy
+	auto match the files to the labels below
+handle combattext, need something instead of the stand in
+
+misc ideas
+	things you like from isignia tactics
+	way to have units drop into WA mode (either controlled or loaded from a player configs)
+*/
+
 
 Code directory
 Assets/Scripts
@@ -191,7 +208,7 @@ Assets/Scripts/RL/*
 	GridworldTacticsArea.cs
 	RLBlackBoxActions.cs
 	RLEnvConfig.cs
-Assets/Scripts/StoryBuilder/*
+Assets/Scripts/StoryBuilder/* [1.2h]
 	CutSceneController.cs
 	StoryBuilderController.cs
 	StoryCutScene.cs
@@ -228,10 +245,105 @@ Assets/Scripts/View Model Component/*
 	UIBackButton.cs
 	UIUnitInfoPanel.cs
 Assets/Scripts/WalkAround/*
-	WalkAroundActionObject.cs
-	WalkAroundManager.cs
-	WalkAroundMapGenerator.cs
+	WalkAroundActionObject.cs [1.16d]
+	WalkAroundManager.cs [1.16e]
+	WalkAroundMapGenerator.cs [1.16f]
 
+
+Assets/PlayerUnitObjectText/* [1.20]
+	Animation/*
+	Prefabs/*
+	Scripts/*
+		PUOTextAnchorController.cs
+		PUOTextController.cs
+		PUOTextOverlayCanvasController.cs
+		PUOTextType.cs
+
+
+[1.2] Builders
+[1.2a] Builder preface
+Ideally, the project is flexible enough that any turn based grid game can be represented in some way in this project.
+Practically, the project can handle tactics games within a certain narrow framework. I would like to iterate on this to add more customizability and flexibility
+Currently, the range of what can be customized is quite narrow. The abstraction of these features is non-existent.
+At some point, a rethinking of the current system needs to be done and abstracted into a flexibily framework to focus on more ambitious goals.
+The existing builders figure around a certain subset of the genre: turn based tactics games with a narrow rule set. The nonexistent GameRuleBuilder could expand upon this and over more types of games..
+The current builders base the game around two versions. Basically each version is like its own game. All FFT classes, abilities, items etc are in one version. The AT version is pretty preliminary.
+I would like it so that users can create their own versions with their own classes, items, characters, rule sets etc.
+The data for the abilities, characters, items (and maybe some other parts) comes from spreadsheets that build scriptable objects. This is an easy way for someone with access to the unity editor to add game content.
+Through the playable game itself, in Assets theres a Custom folder. Custom Campaigns, CommandSets, Items, Jobs, Levels (maps), Spells, Stories, and Units can be created and shared with others.
+The building and saving used for the scriptable thing and the custom things were both considered from a list of different ways of doing it around 2018.
+It is unclear if this is the best or preferable way of creating and customizing various things. Some research could be done into a better system.
+The custom builders mostly work. They are not well bug tested. The UI is clunky, unintuitive, and ugly. The code behind it is opaque, not really abstraced.
+Some code and prefabs and approaches are used in multiple builders. Nothing is very well documented.
+Obviously, this can be improved.
+[1.2b] Ability Builder
+Create new abilities (spells) here. Set various options like what it does, who it hits etc. Can assign to a command set. The command set can be equipped by a class.
+A class can be put on a unit or the command set can be used as a secondary ability set to allow units to cast the spells in the game.
+[1.2c] Campaign Builder
+Build campaigns here. Campaigns are series of levels played back to back where persistence is achieved between characters.
+[1.2d] Character Builder
+Build characters here. Characters can be given names, classes, items, etc and used in games.
+[1.2e] Class Builder
+Build classes here. Classes can be given abilities and different base stats.
+[1.2f] ItemBuilder
+Build items here. Items can be used by custom characters
+[1.2g] MapBuilder
+Maps/Levels are created here. Make maps to use in various game modes here
+
+[1.2h] StoryBuilder [1.2h]
+Assets/Scripts/StoryBuilder/* [1.2h]
+stories have persistence of characters over multiple maps. The maps are accessible in a game world view. Campaigns can be parts of stories with a UI.
+
+STOPPED HERE
+Assets/Scripts/StoryBuilder/CutSceneController.cs
+	Assets/Scripts/StoryBuilder/StoryBuilderController.cs
+	Assets/Scripts/StoryBuilder/StoryCutScene.cs
+	Assets/Scripts/StoryBuilder/StoryItem.cs
+	Assets/Scripts/StoryBuilder/StoryModeController.cs
+	Assets/Scripts/StoryBuilder/StoryObject.cs
+	Assets/Scripts/StoryBuilder/StoryPartyController.cs
+	Assets/Scripts/StoryBuilder/StoryPoint.cs
+	Assets/Scripts/StoryBuilder/StorySave.cs
+	Assets/Scripts/StoryBuilder/StoryShopController.cs
+	Assets/Scripts/StoryBuilder/StoryShopScrollList.cs
+
+
+[1.2i] GameRuleBuilder
+TBD
+Be able to add different versions, or abstract all versions under certain ways
+thought experiment: what would have to change to make chess playable? to make it so units could be on more than one tile, etc.
+
+[1.2j] VersionBuilder
+Only FFT and AT so far. But would be nicet o have different versions with different rules
+Need more flexibility in the system.
+Need a better vision for this.
+I don't believe there is a code file for this
+
+
+
+[1.20] PlayerUnitObjectText
+When action effects happen, shows text above the PlayerUnitObject (ie 50 points of damage)
+Based on a different package
+stand in for now until a longer term version can be done
+to update the animation, need to go into the demo scene (not sure which one) and mess with the animator attached to the object
+The animations show the different effect types
+I believe this code connects with PlayerManager.cs for usage and calling of the text
+
+[1.16d] WalkAroundActionObject.cs
+Assets/Scripts/WalkAround/WalkAroundActionObject.cs
+/// object for PlayerUnit actions in WalkAround mode
+/// held in a queue in PlayerManager, which sorts through them for various turns
+/// In WalkAround mode not set turn orders. PlayerManager has a queue, as actions are decided they are coded as CombatTurns, 
+/// then changed into WalkAroundActionObjects and added to the queue
+
+[1.16e] WalkAroundManager.cs DEPRECATED
+Assets/Scripts/WalkAround/WalkAroundManager.cs
+
+[1.16f] WalkAroundActionObject.cs
+Assets/Scripts/WalkAround/WalkAroundMapGenerator.cs
+/// Unclear where this is called from or if this is still used
+/// Generates a map based on a string
+/// In WA mode can move from map to map. this helps generate the map
 
 [9.1] Misc
 Assets/Scripts/Misc/Demo.cs
@@ -264,13 +376,7 @@ Assets/Scripts/Enums/*
 		Not implemented
 	[9.2k] WalkAroundInput.cs
 		WA mode, different types of inputs that can be done for a PlayerUnit turn
-/*
-to do
-how to do docs better in general
-if keeping this format
-	auto convert directory into hierarchy
-	auto match the files to the labels below
-*/
+
 
 
 Below is 12/21/22 chromebook version mixed with new files
@@ -404,6 +510,9 @@ save and load functions in CalcCode to handle loading and saving of various maps
 map data saved in map dict
 unit data saved per map (for now basically just which map units have been killed or not), can be expanded
 
+
+
+
 [1.17] Prefabs
 [1.17a] Tile Prefabs
 Tile_box prefab is the board tile
@@ -446,47 +555,6 @@ In GameLoopState, there's a regular check to see if a victor team has been set a
 might be better to do with a notification
 in DuelRL there is code to send it back to CombatStateInit for a restart, ideally what restart code in all modes
 PlayerManager has code where if anything changes in playerunit state that may trigger a victory type, checks if there is a victor
-[1.20] Combat Text
-based on a purchased pacakge called Floating Combat Text
-I modified my code a bit based on it
-tied to the MD gmail account
-to update the animation, need to go into the demo scene and mess with the animator attached to the object
-[1.2] Builders
-[1.2a] Builder preface
-Ideally, the project is flexible enough that any turn based grid game can be represented in some way in this project.
-Practically, the project can handle tactics games within a certain narrow framework. I would like to iterate on this to add more customizability and flexibility
-Currently, the range of what can be customized is quite narrow. The abstraction of these features is non-existent.
-At some point, a rethinking of the current system needs to be done and abstracted into a flexibily framework to focus on more ambitious goals.
-The existing builders figure around a certain subset of the genre: turn based tactics games with a narrow rule set. The nonexistent GameRuleBuilder could expand upon this and over more types of games..
-The current builders base the game around two versions. Basically each version is like its own game. All FFT classes, abilities, items etc are in one version. The AT version is pretty preliminary.
-I would like it so that users can create their own versions with their own classes, items, characters, rule sets etc.
-The data for the abilities, characters, items (and maybe some other parts) comes from spreadsheets that build scriptable objects. This is an easy way for someone with access to the unity editor to add game content.
-Through the playable game itself, in Assets theres a Custom folder. Custom Campaigns, CommandSets, Items, Jobs, Levels (maps), Spells, Stories, and Units can be created and shared with others.
-The building and saving used for the scriptable thing and the custom things were both considered from a list of different ways of doing it around 2018.
-It is unclear if this is the best or preferable way of creating and customizing various things. Some research could be done into a better system.
-The custom builders mostly work. They are not well bug tested. The UI is clunky, unintuitive, and ugly. The code behind it is opaque, not really abstraced.
-Some code and prefabs and approaches are used in multiple builders. Nothing is very well documented.
-Obviously, this can be improved.
-[1.2b] Ability Builder
-Create new abilities (spells) here. Set various options like what it does, who it hits etc. Can assign to a command set. The command set can be equipped by a class.
-A class can be put on a unit or the command set can be used as a secondary ability set to allow units to cast the spells in the game.
-[1.2c] Campaign Builder
-Build campaigns here. Campaigns are series of levels played back to back where persistence is achieved between characters.
-[1.2d] Character Builder
-Build characters here. Characters can be given names, classes, items, etc and used in games.
-[1.2e] Class Builder
-Build classes here. Classes can be given abilities and different base stats.
-[1.2f] ItemBuilder
-Build items here. Items can be used by custom characters
-[1.2g] MapBuilder
-Maps/Levels are created here. Make maps to use in various game modes here
-[1.2h] StoryBuilder
-stories have persistence of characters over multiple maps. The maps are accessible in a game world view. Campaigns can be parts of stories with a UI.
-[1.2i] GameRuleBuilder
-TBD
-Be able to add different versions, or abstract all versions under certain ways
-thought experiment: what would have to change to make chess playable? to make it so units could be on more than one tile, etc.
-[1.2j] VersionBuilder
-Only FFT and AT so far. But would be nicet o have different versions with different rules
-Need more flexibility in the system.
-Need a better vision for this.
+
+
+
