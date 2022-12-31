@@ -1,0 +1,74 @@
+Table of Contents
+
+Introduction
+
+Open Tactics is an open sourced tactics genre game. Currently the game is incomplete, buggy, and ugly. The vision of the project is to release a customizable tactics game at some point (though this is unlikely to happen). There are some ambitious goals that may be attempted along the way.
+
+Gameplay
+	At a high level, the game is a one vs. one grid based game board similar to a chess board. Each side controls the pieces on their side and tries to defeat the other side's pieces. The pieces come with a wide variety of items and abilities. 
+
+	Game Modes
+		Single Player
+			Single game
+				Custom, draft
+			Campaign
+			Story
+		Multi Player
+			One vs. One
+		Walk Around
+			TBD
+			Single Player
+			Maybe some MP additions
+		Reinforcement Learning / AI / AI vs. AI Game Mode
+	Gameloop
+		State Map
+
+Builders
+
+Goal is to allow players to build and use a variety of customizable game objects. Ie a user can create an ability or item and add it to a custom character. The custom character can be used on a created map, campaign, or story. Longer term, version and game rule builders can alter the rules of the gameplay.
+
+	Ability Builder: Create a custom ability a unit can use.
+	Campaign Builder: Create a custom collection of levels that can be played in sequence.
+	Character Builder: Create a custom character with various stats, items, classes, and abilities.
+	Class Builder: Create a custom class which contains various stats and abilities.
+	Game Rule Builder: TBD. Create a variety of rules that alters the gameplay.
+	Item Builder: Create a custom item a character can equip.
+	Map Builder: Create a custom map to play the game on.
+	Story Builder: Create an RPG style story where units play a variety of maps, gain experience, learn abilities, and buy items.
+	Version Builder: TBD. Create a specialized version packaging all types of created builders.
+
+Major Topics
+	Reintroducing One vs. One online multiplayer
+	Leveraging Reinforcement Learning
+		Training AI
+		Game Balance
+		AI vs. AI Game Mode
+	Walkaround mode
+	Headless mode for faster simulation of game play
+		Can train RL from this
+		Can build out the scene from a small amount of information
+		Can simulate 'off map' results
+	Graphics/UI/Sound/Particles/Music/Animation
+		Minimal acceptable version that is open sourced so anyone can build on it
+		Way for users to customize based on preferences
+		Way to stub it out so these options can be altered easily in future versions
+	Way to share/mod between users
+		Various custom builds (ie a story build by one player can be shared to another)
+		Graphics/UI/Sound/Particles/Music/Animation
+		
+
+Roadmap
+	0.1 Bare bones version
+		Can be downloaded and edited by others
+		Working versions of:
+			Custom game
+			All builders
+		Proof of concept worked at some point:
+			Multiplayer, Reinforcement Learning
+		Basic docs
+
+	0.2 Moderate improvements
+		Docs fleshed out
+		Major areas of concerns identified
+		Roadmap for major topics identified
+		Next steps identified

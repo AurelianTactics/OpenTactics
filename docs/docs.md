@@ -1,6 +1,7 @@
 focus areas
 how to do other versions (ie classic AT etc). code so it's flexible to do versions in the future
 WA has to be outlined, goals, roadmap, how it can be integrated and see which code can be used
+abstraction of builders to allow better usage and future customizability
 
 /*
 to do
@@ -294,8 +295,12 @@ Maps/Levels are created here. Make maps to use in various game modes here
 Assets/Scripts/StoryBuilder/* [1.2h]
 stories have persistence of characters over multiple maps. The maps are accessible in a game world view. Campaigns can be parts of stories with a UI.
 
+[1.2h1] CutSceneController.cs
+Assets/Scripts/StoryBuilder/CutSceneController.cs 
+/// Controls the cut scenes that can occur before combat, during combat, and after combat
+/// Cut scenes generally feature characters' text bubbles showing various story or combat related text
+
 STOPPED HERE
-Assets/Scripts/StoryBuilder/CutSceneController.cs
 	Assets/Scripts/StoryBuilder/StoryBuilderController.cs
 	Assets/Scripts/StoryBuilder/StoryCutScene.cs
 	Assets/Scripts/StoryBuilder/StoryItem.cs

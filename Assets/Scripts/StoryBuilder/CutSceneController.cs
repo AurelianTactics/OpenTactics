@@ -3,7 +3,10 @@ using System.Collections;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-//controls the cutscene
+/// <summary>
+/// Controls the cut scenes that can occur before combat, during combat, and after combat
+/// Cut scenes generally feature characters' text bubbles showing various story or combat related text
+/// </summary>
 public class CutSceneController : MonoBehaviour {
 
     public ConversationController conversationController;
