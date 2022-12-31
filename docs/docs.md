@@ -210,17 +210,17 @@ Assets/Scripts/RL/*
 	RLBlackBoxActions.cs
 	RLEnvConfig.cs
 Assets/Scripts/StoryBuilder/* [1.2h]
-	CutSceneController.cs
-	StoryBuilderController.cs
-	StoryCutScene.cs
-	StoryItem.cs
-	StoryModeController.cs
-	StoryObject.cs
-	StoryPartyController.cs
-	StoryPoint.cs
-	StorySave.cs
-	StoryShopController.cs
-	StoryShopScrollList.cs
+	CutSceneController.cs [1.2h1]
+	StoryBuilderController.cs [1.2h2]
+	StoryCutScene.cs [1.2h3]
+	StoryItem.cs [1.2h4]
+	StoryModeController.cs [1.2h5]
+	StoryObject.cs [1.2h6]
+	StoryPartyController.cs [1.2h7]
+	StoryPoint.cs [1.2h8]
+	StorySave.cs [1.2h9]
+	StoryShopController.cs [1.2h10]
+	StoryShopScrollList.cs [1.2h11]
 Assets/Scripts/View Model Component/*
 	Ability/*
 		CombatAbilityArea.cs
@@ -300,17 +300,22 @@ Assets/Scripts/StoryBuilder/CutSceneController.cs
 /// Controls the cut scenes that can occur before combat, during combat, and after combat
 /// Cut scenes generally feature characters' text bubbles showing various story or combat related text
 
+	Assets/Scripts/StoryBuilder/StoryBuilderController.cs [1.2h2]
+/// Story Builder allows user to create a story mode for the game.
+/// Story mode is like a typical RPG: a story, series of maps, persistent units that learn experience and abilities
+/// Main script for StoryBuilder Scene. Attached to gameobject and drives the flow of the scene
+
 STOPPED HERE
-	Assets/Scripts/StoryBuilder/StoryBuilderController.cs
-	Assets/Scripts/StoryBuilder/StoryCutScene.cs
-	Assets/Scripts/StoryBuilder/StoryItem.cs
-	Assets/Scripts/StoryBuilder/StoryModeController.cs
-	Assets/Scripts/StoryBuilder/StoryObject.cs
-	Assets/Scripts/StoryBuilder/StoryPartyController.cs
-	Assets/Scripts/StoryBuilder/StoryPoint.cs
-	Assets/Scripts/StoryBuilder/StorySave.cs
-	Assets/Scripts/StoryBuilder/StoryShopController.cs
-	Assets/Scripts/StoryBuilder/StoryShopScrollList.cs
+
+	Assets/Scripts/StoryBuilder/StoryCutScene.cs [1.2h3]
+	Assets/Scripts/StoryBuilder/StoryItem.cs [1.2h4]
+	Assets/Scripts/StoryBuilder/StoryModeController.cs [1.2h5]
+	Assets/Scripts/StoryBuilder/StoryObject.cs [1.2h6]
+	Assets/Scripts/StoryBuilder/StoryPartyController.cs [1.2h7]
+	Assets/Scripts/StoryBuilder/StoryPoint.cs [1.2h8]
+	Assets/Scripts/StoryBuilder/StorySave.cs [1.2h9]
+	Assets/Scripts/StoryBuilder/StoryShopController.cs [1.2h10]
+	Assets/Scripts/StoryBuilder/StoryShopScrollList.cs [1.2h11]
 
 
 [1.2i] GameRuleBuilder

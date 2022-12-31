@@ -4,6 +4,11 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System;
 
+/// <summary>
+/// Story Builder allows user to create a story mode for the game.
+/// Story mode is like a typical RPG: a story, series of maps, persistent units that learn experience and abilities
+/// Main script for StoryBuilder Scene. Attached to gameobject and drives the flow of the scene
+/// </summary>
 public class StoryBuilderController : MonoBehaviour {
 
     //StoryEditPanel
