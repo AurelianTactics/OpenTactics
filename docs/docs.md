@@ -300,22 +300,76 @@ Assets/Scripts/StoryBuilder/CutSceneController.cs
 /// Controls the cut scenes that can occur before combat, during combat, and after combat
 /// Cut scenes generally feature characters' text bubbles showing various story or combat related text
 
-	Assets/Scripts/StoryBuilder/StoryBuilderController.cs [1.2h2]
+[1.2h2] StoryBuilderController.cs
+Assets/Scripts/StoryBuilder/StoryBuilderController.cs 
 /// Story Builder allows user to create a story mode for the game.
 /// Story mode is like a typical RPG: a story, series of maps, persistent units that learn experience and abilities
 /// Main script for StoryBuilder Scene. Attached to gameobject and drives the flow of the scene
 
-STOPPED HERE
+[1.2h3] StoryCutScene.cs
+Assets/Scripts/StoryBuilder/StoryCutScene.cs
+Contains StoryCutScene and StoryCutSceneObject classes
+/// Story cut scenes are collections of text dialogue that advances a story
+/// Played in Combat Scene I think
+/// StoryCutScene consists of a list of StoryCutSceneObjects, which are used in CutScene state to display a cut scene
+/// associated with Story Object by StoryId
 
-	Assets/Scripts/StoryBuilder/StoryCutScene.cs [1.2h3]
-	Assets/Scripts/StoryBuilder/StoryItem.cs [1.2h4]
-	Assets/Scripts/StoryBuilder/StoryModeController.cs [1.2h5]
-	Assets/Scripts/StoryBuilder/StoryObject.cs [1.2h6]
-	Assets/Scripts/StoryBuilder/StoryPartyController.cs [1.2h7]
-	Assets/Scripts/StoryBuilder/StoryPoint.cs [1.2h8]
-	Assets/Scripts/StoryBuilder/StorySave.cs [1.2h9]
-	Assets/Scripts/StoryBuilder/StoryShopController.cs [1.2h10]
-	Assets/Scripts/StoryBuilder/StoryShopScrollList.cs [1.2h11]
+[1.2h4] StoryItem.cs
+Assets/Scripts/StoryBuilder/StoryItem.cs
+Contains StoryItem and StoryItemObject classes
+/// StoryItem holds a list of StoryItemObjects
+/// In story mode, certain items are only available at a shop when certain requirements are met
+/// Ie end game items are only available near the end of the game
+/// Logic in these classes handles the stocking of items at stores based on story requirements
+
+[1.2h5] StoryModeController.cs 
+Assets/Scripts/StoryBuilder/StoryModeController.cs 
+/// In Story scene, this script handles the main logic of the scene
+/// Sets up map, handles saving and loading, allows player to select next battle or edit unit etc
+to do: more explanations needed for key parts
+
+[1.2h6] StoryObject.cs 
+Assets/Scripts/StoryBuilder/StoryObject.cs 
+Contains StoryObject and StoryIntProgression classes
+/// main object for outlining a story and progress in it
+/// contains story points that allow user actions during certain points in the story
+to do explain the parts, summarize more
+
+[1.2h7] StoryPartyController.cs 
+Assets/Scripts/StoryBuilder/StoryPartyController.cs 
+/// In StoryParty Scene, can edit your party (equip items etc)
+/// This script controls the logic from this scene
+/// StoryParty Scene entered from Story Mode scene when player wants to edit party
+to do explain the parts, summarize more
+
+[1.2h8] StoryPoint.cs 
+Assets/Scripts/StoryBuilder/StoryPoint.cs 
+Contains StoryPoint, StoryPointObject, and StoryPointInt classes
+/// Each StoryObject has a StoryPoint object associated with it.
+/// StoryPoint holds a collection of StoryPointObjects
+/// StoryPointObjects hold details on user can do there (battle, shop, watch cutscene etc)
+/// represent map points in some instances
+/// for now, points don't have neighbors or travel paths, at some point can add them and time it takes 
+/// to get between the points
+to do explain the parts, summarize more
+
+[1.2h9] StorySave.cs
+Assets/Scripts/StoryBuilder/StorySave.cs 
+Contains StorySave, UnitXPObject, ItemInventoryObject, AbilityLearnedListObject, 
+LevelXP, and UnitAbilityObject classes
+StorySave is object for saving the user's current story progress
+LevelXP tracks how much xp is needed to reach the next level
+UnitXPObject tracks XP learned by each unit
+ItemInventoryObject tracks items gained by party
+UnitAbilityObject and AbilityLearnedListObject are for tracking the abilities learned by units
+to do probably split up the classes into their own files
+
+STOPPED HERE
+[1.2h10] StoryShopController.cs 
+Assets/Scripts/StoryBuilder/StoryShopController.cs 
+
+[1.2h11] StoryShopScrollList.cs 
+Assets/Scripts/StoryBuilder/StoryShopScrollList.cs 
 
 
 [1.2i] GameRuleBuilder

@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+/// <summary>
+/// In StoryParty Scene, can edit your party (equip items etc)
+/// This script controls the logic from this scene
+/// StoryParty Scene entered from Story Mode scene when player wants to edit party
+/// </summary>
 public class StoryPartyController : MonoBehaviour {
 
     public GameObject itemScrollListPanel;

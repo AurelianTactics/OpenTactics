@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System;
 
-//Each StoryObject has a StoryPoint object associated with it.
-//StoryPoint holds a collection of StoryPointObjects
-//StoryPointObjects hold details on user can do there (battle, shop, watch cutscene etc)
-//represent map points in some instances
 
-//for now, points don't have neighbors or travel paths, at some point can add them and time it takes to get between the points
-
+/// <summary>
+/// Each StoryObject has a StoryPoint object associated with it.
+/// StoryPoint holds a collection of StoryPointObjects
+/// StoryPointObjects hold details on user can do there (battle, shop, watch cutscene etc)
+/// represent map points in some instances
+/// for now, points don't have neighbors or travel paths, at some point can add them and time it takes 
+/// to get between the points
+/// </summary>
 [Serializable]
 public class StoryPoint {
 
@@ -186,6 +188,9 @@ public class StoryPoint {
     }
 }
 
+/// <summary>
+/// Object that is shown on the story map that can be interacted with by the player
+/// </summary>
 [Serializable]
 public class StoryPointObject
 {
@@ -235,7 +240,10 @@ public class StoryPointObject
 
 }
 
-//each story point can change as the story progresses. list of these are in each StoryPointObject. Depending on the storyInt, the latest storyPointInt is shown
+/// <summary>
+/// each story point can change as the story progresses. list of these are in each StoryPointObject. 
+/// Depending on the storyInt, the latest storyPointInt is shown
+/// </summary>
 [Serializable]
 public class StoryPointInt
 {

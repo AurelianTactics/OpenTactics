@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 
-//object for saving the user's current story progress
+/// <summary>
+/// object for saving the user's current story progress
+/// </summary>
 [Serializable]
 public class StorySave {
 
@@ -478,7 +480,9 @@ public class StorySave {
     #endregion
 }
 
-//for managing a player's inventory
+/// <summary>
+/// for managing a player's inventory
+/// </summary>
 [Serializable]
 public class ItemInventoryObject
 {
@@ -519,6 +523,9 @@ public class ItemInventoryObject
 
 }
 
+/// <summary>
+/// What XP is needed to reach the next level
+/// </summary>
 public static class LevelXP
 {
     static int Level1XP = 0;
@@ -560,6 +567,9 @@ public static class LevelXP
     }
 }
 
+/// <summary>
+/// Tracks XP gained by the unit
+/// </summary>
 [Serializable]
 public class UnitXPObject
 {
@@ -617,6 +627,9 @@ public class UnitXPObject
 
 }
 
+/// <summary>
+/// Tracks abilities learned by the unit
+/// </summary>
 [Serializable]
 public class UnitAbilityObject
 {
@@ -831,6 +844,9 @@ public class UnitAbilityObject
 
 }
 
+/// <summary>
+/// Tracks abilities learned by a unit
+/// </summary>
 [Serializable]
 public class AbilityLearnedListObject
 {

@@ -2,8 +2,14 @@
 using System.Collections.Generic;
 using System;
 
-//main object for outlining a story
-//contains story points that allow user actions during certain points in the story
+/*
+ to do explain the parts, summarize more
+ */
+
+/// <summary>
+/// main object for outlining a story and progress in it
+/// contains story points that allow user actions during certain points in the story
+/// </summary>
 [Serializable]
 public class StoryObject {
 
@@ -100,10 +106,12 @@ public class StoryObject {
     }
 }
 
-//key to dictionary in StoryObject
-//story progresses (ie storyInt increases) when the current StoryInt and Progression Int are used as a key in the StoryDictionary
-//if key doesn't exist, then story doesn't progress
-//if key exists, the value found becomes the next StoryInt
+/// <summary>
+/// key to dictionary in StoryObject
+/// story progresses (ie storyInt increases) when the current StoryInt and Progression Int are used as a key in the StoryDictionary
+/// if key doesn't exist, then story doesn't progress
+/// if key exists, the value found becomes the next StoryInt
+/// </summary>
 [Serializable]
 public class StoryIntProgression
 {

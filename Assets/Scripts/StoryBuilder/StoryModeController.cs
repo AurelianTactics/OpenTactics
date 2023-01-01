@@ -3,6 +3,15 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+/*
+To do
+fill out explanations in this script
+ */
+
+/// <summary>
+/// In Story scene, this script handles the main logic of the scene
+/// Sets up map, handles saving and loading, allows player to select next battle or edit unit etc
+/// </summary>
 public class StoryModeController : MonoBehaviour {
 
     StoryObject currentStory;

@@ -2,8 +2,13 @@
 using System;
 using System.Collections.Generic;
 
-//associated with Story Object by StoryId
-//consists of a list of StoryCutSceneObjects, which are used in CutScene state to display a cut scene
+
+/// <summary>
+/// Story cut scenes are collections of text dialogue that advances a story
+/// Played in Combat Scene I think
+/// StoryCutScene consists of a list of StoryCutSceneObjects, which are used in CutScene state to display a cut scene
+/// associated with Story Object by StoryId
+/// </summary>
 [Serializable]
 public class StoryCutScene {
 
@@ -54,6 +59,10 @@ public class StoryCutScene {
     }
 }
 
+/// <summary>
+/// StoryCutScene consists of a list of StoryCutSceneObjects, which are used in CutScene state to display a cut scene
+/// associated with Story Object by StoryId
+/// </summary>
 [Serializable]
 public class StoryCutSceneObject
 {

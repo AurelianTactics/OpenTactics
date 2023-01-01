@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 
+/// <summary>
+/// StoryItem holds a list of StoryItemObjects
+/// In story mode, certain items are only available at a shop when certain requirements are met
+/// Ie end game items are only available near the end of the game
+/// Logic in these classes handles the stocking of items at stores based on story requirements
+/// </summary>
 [Serializable]
 public class StoryItem {
 
@@ -65,6 +71,12 @@ public class StoryItem {
     }
 }
 
+/// <summary>
+/// StoryItem holds a list of StoryItemObjects
+/// In story mode, certain items are only available at a shop when certain requirements are met
+/// Ie end game items are only available near the end of the game
+/// Logic in these classes handles the stocking of items at stores based on story requirements
+/// </summary>
 [Serializable]
 public class StoryItemObject
 {
