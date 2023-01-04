@@ -4,6 +4,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+/// <summary>
+/// Called in CombatScene and scenes (to do) for getting list of ability objects
+/// to do: be more specific with usage where and how
+/// </summary>
 public class AbilityManager : Singleton<AbilityManager>
 {
 

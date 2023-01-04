@@ -5,8 +5,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-//used in story mode for shopping and in party mode for equipping items
-
+/// <summary>
+/// used in story mode for shopping and in party mode for equipping items
+/// Used in Scenes: StoryShop and StoryParty
+/// </summary>
 public class StoryShopScrollList : MonoBehaviour
 {
     //public Button backButton;

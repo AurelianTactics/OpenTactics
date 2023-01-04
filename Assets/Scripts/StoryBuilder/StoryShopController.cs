@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+/// <summary>
+/// In StoryShop scene, controls flow
+/// </summary>
 public class StoryShopController : MonoBehaviour {
 
     #region variables

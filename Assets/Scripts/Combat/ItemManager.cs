@@ -3,6 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+/// <summary>
+/// Used in CombatScene and ___ scene to handle ItemObjects
+/// Help populate lists and get item information needed by game
+/// to do: where and how is this used
+/// </summary>
 public class ItemManager : Singleton<ItemManager>
 {
     //for battles

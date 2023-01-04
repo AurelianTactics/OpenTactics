@@ -2,6 +2,9 @@ focus areas
 how to do other versions (ie classic AT etc). code so it's flexible to do versions in the future
 WA has to be outlined, goals, roadmap, how it can be integrated and see which code can be used
 abstraction of builders to allow better usage and future customizability
+Singleton best format going forward
+	particularly in MP. like the reads are fine but writes could get complex
+	managers in general could be organized and streamlined better
 
 /*
 to do
@@ -261,6 +264,65 @@ Assets/PlayerUnitObjectText/* [1.20]
 		PUOTextType.cs
 
 
+[8.1] Managers
+Managers are Singleton objects used in CombatScene and some builder scenes. A singleton only allows one
+instance of the class to be initiated so these singleton objects provide access scene wide to the data stored in the managers.
+That means, regardless of what game loop state or what game object is being activated, the same manager can be accessed and edited.
+These scripts are generally overly complex and could be streamlined. I'm also unclear if this is the best pattern going forward.
+
+[8.1a] AbilityManager.cs
+/// Called in CombatScene and scenes (to do) for getting list of ability objects
+/// to do: be more specific with usage where and how
+
+[8.1b] ItemManager.cs
+/// Used in CombatScene and ___ scene to handle ItemObjects
+/// Help populate lists and get item information needed by game
+/// to do: where and how is this used
+
+STOPPED HERE
+[8.1c] ParticleManager.cs
+[8.1d] PlayerManager.cs
+[8.1e] SoundManager.cs
+[8.1f] SpellManager.cs
+[8.1g] TurnsManager.cs
+WalkAroundManager.cs DEPRECATED
+
+
+[8.0] ScriptableObjects
+The idea behind Scriptable Objects is that the details can be filled into a csv file and then dropped into the Unity hierarchy
+to do: where? outline this process explicitly
+Then the script builds out the objects into the Resources directory (example: Resources/Abilities)
+The scriptable objects can then be loaded for use in the game
+
+[8.0a] ScriptableObjectUtility
+Assets/Editor/ScritableObjectUtility.cs
+This makes it easy to create, name and place unique new ScriptableObject asset files.
+
+[8.0b] AbilityData.cs
+Assets/Scripts/Combat/AbilityData.cs
+/// Turns a csv of data placed in the resources file into a directory of objects in the Resources directory
+/// The objects can be loaded and used by the game
+/// ScriptableObject code is located in Assets/Editor/ScriptableObjectUtility.cs
+
+[8.0c] ConversationData
+Assets/Scripts/Model/ConversationData.cs
+/// Turns a csv of data placed in the resources file into a directory of objects in the Resources directory
+/// The objects can be loaded and used by the game
+/// ScriptableObject code is located in Assets/Editor/ScriptableObjectUtility.cs
+
+[8.0d] ItemData
+Assets/Scripts/Combat/ItemData.cs
+/// Turns a csv of data placed in the resources file into a directory of objects in the Resources directory
+/// The objects can be loaded and used by the game
+/// ScriptableObject code is located in Assets/Editor/ScriptableObjectUtility.cs
+
+[8.0e] SpellNameData
+Assets/Scripts/Combat/SpellNameData.cs
+/// Turns a csv of data placed in the resources file into a directory of objects in the Resources directory
+/// The objects can be loaded and used by the game
+/// ScriptableObject code is located in Assets/Editor/ScriptableObjectUtility.cs
+
+
 [1.2] Builders
 [1.2a] Builder preface
 Ideally, the project is flexible enough that any turn based grid game can be represented in some way in this project.
@@ -364,12 +426,14 @@ ItemInventoryObject tracks items gained by party
 UnitAbilityObject and AbilityLearnedListObject are for tracking the abilities learned by units
 to do probably split up the classes into their own files
 
-STOPPED HERE
 [1.2h10] StoryShopController.cs 
 Assets/Scripts/StoryBuilder/StoryShopController.cs 
+In StoryShop scene, controls flow
 
 [1.2h11] StoryShopScrollList.cs 
-Assets/Scripts/StoryBuilder/StoryShopScrollList.cs 
+Assets/Scripts/StoryBuilder/StoryShopScrollList.cs
+/// used in story mode for shopping and in party mode for equipping items
+/// Used in Scenes: StoryShop and StoryParty
 
 
 [1.2i] GameRuleBuilder
@@ -489,6 +553,13 @@ Below is 12/21/22 chromebook version mixed with new files
 [1.19] Multiscript concepts
 [1.19a] Ending Combat
 [1.20] Combat Text
+
+[8.0] ScriptableObjects
+	[8.0a] ScriptableObjectUtility
+	[8.0b] AbilityData.cs
+	[8.0c] ConversationData
+	[8.0d] ItemData
+	[8.0e] SpellNameData
 
 [9.0] Code Improvements
 Unify the menu codes so not a bunch of one off code for each menu
