@@ -308,6 +308,10 @@ Assets/Scripts/Combat/TurnsManager.cs
 file also contains some ShadowPU and ShadowSS classes to help make the turns list
 to do can be improved visually and maybe calculation wise
 
+[8.1h] Singleton.cs
+Assets/Scripts/Combat/Singleton.cs
+Managers in CombatScene inherit from this class. Singleton structure.
+
 WalkAroundManager.cs DEPRECATED
 
 
@@ -715,4 +719,102 @@ in DuelRL there is code to send it back to CombatStateInit for a restart, ideall
 PlayerManager has code where if anything changes in playerunit state that may trigger a victory type, checks if there is a victor
 
 
+
+[9.3] Combat PlayerUnit
+PlayerUnit are the units on the board in Combat/WalkAround. They consist of a PlayerUnit script which contains and manipulates
+the stats and characteristics of the unit and the PlayerUnitObject, which is the physical Unity representation that controls the
+unit visually.
+
+[9.3a] PlayerUnit.cs
+Assets/Scripts/Combat/
+[9.3b] PlayerUnitLevelStats.cs
+Assets/Scripts/Combat/
+[9.3c] PlayerUnitObject.cs
+Assets/Scripts/Combat/
+
+[9.4] Combat Calculation
+A grouping of scripts that contain various calculations needed in CombatScene.
+
+[9.4a] CalcCode.cs
+Assets/Scripts/Combat/
+
+[9.4b] CalculationAT.cs
+Assets/Scripts/Combat/
+
+[9.4c] CalculationEvasion.cs
+Assets/Scripts/Combat/
+
+[9.4d] CalculationHitDamage.cs
+Assets/Scripts/Combat/
+
+[9.4e] CalculationMod.cs
+Assets/Scripts/Combat/
+
+[9.4f] CalculationMono.cs
+Assets/Scripts/Combat/
+
+[9.4g] CalculationProjectile.cs
+Assets/Scripts/Combat/
+
+[9.4h] CalculationResolveAction.cs
+Assets/Scripts/Combat/
+
+[9.4i] CalculationZodiac.cs
+Assets/Scripts/Combat/
+
+
+[9.5] Combat Misc
+Miscellaneous scripts used in CombatScene
+
+[9.5a] CameraClick.cs
+Assets/Scripts/Combat/
+
+[9.5b] CameraFacingBillboard.cs
+Assets/Scripts/Combat/
+
+[9.5c] CombatMultiplayerObject.cs
+Assets/Scripts/Combat/
+
+[9.5d] CombatLogClass.cs
+Assets/Scripts/Combat/
+
+[9.5e] CombatLogSaveObject.cs
+Assets/Scripts/Combat/
+
+[9.5f] CombatStats.cs
+Assets/Scripts/Combat/
+
+[9.5g] FocusOnMe.cs	
+Assets/Scripts/Combat/
+
+[9.5h] CombatUITarget.cs
+Assets/Scripts/Combat/
+
+[9.5i] NameAbility.cs
+Assets/Scripts/Combat/
+
+[9.5j] NameAll.cs
+Assets/Scripts/Combat/
+
+[9.5k] TurnObject.cs
+Assets/Scripts/Combat/
+
+[9.5l] TurnsManager.cs
+Assets/Scripts/Combat/
+
+
+[9.6] Combat Spell
+Spells are used in CombatScene to represent all actions a PlayerUnit can take (with the exception of Wait and standard move)
+
+[9.6a] SpellName.cs
+Assets/Scripts/Combat/
+
+[9.6b] SpellNameAI.cs
+Assets/Scripts/Combat/
+
+[9.6c] SpellReaction.cs
+Assets/Scripts/Combat/
+
+[9.6d] SpellSlow.cs
+Assets/Scripts/Combat/
 
