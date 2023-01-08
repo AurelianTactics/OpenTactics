@@ -4,74 +4,20 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-//produces the turns object for the turnmenu
-//in the future maybe list the upcoming turns more easily
-//in the future have potential turns be shown in their place in this
-//in future might want to keep the always updated rather thand scratch adn build from start all the time
-//in future shade by team
-//in future show the effect panels with better info (caster immune etc)
+/*
+ to do
+in the future maybe list the upcoming turns more easily
+in the future have potential turns be shown in their place in this
+in future might want to keep the always updated rather thand scratch adn build from start all the time
+in future shade by team
+in future show the effect panels with better info (caster immune etc)
+ */
 
-public class ShadowPU //fake PU units for generating the turns list
-{
-    //for now just doing speed and ct
-    //in future statuses that effect speed
-    //in future statuses that effect ability to get a turn (dead, etc)
-    public int speed;
-    public int ct;
-    public string name;
-    public int targetX;
-    public int targetY;
-    public int actorId; //f
-    //not needed
-    //int effectXY;
-    //int effectZ;
-    public ShadowPU(PlayerUnit pu)
-    {
-        this.speed = pu.StatTotalSpeed;
-        this.ct = pu.CT;
-        this.targetX = pu.TileX;
-        this.targetY = pu.TileY;
-        this.name = pu.UnitName;
-        this.actorId = pu.TurnOrder;
-    }
-}
 
-//public TurnObject(int zOrder, int zActorId, int zIndex, int zEffectXY, int zEffectZ, string zTitle)
-//{
-//    this.turnId = zOrder;
-//    this.actorId = zActorId;
-//    this.mapTileIndex = zIndex;
-//    this.effectXY = zEffectXY;
-//    this.effectZ = zEffectZ;
-//    this.title = zTitle;
-//}
-
-public class ShadowSS //fake SpellSlows from teh spell slow queue
-{
-    public int ctr;
-    public int actorId;
-    public string name;
-    public int targetX;
-    public int targetY;
-    public int effectXY;
-    public int effectZ;
-    public int uniqueId;
-	public SpellName spellName;
-
-    public ShadowSS(SpellSlow ss)
-    {
-        this.ctr = ss.CTR;
-        this.actorId = ss.UnitId;
-		this.spellName = SpellManager.Instance.GetSpellNameByIndex(ss.SpellIndex);
-        this.name = spellName.AbilityName;
-        this.targetX = ss.TargetX;
-        this.targetY = ss.TargetY;
-        this.effectXY = spellName.EffectXY;
-        this.effectZ = spellName.EffectZ;
-        this.uniqueId = ss.UniqueId;
-    }
-}
-
+/// <summary>
+/// produces the turns object for the turnmenu
+/// turns objects show the upcoming PU turns and sepll to resolve
+/// </summary>
 public class TurnsManager : Singleton<TurnsManager>
 { 
 
@@ -311,4 +257,72 @@ public class TurnsManager : Singleton<TurnsManager>
 
         
     }
+}
+
+
+/// <summary>
+/// fake PU units for generating the turns list
+/// </summary>
+public class ShadowPU
+{
+	//for now just doing speed and ct
+	//in future statuses that effect speed
+	//in future statuses that effect ability to get a turn (dead, etc)
+	public int speed;
+	public int ct;
+	public string name;
+	public int targetX;
+	public int targetY;
+	public int actorId; //f
+						//not needed
+						//int effectXY;
+						//int effectZ;
+	public ShadowPU(PlayerUnit pu)
+	{
+		this.speed = pu.StatTotalSpeed;
+		this.ct = pu.CT;
+		this.targetX = pu.TileX;
+		this.targetY = pu.TileY;
+		this.name = pu.UnitName;
+		this.actorId = pu.TurnOrder;
+	}
+}
+
+//public TurnObject(int zOrder, int zActorId, int zIndex, int zEffectXY, int zEffectZ, string zTitle)
+//{
+//    this.turnId = zOrder;
+//    this.actorId = zActorId;
+//    this.mapTileIndex = zIndex;
+//    this.effectXY = zEffectXY;
+//    this.effectZ = zEffectZ;
+//    this.title = zTitle;
+//}
+
+/// <summary>
+/// fake SpellSlows from teh spell slow queue so Turns list can be accurate
+/// </summary>
+public class ShadowSS
+{
+	public int ctr;
+	public int actorId;
+	public string name;
+	public int targetX;
+	public int targetY;
+	public int effectXY;
+	public int effectZ;
+	public int uniqueId;
+	public SpellName spellName;
+
+	public ShadowSS(SpellSlow ss)
+	{
+		this.ctr = ss.CTR;
+		this.actorId = ss.UnitId;
+		this.spellName = SpellManager.Instance.GetSpellNameByIndex(ss.SpellIndex);
+		this.name = spellName.AbilityName;
+		this.targetX = ss.TargetX;
+		this.targetY = ss.TargetY;
+		this.effectXY = spellName.EffectXY;
+		this.effectZ = spellName.EffectZ;
+		this.uniqueId = ss.UniqueId;
+	}
 }

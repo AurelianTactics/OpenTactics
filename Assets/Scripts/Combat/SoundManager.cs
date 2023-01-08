@@ -6,7 +6,6 @@ using System.Collections;
 /// Attached to GameController in WalkAround and Combat scenes
 /// Called on certain game and UI events
 /// </summary>
-
 public class SoundManager : Singleton<SoundManager>
 {
     [SerializeField]

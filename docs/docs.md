@@ -271,20 +271,43 @@ That means, regardless of what game loop state or what game object is being acti
 These scripts are generally overly complex and could be streamlined. I'm also unclear if this is the best pattern going forward.
 
 [8.1a] AbilityManager.cs
+Assets/Scripts/Combat/AbilityManager.cs
 /// Called in CombatScene and scenes (to do) for getting list of ability objects
 /// to do: be more specific with usage where and how
 
 [8.1b] ItemManager.cs
+Assets/Scripts/Combat/ItemManager.cs
 /// Used in CombatScene and ___ scene to handle ItemObjects
 /// Help populate lists and get item information needed by game
 /// to do: where and how is this used
 
-STOPPED HERE
 [8.1c] ParticleManager.cs
+Assets/Scripts/Combat/ParticleManager.cs
+DEPRECATED
+manages all the particles. Eliminated for now until new particles can be found and implemented
+
 [8.1d] PlayerManager.cs
+Assets/Scripts/Combat/PlayerManager.cs
+to do move description over
+
 [8.1e] SoundManager.cs
+Assets/Scripts/Combat/SoundManager.cs
+/// Plays sounds
+/// Attached to GameController in WalkAround and Combat scenes
+/// Called on certain game and UI events
+
 [8.1f] SpellManager.cs
+Assets/Scripts/Combat/SpellManager.cs
+/// Manages spells in CombatScene and WalkAround Scene
+/// Is a singleton and accessible throughout the scene
+
 [8.1g] TurnsManager.cs
+Assets/Scripts/Combat/TurnsManager.cs
+/// produces the turns list object for the turnmenu
+/// turns objects show the upcoming PU turns and sepll to resolve
+file also contains some ShadowPU and ShadowSS classes to help make the turns list
+to do can be improved visually and maybe calculation wise
+
 WalkAroundManager.cs DEPRECATED
 
 

@@ -5,6 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 
+/// <summary>
+/// Manages spells in CombatScene and WalkAround Scene
+/// Is a singleton and accessible throughout the scene
+/// </summary>
 public class SpellManager : Singleton<SpellManager>
 {
 
