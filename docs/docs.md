@@ -308,6 +308,11 @@ Assets/Scripts/Combat/TurnsManager.cs
 file also contains some ShadowPU and ShadowSS classes to help make the turns list
 to do can be improved visually and maybe calculation wise
 
+[8.1g1] TurnObject.cs
+Assets/Scripts/Combat/
+/// produces the turns object for the turnmenu
+/// turns objects show the upcoming PU turns and sepll to resolve
+
 [8.1h] Singleton.cs
 Assets/Scripts/Combat/Singleton.cs
 Managers in CombatScene inherit from this class. Singleton structure.
@@ -766,41 +771,61 @@ Assets/Scripts/Combat/
 [9.5] Combat Misc
 Miscellaneous scripts used in CombatScene
 
-[9.5a] CameraClick.cs
+[9.5a] CameraClick.cs DEPRECATED
 Assets/Scripts/Combat/
 
 [9.5b] CameraFacingBillboard.cs
 Assets/Scripts/Combat/
+used in PlayerUnitObject.cs for showing a small square on the PU with any status effects
 
-[9.5c] CombatMultiplayerObject.cs
+[9.5c] CombatMultiplayerObject.cs DEPRECATED
 Assets/Scripts/Combat/
+used in old MultiplayerObject
 
 [9.5d] CombatLogClass.cs
 Assets/Scripts/Combat/
+Saves actions and rolls to a combatlog menu option so players can see results of past actions
 
 [9.5e] CombatLogSaveObject.cs
 Assets/Scripts/Combat/
+/// Combat Log can be saved to file using these objects
+/// storing a list and saving in PlayerManager for now
 
 [9.5f] CombatStats.cs
 Assets/Scripts/Combat/
+/// each match has combat stats
+/// for now determining unit XP and AP
+/// categories: dmg done, healing done, statuses inflicted, statuses cured, deaths caused, deaths cured
+/// then award xp/ap based on units % in that category
+/// for now, only used in single player story mode (so only stores P1 stats)
 
-[9.5g] FocusOnMe.cs	
+[9.5g] FocusOnMe.cs	 DEPRECATED
 Assets/Scripts/Combat/
+I think it used to move the camera around
 
 [9.5h] CombatUITarget.cs
 Assets/Scripts/Combat/
+Copy notes over
 
 [9.5i] NameAbility.cs
 Assets/Scripts/Combat/
+/// in CombatScene create a dict that only has the abilities present in that battle, can access the dict for 
+/// display purposes when needed
+/// In character select
+/// in character select
+/// returns a dictionary with the display name and the ability int
+/// use the dictionary to create a list that populates the dropdown
+/// on dropdown select, an int value is returned, use that int in the list to get the name of the ability
+/// use the ability name in the dictionary to get the ability int
+/// set the ability int to the player unit's slot
 
 [9.5j] NameAll.cs
 Assets/Scripts/Combat/
-
-[9.5k] TurnObject.cs
-Assets/Scripts/Combat/
-
-[9.5l] TurnsManager.cs
-Assets/Scripts/Combat/
+/// Holds statics/constants/functions that are called from a variety of scripts
+/// I'm sure there's a better way to do this
+/// Seems pretty fucking stupid to do it this way but alternative is copying a bunch of constants to each script that calls it
+to do: 
+I should probably turn into a bunch of enums or something? idk
 
 
 [9.6] Combat Spell
@@ -808,13 +833,21 @@ Spells are used in CombatScene to represent all actions a PlayerUnit can take (w
 
 [9.6a] SpellName.cs
 Assets/Scripts/Combat/
+/// All the stats needed for a Spell
+/// I think I have a spreadsheet to make setting the details easier
 
 [9.6b] SpellNameAI.cs
 Assets/Scripts/Combat/
+/// takes a spellName in and returns a series of classifications that the AI uses to better choose its CombatPlanOfAttack
+/// a new one is created in each CombatComputerPlayer Evaluate function
 
 [9.6c] SpellReaction.cs
 Assets/Scripts/Combat/
+/// When a reaction ability triggers, creates a SpellReaction that resolves in the order
+/// prescribed by the game loop
 
 [9.6d] SpellSlow.cs
 Assets/Scripts/Combat/
+/// A SpellSlow is a PlayerUnit action that does not resolve on its turn.
+/// SpellSlows are stored in a SS queue until they reach 0 ticks and resolve
 

@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 
 
+/// <summary>
+/// Combat Log can be saved to file using these objects
+/// storing a list and saving in PlayerManager for now
+/// </summary>
 public class CombatLogSaveObject
 {
-	/// <summary>
-	/// Combat Log can be saved to file using these objects
-	/// storing a list and saving in PlayerManager for now
-	/// </summary>
-
-
 
 	int logId;
 	int tick;

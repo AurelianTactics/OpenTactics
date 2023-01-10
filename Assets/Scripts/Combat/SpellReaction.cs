@@ -2,6 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// When a reaction ability triggers, creates a SpellReaction that resolves in the order
+/// prescribed by the game loop
+/// </summary>
 public class SpellReaction
 {
 

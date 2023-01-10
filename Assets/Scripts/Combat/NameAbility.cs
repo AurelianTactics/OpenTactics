@@ -2,17 +2,19 @@
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// in CombatScene create a dict that only has the abilities present in that battle, can access the dict for 
+/// display purposes when needed
+/// In character select
+/// in character select
+/// returns a dictionary with the display name and the ability int
+/// use the dictionary to create a list that populates the dropdown
+/// on dropdown select, an int value is returned, use that int in the list to get the name of the ability
+/// use the ability name in the dictionary to get the ability int
+/// set the ability int to the player unit's slot
+/// </summary>
 public class NameAbility {
-    //in character select
-    //returns a dictionary with the display name and the ability int
-    //use the dictionary to create a list that populates the dropdown
-    //on dropdown select, an int value is returned, use that int in the list to get the name of the ability
-    //use the ability name in the dictionary to get the ability int
-    //set the ability int to the player unit's slot
-    //Dictionary<KeyType,ValueType> myDictionary = new Dictionary<KeyType,ValueType>();
-
-    //in battle
-    //create a dict that only has the abilities present in that battle, can access the dict for display purposes when needed
+    
 
     public Dictionary<int, string> GetColorDict()
     {

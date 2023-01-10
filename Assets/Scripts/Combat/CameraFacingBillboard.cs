@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-//used in PUO for status image object
+/// <summary>
+/// used in PlayerUnitObject.cs for showing a small square on the PU with any status effects
+/// </summary>
 public class CameraFacingBillboard : MonoBehaviour
 {
     public Camera m_Camera;

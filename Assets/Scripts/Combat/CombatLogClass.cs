@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
+/// <summary>
+/// Saves actions and rolls to a combatlog menu option so players can see results of past actions
+/// </summary>
 public class CombatLogClass : MonoBehaviour {
-	/// <summary>
-	/// Saves actions and rolls to a combatlog menu option so players can see what happened in the past
-	/// </summary>
+	
     const string CombatMenuAdd = "CombatMenu.AddItem";
 
     //holds combatlog objects for the combatLog

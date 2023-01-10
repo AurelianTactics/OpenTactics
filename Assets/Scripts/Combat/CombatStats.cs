@@ -2,13 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 
-//each match has combat stats
-//for now determining unit XP and AP
-//categories: dmg done, healing done, statuses inflicted, statuses cured, deaths caused, deaths cured
-//then award xp/ap based on units % in that category
-//for now, only used in single player story mode (so only stores P1 stats)
+/*
+ to do
+maybe rename to something more appropriate like StoryRewards
+ */
 
-
+/// <summary>
+/// each match has combat stats
+/// for now determining unit XP and AP
+/// categories: dmg done, healing done, statuses inflicted, statuses cured, deaths caused, deaths cured
+/// then award xp/ap based on units % in that category
+/// for now, only used in single player story mode (so only stores P1 stats)
+/// </summary>
 public class CombatStats {
 
     List<int> playerUnitIdList;

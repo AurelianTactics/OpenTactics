@@ -1,6 +1,9 @@
 ﻿
-//takes a spellName in and returns a series of classifications that the AI uses to better choose its CombatPlanOfAttack
-//a new one is created in each CombatComputerPlayer Evaluate function
+
+/// <summary>
+/// takes a spellName in and returns a series of classifications that the AI uses to better choose its CombatPlanOfAttack
+/// a new one is created in each CombatComputerPlayer Evaluate function
+/// </summary>
 public class SpellNameAI {
 
     public bool isAbleToFight; //if true, should only target isAbleToFight Units

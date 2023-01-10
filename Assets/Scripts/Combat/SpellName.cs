@@ -1,6 +1,10 @@
 ﻿using System;
 using UnityEngine;
 
+/// <summary>
+/// All the stats needed for a Spell
+/// I think I have a spreadsheet to make setting the details easier
+/// </summary>
 [Serializable]
 public class SpellName {
 

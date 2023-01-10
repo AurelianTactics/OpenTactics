@@ -2,11 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// A SpellSlow is a PlayerUnit action that does not resolve on its turn.
+/// SpellSlows are stored in a SS queue until they reach 0 ticks and resolve
+/// </summary>
 public class SpellSlow {
 
     static int currentId = 0;
 
-    public int CTR { get; set; }
+    public int CTR { get; set; } // determines how quickly a spell resolves. Higher is better
     public int UnitId { get; set; } //caster
     public int SpellIndex { get; set; } //for easy access to the spell
     public int TargetUnitId { get; set; } //if this is not NameAll.NULL_UNIT_ID, targets map
