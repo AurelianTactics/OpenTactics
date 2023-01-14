@@ -6,7 +6,31 @@ Singleton best format going forward
 	particularly in MP. like the reads are fine but writes could get complex
 	managers in general could be organized and streamlined better
 
-/*
+
+
+code improvement big things
+how to better bug test in Unity
+initiation combat scene is a mess
+UI scripts all over the place and narrowly tailored in each case. might be able
+to generalize them more but maybe not worth the time.
+lot of to dos in scripts
+PlayerManager.cs needs a rework and much better documentation
+AI needs a long term plan. what is there that can be reused
+need to document current code
+organize the docs in a more sensical way
+explain the big concepts somewhere
+if doing headless sim mode, the state based system might not work due to needimg ienumerators to yield state transitions
+docs and gameloop and states could use a diagram
+the scroll list button code and prefabs and button code and prefabs could be more consistent
+some button names are randomly used in multiple places
+The saving and loading of variety game related things is kind of adhoc. It's fine and works for now but not sure how well it would work with long term goals of sharing custom files between users
+diagram laying out all the scenes and how to enter/exit scenes
+headless/sim mode: will the notification system work? maybe be too slow
+not sure why some of the scripts are organized in certain directories
+the Combat Scene Calculation files are a mess
+
+
+
 to do
 how to do docs better in general
 if keeping this format
@@ -17,7 +41,7 @@ handle combattext, need something instead of the stand in
 misc ideas
 	things you like from isignia tactics
 	way to have units drop into WA mode (either controlled or loaded from a player configs)
-*/
+
 
 
 Code directory
@@ -264,95 +288,298 @@ Assets/PlayerUnitObjectText/* [1.20]
 		PUOTextType.cs
 
 
-[8.1] Managers
-Managers are Singleton objects used in CombatScene and some builder scenes. A singleton only allows one
-instance of the class to be initiated so these singleton objects provide access scene wide to the data stored in the managers.
-That means, regardless of what game loop state or what game object is being activated, the same manager can be accessed and edited.
-These scripts are generally overly complex and could be streamlined. I'm also unclear if this is the best pattern going forward.
 
-[8.1a] AbilityManager.cs
-Assets/Scripts/Combat/AbilityManager.cs
-/// Called in CombatScene and scenes (to do) for getting list of ability objects
-/// to do: be more specific with usage where and how
 
-[8.1b] ItemManager.cs
-Assets/Scripts/Combat/ItemManager.cs
-/// Used in CombatScene and ___ scene to handle ItemObjects
-/// Help populate lists and get item information needed by game
-/// to do: where and how is this used
 
-[8.1c] ParticleManager.cs
-Assets/Scripts/Combat/ParticleManager.cs
-DEPRECATED
-manages all the particles. Eliminated for now until new particles can be found and implemented
 
-[8.1d] PlayerManager.cs
-Assets/Scripts/Combat/PlayerManager.cs
-to do move description over
 
-[8.1e] SoundManager.cs
-Assets/Scripts/Combat/SoundManager.cs
-/// Plays sounds
-/// Attached to GameController in WalkAround and Combat scenes
-/// Called on certain game and UI events
 
-[8.1f] SpellManager.cs
-Assets/Scripts/Combat/SpellManager.cs
-/// Manages spells in CombatScene and WalkAround Scene
-/// Is a singleton and accessible throughout the scene
 
-[8.1g] TurnsManager.cs
-Assets/Scripts/Combat/TurnsManager.cs
-/// produces the turns list object for the turnmenu
-/// turns objects show the upcoming PU turns and sepll to resolve
-file also contains some ShadowPU and ShadowSS classes to help make the turns list
-to do can be improved visually and maybe calculation wise
 
-[8.1g1] TurnObject.cs
-Assets/Scripts/Combat/
-/// produces the turns object for the turnmenu
-/// turns objects show the upcoming PU turns and sepll to resolve
 
-[8.1h] Singleton.cs
-Assets/Scripts/Combat/Singleton.cs
-Managers in CombatScene inherit from this class. Singleton structure.
+[1.20] PlayerUnitObjectText
+When action effects happen, shows text above the PlayerUnitObject (ie 50 points of damage)
+Based on a different package
+stand in for now until a longer term version can be done
+to update the animation, need to go into the demo scene (not sure which one) and mess with the animator attached to the object
+The animations show the different effect types
+I believe this code connects with PlayerManager.cs for usage and calling of the text
 
-WalkAroundManager.cs DEPRECATED
+[1.16d] WalkAroundActionObject.cs
+Assets/Scripts/WalkAround/WalkAroundActionObject.cs
+/// object for PlayerUnit actions in WalkAround mode
+/// held in a queue in PlayerManager, which sorts through them for various turns
+/// In WalkAround mode not set turn orders. PlayerManager has a queue, as actions are decided they are coded as CombatTurns, 
+/// then changed into WalkAroundActionObjects and added to the queue
 
+[1.16e] WalkAroundManager.cs DEPRECATED
+Assets/Scripts/WalkAround/WalkAroundManager.cs
+
+[1.16f] WalkAroundActionObject.cs
+Assets/Scripts/WalkAround/WalkAroundMapGenerator.cs
+/// Unclear where this is called from or if this is still used
+/// Generates a map based on a string
+/// In WA mode can move from map to map. this helps generate the map
+
+
+
+
+
+Below is 12/21/22 chromebook version mixed with new files
+
+===== Index ===== 
+
+[1.0] Scripts  
+
+[1.1] Main Menu  
+	[1.1a] UIMainMenu.cs  
+
+[1.2] Builders
+	[1.2a] Builder preface
+	[1.2b] Ability Builder
+	[1.2c] Campaign Builder
+	[1.2d] Character Builder
+	[1.2e] Class Builder
+	[1.2f] ItemBuilder
+	[1.2g] MapBuilder
+	[1.2h] StoryBuilder
+	[1.2h1] CutSceneController.cs
+	[1.2h10] StoryShopController.cs 
+	[1.2h11] StoryShopScrollList.cs 
+	[1.2h2] StoryBuilderController.cs
+	[1.2h3] StoryCutScene.cs
+	[1.2h4] StoryItem.cs
+	[1.2h5] StoryModeController.cs 
+	[1.2h6] StoryObject.cs 
+	[1.2h7] StoryPartyController.cs 
+	[1.2h8] StoryPoint.cs 
+	[1.2h9] StorySave.cs
+	[1.2i] GameRuleBuilder
+	[1.2j] VersionBuilder
+
+[1.6] Combat
+	[1.6a] CombatState.cs
+	[1.6b] InputController.cs
+	[1.6c] CombatUITarget.cs
+	[1.6d] CombatTurn.cs
+	[1.6e] Tile.cs
+	[1.6f] PlayerManager.cs
+	[1.6f1] PlayerManager.cs WA map generation
+	[1.6g] CombatComputerPlayer.cs (and dumb AI in general)
+	[1.6h] CombatCommandSelectionState.cs
+
+[1.7] CustomGame
+[1.8] Cut Scene
+[1.11] MultiplayerMenu
+[1.13] StoryMode
+[1.14] StoryParty
+[1.15] StoryShop
+[1.16] WalkAround
+[1.16a] WalkAroundMainState.cs
+[1.16b] DEPRECATED WalkAroundPlayerState.cs, WalkAroundAbilitySelectState.cs, WalkAroundCommandSelectionState.cs, WalkAroundConfirmAbilityTargetState.cs, WalkAroundMoveTargetState.cs, WalkAroundTargetAbilityState.cs
+[1.16c] WalkAroundInitState.cs
+[1.17] Prefabs
+[1.17a] Tile Prefabs
+[1.18] RL
+[1.18a] GridworldTacticsArea.cs
+[1.18b] GridworldTacticsAgent.cs
+[1.18c] DuelRLArea.cs
+[1.18c] DuelRLAgent.cs
+[1.19] Multiscript concepts
+[1.19a] Ending Combat
+[1.20] Combat Text
+
+
+[3.1] Notification Center
+NotificationCenter.cs [3.1a]
+NotificationExtensions.cs [3.1b]
+
+[3.2] State Machine/\_
+State.cs [3.2a]
+StateMachine.cs [3.2b]
+
+[3.3] Assets/Scripts/EventArgs/\_
+InfoEventArgs.cs [3.3a]
+
+[3.4] RL
+Assets/Scripts/RL
+Reinforcement Learning demos. Was implemented in a prior version.
+
+[3.5] Multiplayer
+Assets/Scripts/Multiplayer
+1 vs. 1 online multiplayer Was implemented in a prior version.
+
+[3.6] Extensions
+DirectionsExtensions.cs [3.6a]
+FacingsExtensions.cs [3.6b]
+GameObjectExtensions.cs [3.6c]
+
+[3.7] UI
+
+[3.7a] LayoutAnchor.cs
+[3.7b] Panel.cs
+[3.7c] Assets/Common/UI/Animation/\*
+[3.7d] CustomGameTeamScrollList.cs
+[3.7e] DialogController.cs
+[3.7f] ItemConstants.cs
+[3.7g] ScrollListSimple.cs
+[3.7h] UICameraMenu.cs
+[3.7i] UIMainMenu.cs
+
+[3.8] Model
+Assets/Models/\*
+
+[3.8a] LevelData.cs
+[3.8b] Point.cs
+[3.8c] PoolData.cs
+[3.8d] SpeakerData.cs
+
+[3.9] AI/_
+AbilityPicker/_
+[3.9a] CombatBaseAbilityPicker.cs
+[3.9b] CombatFixedAbilityPicker.cs
+[3.9c] CombatRandomAbilityPicker.cs
+[3.9d] AttackOption.cs
+CombatComputerPlayer.cs [1.6g][3.9e] CombatPlanOfAttack.cs
+
+to do
+organize this stuff
+[3.10] Ability/_
+[3.10a] CombatAbilityArea.cs
+[3.10b] CombatAbilityRange.cs
+Actor/_
+[3.10c] Alliance.cs
+[3.10d] Driver.cs
+[3.10e] Board.cs
+[3.10f] CameraControls.cs
+[3.10g] CameraRig.cs
+[3.10h] ConversationPanel.cs
+[3.10i] FacingIndicator.cs
+[3.10j] Poolable.cs
+[3.10k] UIBackButton.cs
+[3.10l] UIUnitInfoPanel.cs
+
+[3.11] Controller
+[3.11a] BattleMessageController.cs
+[3.11b] CombatController.cs
+[3.11c] ConversationController.cs
+[3.11d] GameObjectPoolController.cs NOT USED
+[3.11e] CombatVictoryCondition.cs
+
+[3.12] CombatStates/\_
+[3.12a] ActiveTurnState.cs
+[3.12b] BaseCombatAbilityMenuState.cs
+[3.12c] CombatAbilitySelectState.cs
+[3.12d] CombatCommandSelectionState.cs
+[3.12e] CombatConfirmAbilityTargetState.cs
+[3.12f] CombatCutSceneState.cs
+[3.12g] CombatEndFacingState.cs
+[3.12h] CombatEndState.cs
+[3.12i] CombatExploreState.cs
+[3.12j] CombatMoveSequenceState.cs
+[3.12k] CombatMoveTargetState.cs
+[3.12l] CombatPerformAbilityState.cs
+[3.12m] CombatState.cs
+[3.12n] CombatStateInit.cs
+[3.12o] CombatTargetAbilityState.cs
+[3.12p] GameLoopState.cs
+[3.12q] MimeState.cs
+[3.12r] MultiplayerWaitState.cs
+[3.12s] PostActiveTurnState.cs
+[3.12t] ReactionState.cs
+[3.12u] SlowActionState.cs
+[3.12v] StatusCheckState.cs
+
+[3.13] UI
+[3.13a] UIAbilityScrollList.cs
+[3.13b] UIActiveTurnMenu.cs
+[3.13c] UICombatLogButton.cs
+[3.13d] UICombatLogScrollList.cs
+[3.13e] UICombatStats.cs
+[3.13f] UIConfirmButton.cs
+[3.13g] UIGenericButton.cs
+[3.13h] UIMenuMenu.cs
+[3.13i] UISampleButton.cs
+[3.13j] UISpellNameDetails.cs
+[3.13k] UITurnsListButton.cs
+[3.13l] UITurnsScrollList.cs
+[3.13m] UITurnsTop.cs
+[3.13n] UIUnitListButton.cs
+[3.13o] UIUnitListScrollList.cs
 
 [8.0] ScriptableObjects
-The idea behind Scriptable Objects is that the details can be filled into a csv file and then dropped into the Unity hierarchy
-to do: where? outline this process explicitly
-Then the script builds out the objects into the Resources directory (example: Resources/Abilities)
-The scriptable objects can then be loaded for use in the game
+	[8.0a] ScriptableObjectUtility
+	[8.0b] AbilityData.cs
+	[8.0c] ConversationData
+	[8.0d] ItemData
+	[8.0e] SpellNameData
 
-[8.0a] ScriptableObjectUtility
-Assets/Editor/ScritableObjectUtility.cs
-This makes it easy to create, name and place unique new ScriptableObject asset files.
+[8.1] Managers
+	[8.1a] AbilityManager.cs
+	[8.1b] ItemManager.cs
+	[8.1c] ParticleManager.cs
+	[8.1d] PlayerManager.cs
+	[8.1e] SoundManager.cs
+	[8.1f] SpellManager.cs
+	[8.1g] TurnsManager.cs
+	[8.1g1] TurnObject.cs
+	[8.1h] Singleton.cs
 
-[8.0b] AbilityData.cs
-Assets/Scripts/Combat/AbilityData.cs
-/// Turns a csv of data placed in the resources file into a directory of objects in the Resources directory
-/// The objects can be loaded and used by the game
-/// ScriptableObject code is located in Assets/Editor/ScriptableObjectUtility.cs
+[9.0] Code Improvements
+Unify the menu codes so not a bunch of one off code for each menu
 
-[8.0c] ConversationData
-Assets/Scripts/Model/ConversationData.cs
-/// Turns a csv of data placed in the resources file into a directory of objects in the Resources directory
-/// The objects can be loaded and used by the game
-/// ScriptableObject code is located in Assets/Editor/ScriptableObjectUtility.cs
+[9.1] Misc
 
-[8.0d] ItemData
-Assets/Scripts/Combat/ItemData.cs
-/// Turns a csv of data placed in the resources file into a directory of objects in the Resources directory
-/// The objects can be loaded and used by the game
-/// ScriptableObject code is located in Assets/Editor/ScriptableObjectUtility.cs
+[9.2] Enums
 
-[8.0e] SpellNameData
-Assets/Scripts/Combat/SpellNameData.cs
-/// Turns a csv of data placed in the resources file into a directory of objects in the Resources directory
-/// The objects can be loaded and used by the game
-/// ScriptableObject code is located in Assets/Editor/ScriptableObjectUtility.cs
+[9.3] Combat PlayerUnit
+	[9.3a] PlayerUnit.cs
+	[9.3b] PlayerUnitLevelStats.cs
+	[9.3c] PlayerUnitObject.cs
+
+[9.4] Combat Calculation
+	[9.4a] CalcCode.cs
+	[9.4b] CalculationAT.cs
+	[9.4c] CalculationEvasion.cs
+	[9.4d] CalculationHitDamage.cs
+	[9.4e] CalculationMod.cs
+	[9.4f] CalculationMono.cs
+	[9.4g] CalculationProjectile.cs
+	[9.4h] CalculationResolveAction.cs
+	[9.4i] CalculationZodiac.cs
+
+[9.5] Combat Misc
+	[9.5a] CameraClick.cs DEPRECATED
+	[9.5b] CameraFacingBillboard.cs
+	[9.5c] CombatMultiplayerObject.cs DEPRECATED
+	[9.5d] CombatLogClass.cs
+	[9.5e] CombatLogSaveObject.cs
+	[9.5f] CombatStats.cs
+	[9.5g] FocusOnMe.cs
+	[9.5h] CombatUITarget.cs
+	[9.5i] NameAbility.cs
+	[9.5j] NameAll.cs
+
+[9.6] Combat Spell
+	[9.6a] SpellName.cs
+	[9.6b] SpellNameAI.cs
+	[9.6c] SpellReaction.cs
+	[9.6d] SpellSlow.cs
+
+
+===== Descriptions =====  
+
+[1.1] MainMenu
+Top menu to navigate between scenes
+Can launch game modes from here
+Can launch builders from here (item builder, ability builder map builder etc)
+Simple canvas with buttons with On click functionality
+Scripts
+
+[1.1a] UIMainMenu.cs
+Scripts/Common/UIMainMenu.cs
+Handles OnClick button functions
+Launches game modes and builders
 
 
 [1.2] Builders
@@ -371,19 +598,158 @@ It is unclear if this is the best or preferable way of creating and customizing 
 The custom builders mostly work. They are not well bug tested. The UI is clunky, unintuitive, and ugly. The code behind it is opaque, not really abstraced.
 Some code and prefabs and approaches are used in multiple builders. Nothing is very well documented.
 Obviously, this can be improved.
+
+
 [1.2b] Ability Builder
+Assets/Scripts/AbilityBuilder/
 Create new abilities (spells) here. Set various options like what it does, who it hits etc. Can assign to a command set. The command set can be equipped by a class.
 A class can be put on a unit or the command set can be used as a secondary ability set to allow units to cast the spells in the game.
+
+AbilityBuilderObject.cs [1.2b1]
+Assets/Scripts/AbilityBuilder/AbilityBuilderObject.cs
+/// Object used for helping create abilities in the AbilityBuilder Scene
+/// Displayed and populated by AbilityEditScrollList.cs
+/// Can click on these and then edit values to customize an ability
+
+AbilityEditScrollList.cs [1.2b2]
+Assets/Scripts/AbilityBuilder/AbilityEditScrollList.cs
+/// I thin kthis script guides teh AbilityBuilder scene. I don't think it is used elsewhere
+/// Create new abilities (spells) in the AbilityBuider scene. Set various options like what it does, who it hits etc. Can assign to a command set. The command set can be equipped by a class.
+/// A class can be put on a unit or the command set can be used as a secondary ability set to allow units to cast the spells in the game.
+
+AbilityEditScrollListButton.cs [1.2b3]
+Assets/Scripts/AbilityBuilder/AbilityEditScrollListButton.cs
+/// Script for scroll list buttons that handles intatiating them and clicking on them
+/// this script is used on most buttons for most scrolllists in the project.
+
+CommandSet.cs [1.2b4]
+Assets/Scripts/AbilityBuilder/CommandSet.cs
+/// allows for ClassEditObjects for the creating new classes in ClassEditController
+/// lets user customize classes with the following attributes
+
 [1.2c] Campaign Builder
+Assets/Scripts/CampaignBuilder/CampaignBuilder.cs
+
+/// This script drives the logic of the Campaign Builder scene
 Build campaigns here. Campaigns are series of levels played back to back where persistence is achieved between characters.
+to do: Scenes used are
+
+CampaignEditController.cs [1.2c3]
+Assets/Scripts/CampaignBuilder/CampaignEditController.cs
+/// This script drives the logic of the Campaign Builder scene
+
+[1.2c0] Playing Campaigns
+to do: scenes used are
+/// Campaigns are saved as 4 files:
+/// CampaignCampaign: campaign level information
+/// CampaignLevel: level information and specific level information (how many levels,
+/// which maps, etc)
+/// CampaignDialogue: cut scene conversations before and after the battle
+/// CampaignSpawn: party and enemy units used in each battle
+/// CalcCode handles the loading of campaigns and some saving (CampaignEditController
+/// handles the rest)
+/// need to use Map Builder and Character Builder scenes to come up with maps and units for
+/// campaigns
+/// </summary>
+
+CampaignCampaign.cs [1.2c1]
+Assets/Scripts/CampaignBuilder/CampaignCampaign.cs
+CampaignCampaign: campaign level information
+
+CampaignDialogue.cs [1.2c2]
+Assets/Scripts/CampaignBuilder/CampaignDialogue.cs
+/// CampaignDialogue: cut scene conversations before and after the battle
+
+CampaignLauncher.cs [1.2c4]
+Assets/Scripts/CampaignBuilder/CampaignLauncher.cs
+/// I think in the scene where you play campaigns, this script drives the logic
+/// (to do confirm scene and this summary)
+
+CampaignLevel.cs [1.2c5]
+Assets/Scripts/CampaignBuilder/CampaignLevel.cs
+/// CampaignLevel: level information and specific level information (how many levels,
+/// which maps, etc)
+
+CampaignSpawn.cs [1.2c6]
+Assets/Scripts/CampaignBuilder/CampaignSpawn.cs
+/// CampaignSpawn: party and enemy units used in each battle
+
 [1.2d] Character Builder
+Assets/Scripts/CharacterBuilder/\*
 Build characters here. Characters can be given names, classes, items, etc and used in games.
+User edits UI elements of ability and item scroll lists and character pop up boxes
+
+AbilityScrollList.cs [1.2d1]
+Assets/Scripts/CharacterBuilder/AbilityScrollList.cs
+/// UI scroll list for editing character abilities
+
+CharacterClassPopup.cs [1.2d2]
+Assets/Scripts/CharacterBuilder/CharacterClassPopup.cs
+UI for editing character stats in character builder
+
+CharacterUIController.cs [1.2d3]
+Assets/Scripts/CharacterBuilder/CharacterUIController.cs
+/// main script that runs the CharacterBuilderScene
+/// handles a PlayerUnit (pu) that is modified by the various menus including
+/// ItemScrollList, AbilityScrollList, and CharacterClassPopup
+/// handles menu buttons for save, new, load, options, and a list of available units
+/// units for campaigns are silo'd into their own lists that can be loaded
+
+ItemScrollList.cs [1.2d4]
+Assets/Scripts/CharacterBuilder/ItemScrollList.cs
+UI scroll list for editing character items
+
+ItemScrollListButton.cs [1.2d5]
+Assets/Scripts/CharacterBuilder/ItemScrollListButton.cs
+/// Button for UI scroll list
+/// used in to do (i think multiple places)
+
 [1.2e] Class Builder
+Assets/Scripts/ClassBuilder/\*
 Build classes here. Classes can be given abilities and different base stats.
+
+ClassEditController.cs [1.2e1]
+Assets/Scripts/ClassBuilder/ClassEditController.cs
+/// This script drives the ClassBuilder scene
+/// Build classes here. Classes can be given abilities, commandsets and different base stats.
+
+ClassEditObject.cs [1.2e2]
+Assets/Scripts/ClassBuilder/ClassEditObject.cs
+/// allows for ClassEditObjects for the creating new classes in ClassEditController
+/// lets user customize classes with the following attributes
+
 [1.2f] ItemBuilder
 Build items here. Items can be used by custom characters
+Assets/Scripts/ItemBuilder/\*
+
+ItemBuilderController.cs [1.2f1]
+Assets/Scripts/ItemBuilder/ItemBuilderController.cs
+/// Guides the ItemBuilder scene. Creates custom items that are saved in Assets/Custom/Items
+/// and can be equipped by various characters in for custom game and story mode
+
 [1.2g] MapBuilder
+Assets/Scripts/MapCreator/
 Maps/Levels are created here. Make maps to use in various game modes here
+
+LevelLoad.cs [1.2g1]
+Assets/Scripts/MapCreator/LevelLoad.cs
+/// UI for loading a level (map) which can then be ediited in MapBuilder scene or
+/// selected in CustomGame scene
+
+MapCreator.cs [1.2g2]
+Assets/Scripts/MapCreator/MapCreator.cs
+/// Controller for the MapBuilder scene
+/// Maps (levels) are used in combat for the various game modes
+
+SerializableVector3.cs [1.2g3]
+Assets/Scripts/MapCreator/SerializableVector3.cs
+/// Since unity doesn't flag the Vector3 as serializable, we
+/// need to create our own version. This one will automatically convert
+/// between Vector3 and SerializableVector3
+
+Serializer.cs [1.2g4]
+Assets/Scripts/MapCreator/Serializer.cs
+Allows for saving and loading of classes
 
 [1.2h] StoryBuilder [1.2h]
 Assets/Scripts/StoryBuilder/* [1.2h]
@@ -479,135 +845,6 @@ Need more flexibility in the system.
 Need a better vision for this.
 I don't believe there is a code file for this
 
-
-
-[1.20] PlayerUnitObjectText
-When action effects happen, shows text above the PlayerUnitObject (ie 50 points of damage)
-Based on a different package
-stand in for now until a longer term version can be done
-to update the animation, need to go into the demo scene (not sure which one) and mess with the animator attached to the object
-The animations show the different effect types
-I believe this code connects with PlayerManager.cs for usage and calling of the text
-
-[1.16d] WalkAroundActionObject.cs
-Assets/Scripts/WalkAround/WalkAroundActionObject.cs
-/// object for PlayerUnit actions in WalkAround mode
-/// held in a queue in PlayerManager, which sorts through them for various turns
-/// In WalkAround mode not set turn orders. PlayerManager has a queue, as actions are decided they are coded as CombatTurns, 
-/// then changed into WalkAroundActionObjects and added to the queue
-
-[1.16e] WalkAroundManager.cs DEPRECATED
-Assets/Scripts/WalkAround/WalkAroundManager.cs
-
-[1.16f] WalkAroundActionObject.cs
-Assets/Scripts/WalkAround/WalkAroundMapGenerator.cs
-/// Unclear where this is called from or if this is still used
-/// Generates a map based on a string
-/// In WA mode can move from map to map. this helps generate the map
-
-[9.1] Misc
-Assets/Scripts/Misc/Demo.cs
-Misc file showing outline of how state behavior works
-Not implementing anywhere but useful for understanding things at a high level
-
-[9.2] Enums
-Collection of enums. enum is a special "class" that represents a group of constants.
-
-Assets/Scripts/Enums/*
-	[9.2a] Alliances.cs
-		PlayerUnit relationship status with another PlayerUnit. Ie allied, hostile, etc.
-	[9.2b] Directions.cs
-		Directions a PlayerUnit can face N,E,S,W
-	[9.2c] Drivers.cs
-		How a PlayerUnit has its active turn selected. Ie player input, AI, etc.
-	[9.2d] EquipSlots.cs
-		Slots equipment can be equipped on a PlayerUnit
-	[9.2e] Facings.cs
-		Way a PlayerUnit can face another PlayerUnit/other type of object. Front, Side, Back
-	[9.2f] Locomotions.cs
-		When a PlayerUnit moves, ways the PU can move across the map. Ie walk, fly, teleport.
-	[9.2g] Phases.cs
-		Phases GameLoop.cs can be in
-	[9.2h] StatTypes.cs
-		Not implemented
-	[9.2i] Targets.cs
-		When using an ability, the target types (self, ally, target etc)
-	[9.2j] Teams.cs
-		Not implemented
-	[9.2k] WalkAroundInput.cs
-		WA mode, different types of inputs that can be done for a PlayerUnit turn
-
-
-
-Below is 12/21/22 chromebook version mixed with new files
-
-[1.0] Scripts
-[1.1] Main Menu
-[1.1a] UIMainMenu.cs
-[1.2] Builders
-[1.2a] Builder preface
-[1.2b] Ability Builder
-[1.2c] Campaign Builder
-[1.2d] Character Builder
-[1.2e] Class Builder
-[1.2f] ItemBuilder
-[1.2g] MapBuilder
-[1.2h] StoryBuilder
-[1.2i] GameRuleBuilder
-[1.2j] VersionBuilder
-[1.6] Combat
-[1.6a] CombatState.cs
-[1.6b] InputController.cs
-[1.6c] CombatUITarget.cs
-[1.6d] CombatTurn.cs
-[1.6e] Tile.cs
-[1.6f] PlayerManager.cs
-[1.6f1] PlayerManager.cs WA map generation
-[1.6g] CombatComputerPlayer.cs (and dumb AI in general)
-[1.6h] CombatCommandSelectionState.cs
-[1.7] CustomGame
-[1.8] Cut Scene
-[1.11] MultiplayerMenu
-[1.13] StoryMode
-[1.14] StoryParty
-[1.15] StoryShop
-[1.16] WalkAround
-[1.16a] WalkAroundMainState.cs
-[1.16b] DEPRECATED WalkAroundPlayerState.cs, WalkAroundAbilitySelectState.cs, WalkAroundCommandSelectionState.cs, WalkAroundConfirmAbilityTargetState.cs, WalkAroundMoveTargetState.cs, WalkAroundTargetAbilityState.cs
-[1.16c] WalkAroundInitState.cs
-[1.17] Prefabs
-[1.17a] Tile Prefabs
-[1.18] RL
-[1.18a] GridworldTacticsArea.cs
-[1.18b] GridworldTacticsAgent.cs
-[1.18c] DuelRLArea.cs
-[1.18c] DuelRLAgent.cs
-[1.19] Multiscript concepts
-[1.19a] Ending Combat
-[1.20] Combat Text
-
-[8.0] ScriptableObjects
-	[8.0a] ScriptableObjectUtility
-	[8.0b] AbilityData.cs
-	[8.0c] ConversationData
-	[8.0d] ItemData
-	[8.0e] SpellNameData
-
-[9.0] Code Improvements
-Unify the menu codes so not a bunch of one off code for each menu
-
-[1.1] MainMenu
-Top menu to navigate between scenes
-Can launch game modes from here
-Can launch builders from here (item builder, ability builder map builder etc)
-Simple canvas with buttons with On click functionality
-Scripts
-
-[1.1a] UIMainMenu.cs
-Scripts/Common/UIMainMenu.cs
-Handles OnClick button functions
-Launches game modes and builders
-
 [1.6] Combat
 
 [1.6a] CombatState.cs
@@ -618,35 +855,64 @@ Has much functionality that other states rely on easy access to
 input listeners, menus for pop ups, and objects that persist across states
 
 [1.6b] InputController.cs
-
-handles fireEvent (mouse click) and moveEvent (WASD)
-listeners for this are used in CombatState, which is inherited from most states
+Scripts/Controller/InputController.cs
+Not documented other than summary. I'd have to test out and describe all params
+and functions
+/// Called in Scripts/Controller/CombatStates/CombatState.cs
+/// Handles user inputs in Combat and WalkAround modes
+/// CombatState adds listeners for moveevent (WASD/arrow keys) and fireevent
+/// (mouse clicks)
+/// since CombatState is inherited by most states, those states have those
+/// listeners built in
 
 [1.6c] CombatUITarget.cs
-set in scene in CombatState.cs script
-controls UI elements for actor and target on what is highlighted on click/mouseover (ie lower right panel whose turn it is or lower middle panel for which unit is being targeted by a spell etc
-used in Combat and WalkAround scenes
-Called from many scripts
+Scripts/Combat/CombatUITarget.cs
+/// Attached to scene in scene in CombatState.cs script
+/// Thus all states in combat/walkaround scene can access this script
+/// Activates and deactivates 3 UI panels and sets details on what the panels show
+/// controls UI elements for actor and target on what is highlighted on
+/// click/mouseover (ie lower right panel whose turn it is or lower middle
+/// panel for which unit is being targeted by a spell etc
+/// used in Combat and WalkAround scenes
+/// Called from many scripts
+
 [1.6d] CombatTurn.cs
-Contains information on a PlayerUnit's turn as it is inputted by user/AI
-Ie action, move, move tile, unit, etc
-Used in Combat and WA modes, reset each time a new unit does its new turn stuff
+Scripts/Model/CombatTurn.cs
+/// When a PlayerUnit has a turn, a full turn consists of many components
+/// across many States. This object stores the details used to execute a turn.
+
 [1.6e] Tile.cs
-Can change tile materials and textures with functions here
-Called through board.cs
+Scripts/View Model Component/Tile.cs
+/// In Combat and WA scene, the game board is represented by a board object which
+/// holds a list of Tile object. The Tile objects have some GameObject properties
+/// for visual displays and game related properties like units that are on the tile.
+/// Tiles are created, called and manipulated from Board.cs
+
 [1.6f] PlayerManager.cs
+Assets/Scripts/Combat/PlayerManager.cs
+/// A singleton that holds PlayerUnits, PlayerUnitObjects, and a
+/// variety of functions that relate to manipulating those objects.
+/// Accessible throughout Combat and WalkAround scenes, this monstrosity of a class
+/// has essential functions from the initiation of the scene and throughout the game loop
+
 [1.6f1] PlayerManager.cs WA map generation
 maps linked through sWalkAroundMapDictionary
 each map generated based on seed and x,y coordinates based on distance from origin (original map at 0,0)
 Actual creating/loading of maps based on the random seed, coordinates, and LevelData.cs instructions
+
 [1.6g] CombatComputerPlayer.cs (and dumb AI in general)
+Assets/Scripts/View Model Component/AI/CombatComputerPlayer.cs
 Drivers check to see if human or ai controlled. Drivers are set at beginning of combat based on options
 PlayerUnitObject.cs holds the driver and some info that this file uses to speed up turn selection
 When unit has a turn and enters CombatCommandSelectionState.cs, if AI then begins process of coming up with CombatTurn.planOfAttack
 the dumbAI heuristics in this file help fill in the planOfAttack (where to move, which unit to attack etc)
+
 [1.6h] CombatCommandSelectionState.cs
-Entered from GameLoopState.cs
-Unit begins planning turn here. Different tracks for human and AI controlled based on drivers
+Assets/Scripts/Controller/Combat/CombatCommandSelectionState.cs
+/// PlayerUnit begins deciding on CombatTurn here
+/// entered from GameLoopState or ActiveTurnState
+/// can also be entered midway through turn by cancelling menu actions or selecting menu actions
+/// Different tracks for human and AI controlled based on drivers
 
 [1.16] WalkAround
 Experimental game mode that is not tested. At a high level this game mode lets you move around from combat map to combat map with
@@ -659,10 +925,12 @@ Combat triggered from PlayerManager sending a CombatStart notification which thi
 Not a scene change, everything stays in WA scene
 entered from WalkAroundInitState.cs which sets up the map
 works tightly with PlayerManager which may not be ideal
+
 [1.16b] DEPRECATED WalkAroundPlayerState.cs, WalkAroundAbilitySelectState.cs, WalkAroundCommandSelectionState.cs, WalkAroundConfirmAbilityTargetState.cs, WalkAroundMoveTargetState.cs, WalkAroundTargetAbilityState.cs
 never actually implemented, just coded out
 this way would take each player through each states when selecting commands (as if in combat)
 implemented way does the action cmmand in WAMS
+
 [1.16c] WalkAroundInitState.cs
 Sets up board and units for walkaround mode
 entered from CombatController (which is attached to scene object)
@@ -691,6 +959,7 @@ can expand the Tile.cs script for more TileType attributes (currently just defau
 Has textures
 different textures for different tile highlights
 can handle this with textures through the Tile.cs file for now
+
 [1.18] RL
 RL mode using UnityML
 Generally following the UnityML examples (as of version 1) where there is an Area script for env logic and an Agent script for handing agent actions
@@ -714,7 +983,9 @@ When agent produces a turn, sends notification back to CombatCommandSelectionSta
 [1.18c] DuelRLAgent.cs
 Handles agent logic for Duel RL mode
 Waits for DuelRLArea.cs, gets obs, sends action ot Area
+
 [1.19] Multiscript concepts
+
 [1.19a] Ending Combat
 Combat victory conditions are set in CombatStartInit.cs
 Sets a victory type by attaching CombatVictoryConditions to the owner part of CombatController (all states in CombatState state machine inherit owner)
@@ -724,6 +995,541 @@ in DuelRL there is code to send it back to CombatStateInit for a restart, ideall
 PlayerManager has code where if anything changes in playerunit state that may trigger a victory type, checks if there is a victor
 
 
+[3.1] Notification Center
+Assets/Scripts/Common/Notification Center
+Sends messages between scripts/game objects in a scene
+
+NotificationCenter.cs [3.1a]
+Assets/Scripts/Common/Notification Center/NotificationCenter.cs
+
+NotificationExtensions.cs [3.1b]
+Assets/Scripts/Common/Notification Center/NotificationExtensions.cs
+Extends functionality of Notification Center
+
+[3.2] State Machine/\_
+Assets/Scripts/Common/State Machine
+In Combat Scene, game progresses by transitioning from State to State
+
+State.cs [3.2a]
+Assets/Scripts/Common/State Machine/State.cs
+CombatState.cs inherits this class and other states inherit from CombatState.cs
+
+StateMachine.cs [3.2b]
+Assets/Scripts/Common/State Machine/StateMachine.cs
+to do: add explanation
+
+[3.3] Assets/Scripts/EventArgs/\_
+to do: add explation
+InfoEventArgs.cs [3.3a]
+Assets/Scripts/EventArgs/InfoEventArgs.cs
+
+[3.4] RL
+Assets/Scripts/RL
+Reinforcement Learning demos. Was implemented in a prior version.
+
+[3.5] Multiplayer
+Assets/Scripts/Multiplayer
+1 vs. 1 online multiplayer Was implemented in a prior version.
+
+[3.6] Extensions
+Assets/Scripts/Extensions/\_
+
+DirectionsExtensions.cs [3.6a]
+Assets/Scripts/Extensions/\_
+Determines the directions between game objects in various scenarios
+
+FacingsExtensions.cs [3.6b]
+Assets/Scripts/Extensions/\_
+/// Determines the facings between two game objects
+/// facings determine the success rate on some abilities (ie easier to hit from back than front)
+
+GameObjectExtensions.cs [3.6c]
+Assets/Scripts/Extensions/\_
+to do: add explanation
+
+[3.7] UI
+
+[3.7a] LayoutAnchor.cs
+Assets/Scripts/Common/UI/LayoutAnchor.cs
+to do: not sure where this is used and what it does
+
+[3.7b] Panel.cs
+Assets/Scripts/Common/UI/Panel.cs
+to do: not sure where this is used and what it does
+
+[3.7c] Assets/Scripts/Common/UI/Animation/\*
+These files help gameobjects get into positions in a more visually please way I think?
+to do: i'm not too familiar with this code
+
+[3.7d] CustomGameTeamScrollList.cs
+Assets/Scripts/Common/UI/CustomGameTeamScrollList.cs
+/// Handles logic for UI interactions with team lists of units
+/// Scroll list appears in CustomGame scene so players can select units for combat
+
+[3.7e] DialogController.cs
+Assets/Scripts/Common/UI/DialogController.cs
+/// I think this UI takes up hte screen and asks for a confirm/deny
+/// along with a dialogue menu
+to do: where/how is this used
+
+[3.7f] ItemConstants.cs
+Assets/Scripts/Common/UI/ItemConstants.cs
+constants related to items used across multiple scripts
+to do: shouldn't be grouped with UI
+
+[3.7g] ScrollListSimple.cs
+Assets/Scripts/Common/UI/ScrollListSimple.cs
+Simple UI scroll list populated with buttons with info and can be clicked on
+to do: where is this used and can it be abstracted with other scroll lists for more unified approach
+
+[3.7h] UICameraMenu.cs
+Assets/Scripts/Common/UI/UICameraMenu.cs
+In CombatScene and other scenes, lets player click on this UI menu to move the camera around
+
+[3.7i] UIMainMenu.cs
+Assets/Scripts/Common/UI/UIMainMenu.cs
+/// Used in MainMenu Scene
+/// Handles various OnClick button functions
+/// Launches game modes and builders
+
+[3.8] Model
+Assets/Scripts/Models/\*
+
+[3.8a] LevelData.cs
+Assets/Scripts/Models/LevelData.cs
+/// class for creating level data
+/// used for generating maps
+to do
+this and starting combat in general is overly complicated
+reorganize this file
+
+[3.8b] Point.cs
+Assets/Scripts/Models/Point.cs
+used for x and y coordinates in gameobjects like Tile.cs
+
+[3.8c] PoolData.cs
+Assets/Scripts/Models/PoolData.cs
+not sure if this is used
+
+[3.8d] SpeakerData.cs
+Assets/Scripts/Models/SpeakerData.cs
+In CutScene State in Combat Scene these help display dialogue
+
+[3.9] AI/\_
+Assets/Scripts/View Model Component/AI
+
+AbilityPicker/\_
+to do
+how the files un this dir are used
+[3.9a] CombatBaseAbilityPicker.cs
+Assets/Scripts/View Model Component/AI/Ability Picker/
+Base class to inherit code to pick an ability from
+
+[3.9b] CombatFixedAbilityPicker.cs
+Assets/Scripts/View Model Component/AI/Ability Picker/
+
+[3.9c] CombatRandomAbilityPicker.cs
+Assets/Scripts/View Model Component/AI/Ability Picker/
+Pick an AI ability
+
+[3.9d] AttackOption.cs
+Assets/Scripts/View Model Component/AI/AttackOption.cs
+to do: how and where this is used
+
+CombatComputerPlayer.cs [1.6g]
+to do: move here
+
+[3.9e] CombatPlanOfAttack.cs
+Assets/Scripts/View Model Component/AI/CombatPlanOfAttack.cs
+used for AI turn and for RL turn stuff
+
+[3.10] Ability/\_
+Assets/Scripts/View Model Component/Ability
+
+[3.10a] CombatAbilityArea.cs
+Assets/Scripts/View Model Component/Ability/CombatAbilityArea.cs
+/// in combatscene when selecting abilities and after ability has been targetted
+/// determines which tiles are hit by the spell
+
+[3.10b] CombatAbilityRange.cs
+Assets/Scripts/View Model Component/Ability/CombatAbilityRange.cs
+/// in combatscene when selecting abilities and choosing targetting
+/// determines which tiles can be targetted
+
+Actor/\_
+Assets/Scripts/View Model Component/Actor
+[3.10c] Alliance.cs
+Assets/Scripts/View Model Component/Actor/Alliance.cs
+determines alliances between units
+
+[3.10d] Driver.cs
+Assets/Scripts/View Model Component/Actor/Driver.cs
+idk if this is being used
+
+[3.10e] Board.cs
+Assets/Scripts/View Model Component/Board.cs
+/// In CombatScene and mapbuilder manages the game board
+/// holds the tiles and allows manipulation
+/// in combatscene accessible through to do
+
+[3.10f] CameraControls.cs
+Assets/Scripts/View Model Component/CameraControls.cs
+controls the camera in combatscene
+
+[3.10g] CameraRig.cs
+Assets/Scripts/View Model Component/CameraRig.cs
+
+[3.10h] ConversationPanel.cs
+Assets/Scripts/View Model Component/ConversationPanel.cs
+in cutscene state manages the text panel
+
+[3.10i] FacingIndicator.cs
+Assets/Scripts/View Model Component/FacingIndicator.cs
+i think controls the little dot to indicate which way to face
+to do
+
+[3.10j] Poolable.cs
+Assets/Scripts/View Model Component/Poolable.cs
+
+[3.10k] UIBackButton.cs
+Assets/Scripts/View Model Component/UIBackButton.cs
+button to indicate cancel/back
+
+[3.10l] UIUnitInfoPanel.cs
+Assets/Scripts/View Model Component/UIUnitInfoPanel.cs
+Ugly placeholder that holds information and stats about units
+
+[3.11] Controller
+Assets/Scripts/Controller/
+
+[3.11a] BattleMessageController.cs
+Assets/Scripts/Controller/BattleMessageController.cs
+Shows a message during CombatScene
+
+[3.11b] CombatController.cs
+Assets/Scripts/Controller/CombatController.cs
+/// attached to object in scenes: Combat and WalkAround
+/// contains many objects that are globally accessible in both modes
+/// these objects tie into CombatState. need to declare them ehre and set methods in CombatState
+/// reads from PlayerPrefs to either go to InitCombatState or WalkAroundInitState
+
+[3.11c] ConversationController.cs
+Assets/Scripts/Controller/ConversationController.cs
+Shows conversation in CombatScene CutState
+
+[3.11d] GameObjectPoolController.cs NOT USED
+
+[3.11e] CombatVictoryCondition.cs
+Assets/Scripts/Controller/Victory Conditions/CombatVictoryCondition.cs
+/// Determines the victor in CombatScene based on victoryconditions set in CombatInitState (i think)
+/// to do: where this is attached and checked
+
+[3.12] CombatStates/\_
+Assets/Scripts/Controller/CombatStates/
+In combatscene, gameloopstate manages flow of game by flowing between various states
+
+[3.12m] CombatState.cs
+Assets/Scripts/Controller/CombatStates/CombatState.cs
+/// Combat and WalkAround scenes function by going from state to state
+/// depending on what is occuring in the game.
+/// Inherited by most states in Combat and WalkAround scenes
+/// Has much functionality that other states rely on easy access to
+/// input listeners, menus for pop ups,
+/// Basically any object that you want to access in any states can be put in this
+/// and then inherited in any states.
+
+[3.12a] ActiveTurnState.cs
+Assets/Scripts/Controller/CombatStates/ActiveTurnState.cs
+/// entered from GameLoopState when unit has activeturn
+/// seems kind of unnecessary. could probably put most of this in CombatCommandSelectionState
+/// or maybe part of it in GameLoopState
+/// assuming that never come here if rendermode is none or get some game breaking
+// change state things
+
+[3.12b] BaseCombatAbilityMenuState.cs
+Assets/Scripts/Controller/CombatStates/BaseCombatAbilityMenuState.cs
+/// inherited by todo for selecting abilities
+
+[3.12c] CombatAbilitySelectState.cs
+Assets/Scripts/Controller/CombatStates/CombatAbilitySelectState.cs
+/// state to select ability
+/// entered after primary/secondary selected
+
+[3.12d] CombatCommandSelectionState.cs
+Assets/Scripts/Controller/CombatStates/CombatCommandSelectionState.cs
+/// PlayerUnit begins deciding on CombatTurn here
+/// entered from GameLoopState or ActiveTurnState
+/// can also be entered midway through turn by cancelling menu actions or selecting menu actions
+/// Different tracks for human and AI controlled based on drivers
+
+[3.12e] CombatConfirmAbilityTargetState.cs
+Assets/Scripts/Controller/CombatStates/CombatConfirmAbilityTargetState.cs
+after ability has been selected, confirm or cancel in this state
+
+[3.12f] CombatCutSceneState.cs
+Assets/Scripts/Controller/CombatStates/CombatCutSceneState.cs
+shows dialogue and conversation
+
+[3.12g] CombatEndFacingState.cs
+Assets/Scripts/Controller/CombatStates/CombatEndFacingState.cs
+click around the map to get details on tiles, units or menus
+
+[3.12h] CombatEndState.cs
+Assets/Scripts/Controller/CombatStates/CombatEndState.cs
+end combat scene and move to next scene
+
+[3.12i] CombatExploreState.cs
+Assets/Scripts/Controller/CombatStates/CombatExploreState.cs
+click around the map to get details on tiles, units or menus
+
+[3.12j] CombatMoveSequenceState.cs
+Assets/Scripts/Controller/CombatStates/CombatMoveSequenceState.cs
+move has been selected. in this state PU moves across the map
+
+[3.12k] CombatMoveTargetState.cs
+Assets/Scripts/Controller/CombatStates/CombatMoveTargetState.cs
+target which tile to move PU to
+
+[3.12l] CombatPerformAbilityState.cs
+Assets/Scripts/Controller/CombatStates/CombatPerformAbilityState.cs
+/// called from CombatConfirmAbilityTargetState
+/// starts the corouting that performs the ability (or creates the slow action where applicable)
+
+[3.12n] CombatStateInit.cs
+Assets/Scripts/Controller/CombatStates/CombatStateInit.cs
+/// State entered when entering CombatScene. Sets up the board, playerunits, etc
+/// to do: bit of a jumbled mess that should be simplified, streamlined, and documented
+
+[3.12o] CombatTargetAbilityState.cs
+Assets/Scripts/Controller/CombatStates/CombatTargetAbilityState.cs
+After an ability has been selected, target it in this state
+
+[3.12p] GameLoopState.cs
+Assets/Scripts/Controller/CombatStates/GameLoopState.cs
+/// Orchestrates Combat and handles the transitions between states for most of the gameloop
+/// to do: document and clean up
+
+[3.12q] MimeState.cs
+Assets/Scripts/Controller/CombatStates/MimeState.cs
+State entered when there is something in the Mime queue to mimic
+
+[3.12r] MultiplayerWaitState.cs
+Assets/Scripts/Controller/CombatStates/MultiplayerWaitState.cs
+DEPRECATED I think this was for in MP when the non-host has to wait
+
+[3.12s] PostActiveTurnState.cs
+Assets/Scripts/Controller/CombatStates/PostActiveTurnState.cs
+/// At the end of ActiveTurns, handles any remaining things that may occure
+/// Currently, that is just some statuses
+
+[3.12t] ReactionState.cs
+Assets/Scripts/Controller/CombatStates/ReactionState.cs
+State potentially entered after a fast or slowaction if criteria is met
+
+[3.12u] SlowActionState.cs
+Assets/Scripts/Controller/CombatStates/SlowActionState.cs
+/// enter here from GameLoopState (combat) or WalkAroundMainState (walkAroundMode)
+/// resolves slowactions from queue if slowactions are timed to resolve
+/// slow actions are acrions that do not resolve on the active turn
+
+[3.12v] StatusCheckState.cs
+Assets/Scripts/Controller/CombatStates/StatusCheckState.cs
+/// DEPRECATED FOR NOW
+/// just doing the status managercheck from gameloop state to speed things up a bit
+/// decrement the current statuses
+/// create an array that shows the expired but not shown
+/// use that array with this state to do whatever you need, empty that array at the end
+/// update the combat log to say which expired
+/// move the camera around to show which expired
+/// flash a messaging saying which expire (or maybe a general message if more than x)
+
+[3.13] UI
+to do: probably put all the combat UI into its own directory
+
+[3.13a] UIAbilityScrollList.cs
+Assets/Scripts/Combat/UIAbilityScrollList.cs
+In CombatScene, UI object that shows abilities and handles clicks on the menu
+
+[3.13b] UIActiveTurnMenu.cs
+Assets/Scripts/Combat/UIActiveTurnMenu.cs
+In CombatScene, menu for selecting Active Turn options (Move, Wait, Ability etc)
+
+[3.13c] UICombatLogButton.cs
+Assets/Scripts/Combat/UICombatLogButton.cs
+In CombatScene, UI on the button in CombatLog
+
+[3.13d] UICombatLogScrollList.cs
+Assets/Scripts/Combat/UICombatLogScrollList.cs
+In CombatScene, the UI scroll list that shows the combatlog
+
+[3.13e] UICombatStats.cs
+Assets/Scripts/Combat/UICombatStats.cs
+/// shows the stats from CombatScene
+/// for now assumign only shows post combat. in the future can modify this
+
+[3.13f] UIConfirmButton.cs
+Assets/Scripts/Combat/UIConfirmButton.cs
+Button for confirming an action
+
+[3.13g] UIGenericButton.cs
+Assets/Scripts/Combat/UIGenericButton.cs
+Idk where it is used and why I have so many different UI buttons
+
+[3.13h] UIMenuMenu.cs
+Assets/Scripts/Combat/UIMenuMenu.cs
+In CombatScene, controls the menu UI
+
+[3.13i] UISampleButton.cs
+Assets/Scripts/Combat/UISampleButton.cs
+Button showing spellname objects
+
+[3.13j] UISpellNameDetails.cs
+Assets/Scripts/Combat/UISpellNameDetails.cs
+Shows spell name detailes in a UI
+
+[3.13k] UITurnsListButton.cs
+Assets/Scripts/Combat/UITurnsListButton.cs
+UI button for the Turns list
+
+[3.13l] UITurnsScrollList.cs
+Assets/Scripts/Combat/UITurnsScrollList.cs
+In CombatScene UI scroll list that shows the turns
+
+[3.13m] UITurnsTop.cs
+Assets/Scripts/Combat/UITurnsTop.cs
+/// Shows 10 next turns and slow turns across top of game
+/// Updates after every turn/slow action completes
+/// Stays open
+/// Can click on unit/spell to see where on the map it is
+
+[3.13n] UIUnitListButton.cs
+Assets/Scripts/Combat/UIUnitListButton.cs
+In CombatScene UI scroll list that shows the turns
+
+[3.13o] UIUnitListScrollList.cs
+Assets/Scripts/Combat/UIUnitListScrollList.cs
+I think this is the list of units from the main menu so you can see details on the units
+
+[8.0] ScriptableObjects
+The idea behind Scriptable Objects is that the details can be filled into a csv file and then dropped into the Unity hierarchy
+to do: where? outline this process explicitly
+Then the script builds out the objects into the Resources directory (example: Resources/Abilities)
+The scriptable objects can then be loaded for use in the game
+
+[8.0a] ScriptableObjectUtility
+Assets/Editor/ScritableObjectUtility.cs
+This makes it easy to create, name and place unique new ScriptableObject asset files.
+
+[8.0b] AbilityData.cs
+Assets/Scripts/Combat/AbilityData.cs
+/// Turns a csv of data placed in the resources file into a directory of objects in the Resources directory
+/// The objects can be loaded and used by the game
+/// ScriptableObject code is located in Assets/Editor/ScriptableObjectUtility.cs
+
+[8.0c] ConversationData
+Assets/Scripts/Model/ConversationData.cs
+/// Turns a csv of data placed in the resources file into a directory of objects in the Resources directory
+/// The objects can be loaded and used by the game
+/// ScriptableObject code is located in Assets/Editor/ScriptableObjectUtility.cs
+
+[8.0d] ItemData
+Assets/Scripts/Combat/ItemData.cs
+/// Turns a csv of data placed in the resources file into a directory of objects in the Resources directory
+/// The objects can be loaded and used by the game
+/// ScriptableObject code is located in Assets/Editor/ScriptableObjectUtility.cs
+
+[8.0e] SpellNameData
+Assets/Scripts/Combat/SpellNameData.cs
+/// Turns a csv of data placed in the resources file into a directory of objects in the Resources directory
+/// The objects can be loaded and used by the game
+/// ScriptableObject code is located in Assets/Editor/ScriptableObjectUtility.cs
+
+[8.1] Managers
+Managers are Singleton objects used in CombatScene and some builder scenes. A singleton only allows one
+instance of the class to be initiated so these singleton objects provide access scene wide to the data stored in the managers.
+That means, regardless of what game loop state or what game object is being activated, the same manager can be accessed and edited.
+These scripts are generally overly complex and could be streamlined. I'm also unclear if this is the best pattern going forward.
+
+[8.1a] AbilityManager.cs
+Assets/Scripts/Combat/AbilityManager.cs
+/// Called in CombatScene and scenes (to do) for getting list of ability objects
+/// to do: be more specific with usage where and how
+
+[8.1b] ItemManager.cs
+Assets/Scripts/Combat/ItemManager.cs
+/// Used in CombatScene and ___ scene to handle ItemObjects
+/// Help populate lists and get item information needed by game
+/// to do: where and how is this used
+
+[8.1c] ParticleManager.cs
+Assets/Scripts/Combat/ParticleManager.cs
+DEPRECATED
+manages all the particles. Eliminated for now until new particles can be found and implemented
+
+[8.1d] PlayerManager.cs
+Assets/Scripts/Combat/PlayerManager.cs
+to do move description over
+
+[8.1e] SoundManager.cs
+Assets/Scripts/Combat/SoundManager.cs
+/// Plays sounds
+/// Attached to GameController in WalkAround and Combat scenes
+/// Called on certain game and UI events
+
+[8.1f] SpellManager.cs
+Assets/Scripts/Combat/SpellManager.cs
+/// Manages spells in CombatScene and WalkAround Scene
+/// Is a singleton and accessible throughout the scene
+
+[8.1g] TurnsManager.cs
+Assets/Scripts/Combat/TurnsManager.cs
+/// produces the turns list object for the turnmenu
+/// turns objects show the upcoming PU turns and sepll to resolve
+file also contains some ShadowPU and ShadowSS classes to help make the turns list
+to do can be improved visually and maybe calculation wise
+
+[8.1g1] TurnObject.cs
+Assets/Scripts/Combat/
+/// produces the turns object for the turnmenu
+/// turns objects show the upcoming PU turns and sepll to resolve
+
+[8.1h] Singleton.cs
+Assets/Scripts/Combat/Singleton.cs
+Managers in CombatScene inherit from this class. Singleton structure.
+
+
+
+[9.1] Misc
+Assets/Scripts/Misc/Demo.cs
+Misc file showing outline of how state behavior works
+Not implementing anywhere but useful for understanding things at a high level
+
+[9.2] Enums
+Collection of enums. enum is a special "class" that represents a group of constants.
+Assets/Scripts/Enums/*  
+
+	[9.2a] Alliances.cs
+		PlayerUnit relationship status with another PlayerUnit. Ie allied, hostile, etc.
+	[9.2b] Directions.cs
+		Directions a PlayerUnit can face N,E,S,W
+	[9.2c] Drivers.cs
+		How a PlayerUnit has its active turn selected. Ie player input, AI, etc.
+	[9.2d] EquipSlots.cs
+		Slots equipment can be equipped on a PlayerUnit
+	[9.2e] Facings.cs
+		Way a PlayerUnit can face another PlayerUnit/other type of object. Front, Side, Back
+	[9.2f] Locomotions.cs
+		When a PlayerUnit moves, ways the PU can move across the map. Ie walk, fly, teleport.
+	[9.2g] Phases.cs
+		Phases GameLoop.cs can be in
+	[9.2h] StatTypes.cs
+		Not implemented
+	[9.2i] Targets.cs
+		When using an ability, the target types (self, ally, target etc)
+	[9.2j] Teams.cs
+		Not implemented
+	[9.2k] WalkAroundInput.cs
+		WA mode, different types of inputs that can be done for a PlayerUnit turn
 
 [9.3] Combat PlayerUnit
 PlayerUnit are the units on the board in Combat/WalkAround. They consist of a PlayerUnit script which contains and manipulates
@@ -737,35 +1543,60 @@ Assets/Scripts/Combat/
 [9.3c] PlayerUnitObject.cs
 Assets/Scripts/Combat/
 
-[9.4] Combat Calculation
+[9.4] Combat Calculation  
 A grouping of scripts that contain various calculations needed in CombatScene.
 
-[9.4a] CalcCode.cs
-Assets/Scripts/Combat/
+[9.4a] CalcCode.cs  
+Assets/Scripts/Combat/CalcCode.cs  
+Turns a string into a PU and vice versa.  
+to do: rename file. document where it is used
 
-[9.4b] CalculationAT.cs
-Assets/Scripts/Combat/
+[9.4b] CalculationAT.cs  
+Assets/Scripts/Combat/CalculationAT.cs  
+Convenience functions, notes on top of functions say where they are called
 
-[9.4c] CalculationEvasion.cs
-Assets/Scripts/Combat/
+[9.4c] CalculationEvasion.cs  
+Assets/Scripts/Combat/CalculationEvasion.cs  
+Calculates evasion from abilities in CombatScene
 
-[9.4d] CalculationHitDamage.cs
-Assets/Scripts/Combat/
+[9.4d] CalculationHitDamage.cs  
+Assets/Scripts/Combat/CalculationHitDamage.cs  
+/// Mess of a class. Should be overhauled.  
+/// Does some math based on the SpellName, actor, target, and key variable and returns 4 things for calculation mod.  
+/// Based on the output turns into what the action result actually is  
+/// returns 4 things which can vary. generally: hit chance, effect value, crit, misc (last thing used for MP effect twice and throw once)
 
-[9.4e] CalculationMod.cs
-Assets/Scripts/Combat/
+[9.4e] CalculationMod.cs  
+Assets/Scripts/Combat/CalculationMod.cs  
+/// Mess of a class  
+/// Calculates various things in CombatScene but it is poorly documented,  
+/// unclear and all over the place
 
-[9.4f] CalculationMono.cs
-Assets/Scripts/Combat/
+[9.4f] CalculationMono.cs  
+Assets/Scripts/Combat/CalculationMono.cs  
+/// performs calculates that require a MonoBehaviour class  
+/// called in various class like:  
+/// CombatPerformAbilityState  
+/// SlowActionState,MimeState,ReactionState  
+/// launches an action or creates a slow action
 
-[9.4g] CalculationProjectile.cs
-Assets/Scripts/Combat/
+[9.4g] CalculationProjectile.cs  
+Assets/Scripts/Combat/CalculationProjectile.cs  
+Detects if a projectile reaches its target or hits a different unit/obstacle along the way
 
-[9.4h] CalculationResolveAction.cs
-Assets/Scripts/Combat/
+[9.4h] CalculationResolveAction.cs  
+Assets/Scripts/Combat/CalculationResolveAction.cs
+/// Mess of a class. Performs many calculations related to game logic. Mostly dealing with  
+/// resolving actions.  
+/// Most important thing is that through CalculationMono, calculates (and starts the  
+/// application of) action resolving.  
+/// Not just fast actions but slow actions, reactions, etc getting resolved runs through here.  
+/// Also a mess of convenience functions. May make sense to split this class up.
 
-[9.4i] CalculationZodiac.cs
-Assets/Scripts/Combat/
+[9.4i] CalculationZodiac.cs  
+Assets/Scripts/Combat/  
+/// Some units have an infinity that modify the hit chance/damage etc  
+/// Called in CombatScene
 
 
 [9.5] Combat Misc
