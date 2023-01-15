@@ -1,333 +1,11 @@
-focus areas
-how to do other versions (ie classic AT etc). code so it's flexible to do versions in the future
-WA has to be outlined, goals, roadmap, how it can be integrated and see which code can be used
-abstraction of builders to allow better usage and future customizability
-Singleton best format going forward
-	particularly in MP. like the reads are fine but writes could get complex
-	managers in general could be organized and streamlined better
+========== Contents ==========
+
+===== [I.] Index ===== 
+===== [II.] Code Directory =====
+===== [III.] Descriptions =====
 
 
-
-code improvement big things
-how to better bug test in Unity
-initiation combat scene is a mess
-UI scripts all over the place and narrowly tailored in each case. might be able
-to generalize them more but maybe not worth the time.
-lot of to dos in scripts
-PlayerManager.cs needs a rework and much better documentation
-AI needs a long term plan. what is there that can be reused
-need to document current code
-organize the docs in a more sensical way
-explain the big concepts somewhere
-if doing headless sim mode, the state based system might not work due to needimg ienumerators to yield state transitions
-docs and gameloop and states could use a diagram
-the scroll list button code and prefabs and button code and prefabs could be more consistent
-some button names are randomly used in multiple places
-The saving and loading of variety game related things is kind of adhoc. It's fine and works for now but not sure how well it would work with long term goals of sharing custom files between users
-diagram laying out all the scenes and how to enter/exit scenes
-headless/sim mode: will the notification system work? maybe be too slow
-not sure why some of the scripts are organized in certain directories
-the Combat Scene Calculation files are a mess
-
-
-
-to do
-how to do docs better in general
-if keeping this format
-	auto convert directory into hierarchy
-	auto match the files to the labels below
-handle combattext, need something instead of the stand in
-
-misc ideas
-	things you like from isignia tactics
-	way to have units drop into WA mode (either controlled or loaded from a player configs)
-
-
-
-Code directory
-Assets/Scripts
-
-Assets/Scripts/AbilityBuilder/*
-	AbilityBuilderObject.cs
-	AbilityEditScrollList.cs
-	AbilityEditScrollListButton.cs
-	CommandSet.cs
-Assets/Scripts/CampaignBuilder/*
-	CampaignCampaign.cs
-	CampaignDialogue.cs
-	CampaignEditController.cs
-	CampaignLauncher.cs
-	CampaignLevel.cs
-	CampaignSpawn.cs
-Assets/Scripts/CharacterBuilder/*
-	AbilityScrollList.cs
-	CharacterClassPopup.cs
-	CharacterUIController.cs
-	ItemScrollList.cs
-	ItemScrollListButton.cs
-Assets/Scripts/ClassBuilder/*
-	ClassEditController.cs
-	ClassEditObject.cs
-Assets/Scripts/Combat/*
-	AbilityData.cs
-	AbilityManager.cs
-	AbilityObject.cs
-	CalcCode.cs
-	CalculationAT.cs
-	CalculationEvasion.cs
-	CalculationHitDamage.cs
-	CalculationMod.cs
-	CalculationMono.cs
-	CalculationProjectile.cs
-	CalculationResolveAction.cs
-	CalculationZodiac.cs
-	CameraClick.cs
-	CameraFacingBillboard.cs
-	CombatLogClass.cs
-	CombatLogSaveObject.cs
-	CombatMultiplayerObject.cs
-	CombatStats.cs
-	CombatUITarget.cs
-	FocusOnMe.cs
-	ItemData.cs
-	ItemManager.cs
-	ItemObject.cs
-	MapTileManager.cs
-	NameAbility.cs
-	NameAll.cs
-	ParticleManager.cs
-	PlayerManager.cs
-	PlayerUnit.cs
-	PlayerUnitLevelStats.cs
-	PlayerUnitObject.cs
-	Singleton.cs
-	SoundManager.cs
-	SpellManager.cs
-	SpellName.cs
-	SpellNameAI.cs
-	SpellNameData.cs
-	SpellReaction.cs
-	SpellSlow.cs
-	StatusManager.cs
-	StatusObject.cs
-	TurnObject.cs
-	TurnsManager.cs
-	UIAbilityScrollList.cs
-	UIActiveTurnMenu.cs
-	UICombatLogButton.cs
-	UICombatLogScrollList.cs
-	UICombatStats.cs
-	UIConfirmButton.cs
-	UIGenericButton.cs
-	UIMenuMenu.cs
-	UISampleButton.cs
-	UISpellNameDetails.cs
-	UITurnsListButton.cs
-	UITurnsScrollList.cs
-	UITurnsTop.cs
-	UIUnitListButton.cs
-	UIUnitListScrollList.cs
-Assets/Scripts/Common/*
-	Notification Center/*
-		NotificationCenter.cs
-		NotificationExtensions.cs
-	State Machine/*
-		State.cs
-		StateMachine.cs
-	UI/*
-		Animation/*
-			EasingControl.cs
-			EasingEquation.cs
-			RectTransformAnchorPositionTweener.cs
-			RectTransformAnimationExtensions.cs
-			TransformAnimationExtensions.cs
-			TransformLocalEulerTweener.cs
-			TransformLocalPositionTweener.cs
-			TransformPositionTweener.cs
-			Tweener.cs
-			Vector3Tweener.cs
-		LayoutAnchor.cs
-		Panel.cs
-	CustomGameTeamScrollList.cs
-	DialogController.cs
-	ItemConstants.cs
-	ScrollListSimple.cs
-	UICameraMenu.cs
-	UIMainMenu.cs
-Assets/Scripts/Controller/*
-	CombatStates/*
-		ActiveTurnState.cs
-		BaseCombatAbilityMenuState.cs
-		CombatAbilitySelectState.cs
-		CombatCommandSelectionState.cs
-		CombatConfirmAbilityTargetState.cs
-		CombatCutSceneState.cs
-		CombatEndFacingState.cs
-		CombatEndState.cs
-		CombatExploreState.cs
-		CombatMoveSequenceState.cs
-		CombatMoveTargetState.cs
-		CombatPerformAbilityState.cs
-		CombatState.cs
-		CombatStateInit.cs
-		CombatTargetAbilityState.cs
-		GameLoopState.cs
-		MimeState.cs
-		MultiplayerWaitState.cs
-		PostActiveTurnState.cs
-		ReactionState.cs
-		SlowActionState.cs
-		StatusCheckState.cs
-	Victor Conditions/*
-		CombatVictoryCondition.cs
-	WalkAroundStates/*
-		WalkAroundInitState.cs
-		WalkAroundMainState.cs
-	BattleMessageController.cs
-	CombatController.cs
-	ConversationController.cs
-	GameObjectPoolController.cs
-	InputController.cs
-Assets/Scripts/Enums/* [9.2] 12/27/22 All files documented
-	Alliances.cs [9.2a]
-	Directions.cs [9.2b]
-	Drivers.cs [9.2c]
-	EquipSlots.cs [9.2d]
-	Facings.cs [9.2e]
-	Locomotions.cs [9.2f]
-	Phases.cs [9.2g]
-	StatTypes.cs [9.2h]
-	Targets.cs [9.2i]
-	Teams.cs [9.2j]
-	WalkAroundInput.cs [9.2k]
-Assets/Scripts/EventArgs/*
-	InfoEventArgs.cs
-Assets/Scripts/Exceptions/*
-	Modifiers/*
-	BaseException.cs
-	ValueChangeException.cs
-Assets/Scripts/Extensions/*
-	DirectionsExtensions.cs
-	FacingsExtensions.cs
-	GameObjectExtensions.cs
-Assets/Scripts/ItemBuilder/*
-	ItemBuilderController.cs
-Assets/Scripts/MapCreator/*
-	LevelLoad.cs
-	MapCreator.cs
-	SerializableVector3.cs
-	Serializer.cs
-Assets/Scripts/Misc/* 12/22/22 All files documented
-	Demo.cs
-Assets/Scripts/Model/*
-	CombatTurn.cs
-	ConversationData.cs
-	Info.cs
-	LevelData.cs
-	Point.cs
-	PoolData.cs
-	SpeakerData.cs
-Assets/Scripts/Multiplayer/*
-	Deprecated. MP worked in a prior version
-Assets/Scripts/RL/*
-	DuelRLAgent.cs
-	DuelRLArea.cs
-	GridworldTacticsAgent.cs
-	GridworldTacticsArea.cs
-	RLBlackBoxActions.cs
-	RLEnvConfig.cs
-Assets/Scripts/StoryBuilder/* [1.2h]
-	CutSceneController.cs [1.2h1]
-	StoryBuilderController.cs [1.2h2]
-	StoryCutScene.cs [1.2h3]
-	StoryItem.cs [1.2h4]
-	StoryModeController.cs [1.2h5]
-	StoryObject.cs [1.2h6]
-	StoryPartyController.cs [1.2h7]
-	StoryPoint.cs [1.2h8]
-	StorySave.cs [1.2h9]
-	StoryShopController.cs [1.2h10]
-	StoryShopScrollList.cs [1.2h11]
-Assets/Scripts/View Model Component/*
-	Ability/*
-		CombatAbilityArea.cs
-		CombatAbilityRange.cs
-	Actor/*
-		Alliance.cs
-		Driver.cs
-	AI/*
-		AbilityPicker/*
-			CombatBaseAbilityPicker.cs
-			CombatFixedAbilityPicker.cs
-			CombatRandomAbilityPicker.cs
-		AttackOption.cs
-		CombatComputerPlayer.cs
-		CombatPlanOfAttack.cs
-	Board.cs
-	CameraControls.cs
-	CameraRig.cs
-	ConversationPanel.cs
-	FacingIndicator.cs
-	Poolable.cs
-	Tile.cs
-	UIBackButton.cs
-	UIUnitInfoPanel.cs
-Assets/Scripts/WalkAround/*
-	WalkAroundActionObject.cs [1.16d]
-	WalkAroundManager.cs [1.16e]
-	WalkAroundMapGenerator.cs [1.16f]
-
-
-Assets/PlayerUnitObjectText/* [1.20]
-	Animation/*
-	Prefabs/*
-	Scripts/*
-		PUOTextAnchorController.cs
-		PUOTextController.cs
-		PUOTextOverlayCanvasController.cs
-		PUOTextType.cs
-
-
-
-
-
-
-
-
-
-
-
-[1.20] PlayerUnitObjectText
-When action effects happen, shows text above the PlayerUnitObject (ie 50 points of damage)
-Based on a different package
-stand in for now until a longer term version can be done
-to update the animation, need to go into the demo scene (not sure which one) and mess with the animator attached to the object
-The animations show the different effect types
-I believe this code connects with PlayerManager.cs for usage and calling of the text
-
-[1.16d] WalkAroundActionObject.cs
-Assets/Scripts/WalkAround/WalkAroundActionObject.cs
-/// object for PlayerUnit actions in WalkAround mode
-/// held in a queue in PlayerManager, which sorts through them for various turns
-/// In WalkAround mode not set turn orders. PlayerManager has a queue, as actions are decided they are coded as CombatTurns, 
-/// then changed into WalkAroundActionObjects and added to the queue
-
-[1.16e] WalkAroundManager.cs DEPRECATED
-Assets/Scripts/WalkAround/WalkAroundManager.cs
-
-[1.16f] WalkAroundActionObject.cs
-Assets/Scripts/WalkAround/WalkAroundMapGenerator.cs
-/// Unclear where this is called from or if this is still used
-/// Generates a map based on a string
-/// In WA mode can move from map to map. this helps generate the map
-
-
-
-
-
-Below is 12/21/22 chromebook version mixed with new files
-
-===== Index ===== 
+===== [I.] Index ===== 
 
 [1.0] Scripts  
 
@@ -567,7 +245,251 @@ Unify the menu codes so not a bunch of one off code for each menu
 	[9.6d] SpellSlow.cs
 
 
-===== Descriptions =====  
+===== [II.] Code Directory ===== As of 12/1/22
+
+Assets/Scripts
+
+Assets/Scripts/AbilityBuilder/*
+	AbilityBuilderObject.cs
+	AbilityEditScrollList.cs
+	AbilityEditScrollListButton.cs
+	CommandSet.cs
+Assets/Scripts/CampaignBuilder/*
+	CampaignCampaign.cs
+	CampaignDialogue.cs
+	CampaignEditController.cs
+	CampaignLauncher.cs
+	CampaignLevel.cs
+	CampaignSpawn.cs
+Assets/Scripts/CharacterBuilder/*
+	AbilityScrollList.cs
+	CharacterClassPopup.cs
+	CharacterUIController.cs
+	ItemScrollList.cs
+	ItemScrollListButton.cs
+Assets/Scripts/ClassBuilder/*
+	ClassEditController.cs
+	ClassEditObject.cs
+Assets/Scripts/Combat/*
+	AbilityData.cs
+	AbilityManager.cs
+	AbilityObject.cs
+	CalcCode.cs
+	CalculationAT.cs
+	CalculationEvasion.cs
+	CalculationHitDamage.cs
+	CalculationMod.cs
+	CalculationMono.cs
+	CalculationProjectile.cs
+	CalculationResolveAction.cs
+	CalculationZodiac.cs
+	CameraClick.cs
+	CameraFacingBillboard.cs
+	CombatLogClass.cs
+	CombatLogSaveObject.cs
+	CombatMultiplayerObject.cs
+	CombatStats.cs
+	CombatUITarget.cs
+	FocusOnMe.cs
+	ItemData.cs
+	ItemManager.cs
+	ItemObject.cs
+	MapTileManager.cs
+	NameAbility.cs
+	NameAll.cs
+	ParticleManager.cs
+	PlayerManager.cs
+	PlayerUnit.cs
+	PlayerUnitLevelStats.cs
+	PlayerUnitObject.cs
+	Singleton.cs
+	SoundManager.cs
+	SpellManager.cs
+	SpellName.cs
+	SpellNameAI.cs
+	SpellNameData.cs
+	SpellReaction.cs
+	SpellSlow.cs
+	StatusManager.cs
+	StatusObject.cs
+	TurnObject.cs
+	TurnsManager.cs
+	UIAbilityScrollList.cs
+	UIActiveTurnMenu.cs
+	UICombatLogButton.cs
+	UICombatLogScrollList.cs
+	UICombatStats.cs
+	UIConfirmButton.cs
+	UIGenericButton.cs
+	UIMenuMenu.cs
+	UISampleButton.cs
+	UISpellNameDetails.cs
+	UITurnsListButton.cs
+	UITurnsScrollList.cs
+	UITurnsTop.cs
+	UIUnitListButton.cs
+	UIUnitListScrollList.cs
+Assets/Scripts/Common/*
+	Notification Center/*
+		NotificationCenter.cs
+		NotificationExtensions.cs
+	State Machine/*
+		State.cs
+		StateMachine.cs
+	UI/*
+		Animation/*
+			EasingControl.cs
+			EasingEquation.cs
+			RectTransformAnchorPositionTweener.cs
+			RectTransformAnimationExtensions.cs
+			TransformAnimationExtensions.cs
+			TransformLocalEulerTweener.cs
+			TransformLocalPositionTweener.cs
+			TransformPositionTweener.cs
+			Tweener.cs
+			Vector3Tweener.cs
+		LayoutAnchor.cs
+		Panel.cs
+	CustomGameTeamScrollList.cs
+	DialogController.cs
+	ItemConstants.cs
+	ScrollListSimple.cs
+	UICameraMenu.cs
+	UIMainMenu.cs
+Assets/Scripts/Controller/*
+	CombatStates/*
+		ActiveTurnState.cs
+		BaseCombatAbilityMenuState.cs
+		CombatAbilitySelectState.cs
+		CombatCommandSelectionState.cs
+		CombatConfirmAbilityTargetState.cs
+		CombatCutSceneState.cs
+		CombatEndFacingState.cs
+		CombatEndState.cs
+		CombatExploreState.cs
+		CombatMoveSequenceState.cs
+		CombatMoveTargetState.cs
+		CombatPerformAbilityState.cs
+		CombatState.cs
+		CombatStateInit.cs
+		CombatTargetAbilityState.cs
+		GameLoopState.cs
+		MimeState.cs
+		MultiplayerWaitState.cs
+		PostActiveTurnState.cs
+		ReactionState.cs
+		SlowActionState.cs
+		StatusCheckState.cs
+	Victor Conditions/*
+		CombatVictoryCondition.cs
+	WalkAroundStates/*
+		WalkAroundInitState.cs
+		WalkAroundMainState.cs
+	BattleMessageController.cs
+	CombatController.cs
+	ConversationController.cs
+	GameObjectPoolController.cs
+	InputController.cs
+Assets/Scripts/Enums/* [9.2] 12/27/22 All files documented
+	Alliances.cs [9.2a]
+	Directions.cs [9.2b]
+	Drivers.cs [9.2c]
+	EquipSlots.cs [9.2d]
+	Facings.cs [9.2e]
+	Locomotions.cs [9.2f]
+	Phases.cs [9.2g]
+	StatTypes.cs [9.2h]
+	Targets.cs [9.2i]
+	Teams.cs [9.2j]
+	WalkAroundInput.cs [9.2k]
+Assets/Scripts/EventArgs/*
+	InfoEventArgs.cs
+Assets/Scripts/Exceptions/*
+	Modifiers/*
+	BaseException.cs
+	ValueChangeException.cs
+Assets/Scripts/Extensions/*
+	DirectionsExtensions.cs
+	FacingsExtensions.cs
+	GameObjectExtensions.cs
+Assets/Scripts/ItemBuilder/*
+	ItemBuilderController.cs
+Assets/Scripts/MapCreator/*
+	LevelLoad.cs
+	MapCreator.cs
+	SerializableVector3.cs
+	Serializer.cs
+Assets/Scripts/Misc/* 12/22/22 All files documented
+	Demo.cs
+Assets/Scripts/Model/*
+	CombatTurn.cs
+	ConversationData.cs
+	Info.cs
+	LevelData.cs
+	Point.cs
+	PoolData.cs
+	SpeakerData.cs
+Assets/Scripts/Multiplayer/*
+	Deprecated. MP worked in a prior version
+Assets/Scripts/RL/*
+	DuelRLAgent.cs
+	DuelRLArea.cs
+	GridworldTacticsAgent.cs
+	GridworldTacticsArea.cs
+	RLBlackBoxActions.cs
+	RLEnvConfig.cs
+Assets/Scripts/StoryBuilder/* [1.2h]
+	CutSceneController.cs [1.2h1]
+	StoryBuilderController.cs [1.2h2]
+	StoryCutScene.cs [1.2h3]
+	StoryItem.cs [1.2h4]
+	StoryModeController.cs [1.2h5]
+	StoryObject.cs [1.2h6]
+	StoryPartyController.cs [1.2h7]
+	StoryPoint.cs [1.2h8]
+	StorySave.cs [1.2h9]
+	StoryShopController.cs [1.2h10]
+	StoryShopScrollList.cs [1.2h11]
+Assets/Scripts/View Model Component/*
+	Ability/*
+		CombatAbilityArea.cs
+		CombatAbilityRange.cs
+	Actor/*
+		Alliance.cs
+		Driver.cs
+	AI/*
+		AbilityPicker/*
+			CombatBaseAbilityPicker.cs
+			CombatFixedAbilityPicker.cs
+			CombatRandomAbilityPicker.cs
+		AttackOption.cs
+		CombatComputerPlayer.cs
+		CombatPlanOfAttack.cs
+	Board.cs
+	CameraControls.cs
+	CameraRig.cs
+	ConversationPanel.cs
+	FacingIndicator.cs
+	Poolable.cs
+	Tile.cs
+	UIBackButton.cs
+	UIUnitInfoPanel.cs
+Assets/Scripts/WalkAround/*
+	WalkAroundActionObject.cs [1.16d]
+	WalkAroundManager.cs [1.16e]
+	WalkAroundMapGenerator.cs [1.16f]
+
+Assets/PlayerUnitObjectText/* [1.20]
+	Animation/*
+	Prefabs/*
+	Scripts/*
+		PUOTextAnchorController.cs
+		PUOTextController.cs
+		PUOTextOverlayCanvasController.cs
+		PUOTextType.cs
+
+
+===== [III.] Descriptions =====
 
 [1.1] MainMenu
 Top menu to navigate between scenes
@@ -946,6 +868,22 @@ map data saved in map dict
 unit data saved per map (for now basically just which map units have been killed or not), can be expanded
 
 
+[1.16d] WalkAroundActionObject.cs
+Assets/Scripts/WalkAround/WalkAroundActionObject.cs
+/// object for PlayerUnit actions in WalkAround mode
+/// held in a queue in PlayerManager, which sorts through them for various turns
+/// In WalkAround mode not set turn orders. PlayerManager has a queue, as actions are decided they are coded as CombatTurns, 
+/// then changed into WalkAroundActionObjects and added to the queue
+
+[1.16e] WalkAroundManager.cs DEPRECATED
+Assets/Scripts/WalkAround/WalkAroundManager.cs
+
+[1.16f] WalkAroundActionObject.cs
+Assets/Scripts/WalkAround/WalkAroundMapGenerator.cs
+/// Unclear where this is called from or if this is still used
+/// Generates a map based on a string
+/// In WA mode can move from map to map. this helps generate the map
+
 
 
 [1.17] Prefabs
@@ -993,6 +931,14 @@ In GameLoopState, there's a regular check to see if a victor team has been set a
 might be better to do with a notification
 in DuelRL there is code to send it back to CombatStateInit for a restart, ideally what restart code in all modes
 PlayerManager has code where if anything changes in playerunit state that may trigger a victory type, checks if there is a victor
+
+[1.20] PlayerUnitObjectText
+When action effects happen, shows text above the PlayerUnitObject (ie 50 points of damage)
+Based on a different package
+stand in for now until a longer term version can be done
+to update the animation, need to go into the demo scene (not sure which one) and mess with the animator attached to the object
+The animations show the different effect types
+I believe this code connects with PlayerManager.cs for usage and calling of the text
 
 
 [3.1] Notification Center

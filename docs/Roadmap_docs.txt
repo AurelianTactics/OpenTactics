@@ -1,0 +1,31 @@
+Ideas for improvement
+
+1. Format the docs.txt better
+2. Consider a better system like readthedocs.io
+3. Visual respresentation of key systems:
+	How scene link
+	How states link
+	Gameloop
+
+4. Key files that need to be improved (more coding related than doc related) and documented
+	Calculation files
+	CombatStateInit
+	PlayerManager (probably most of the managers)
+	Streamlining the UI: Ie so many different buttons and unclear what is used where
+	Combat Text
+	
+5. Document beyond the summary of the class
+	Document all methods, variables, and functions. Maybe a large language model can be used?
+
+6. Organize the files in the project better
+
+7. Many to do notes throughout the docs and code
+
+8. Generate directory and match directory to code index labels in the docs in a streamlined way
+
+9. Document key system design ways and how to implement better
+	Singleton
+	WA, Multiplayer
+	Scriptable Objects
+	Other big concepts
+	Better sense of which files are used where

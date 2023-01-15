@@ -1,0 +1,30 @@
+
+
+
+focus areas
+how to do other versions (ie classic AT etc). code so it's flexible to do versions in the future
+WA has to be outlined, goals, roadmap, how it can be integrated and see which code can be used
+abstraction of builders to allow better usage and future customizability
+Singleton best format going forward
+	particularly in MP. like the reads are fine but writes could get complex
+	managers in general could be organized and streamlined better
+
+
+
+code improvement big things
+how to better bug test in Unity
+initiation combat scene is a mess
+UI scripts all over the place and narrowly tailored in each case. might be able
+to generalize them more but maybe not worth the time.
+lot of to dos in scripts
+
+Headless mode
+AI needs a long term plan. what is there that can be reused
+if doing headless sim mode, the state based system might not work due to needimg ienumerators to yield state transitions
+will the notification system work? maybe be too slow
+
+
+
+misc ideas
+	things you like from isignia tactics
+	way to have units drop into WA mode (either controlled or loaded from a player configs)
