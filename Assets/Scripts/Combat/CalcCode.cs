@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using System;
 
-//takes a string, returns a PU
+/// <summary>
+/// Turns a string into a PU and vice versa.
+/// </summary>
 public static class CalcCode {
 
 	public static PlayerUnit BuildPlayerUnit(string str)

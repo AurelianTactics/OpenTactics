@@ -4,7 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 
 
-//for now just used to make lists for the character builder, in the future add something like itemobject where ability objects can be generated on the fly and used to get info
+/// <summary>
+/// for now just used to make lists for the character builder, in the future add something like 
+/// itemobject where ability objects can be generated on the fly and used to get info
+/// </summary>
 public class AbilityObject
 {
     //overallId	version	slot	slotId	abilityName	classId	description

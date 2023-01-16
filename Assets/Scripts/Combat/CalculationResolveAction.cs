@@ -14,12 +14,14 @@ using System;
 	reflect not really implemented fully mechanically
  */
 
-	/// <summary>
-	/// Mess of a class. Performs many calculations related to game logic. Mostly dealing with resolving actions.
-	/// Most important thing is that through CalculationMono, calculates (and starts the application of) action resolving.
-	/// Not just fast actions but slow actions, reactions, etc getting resolved runs through here.
-	/// Also a mess of convenience functions. May make sense to split this class up.
-	/// </summary>
+/// <summary>
+/// Mess of a class. Performs many calculations related to game logic. Mostly dealing with 
+/// resolving actions.
+/// Most important thing is that through CalculationMono, calculates (and starts the 
+/// application of) action resolving.
+/// Not just fast actions but slow actions, reactions, etc getting resolved runs through here.
+/// Also a mess of convenience functions. May make sense to split this class up.
+/// </summary>
 public static class CalculationResolveAction {
 
     static int bugTest = 0;

@@ -2,6 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// Objects used by TurnsManager and lists of turns to determine the upcoming order for units
+/// </summary>
 public class TurnObject {
 
     //custom object fields: actorId, mapTileIndex(have both but only use one or the other), effectXY, effectZ

@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Stats and functions relating to the PlayerUnits
+/// PlayerUnits are the class for the playable characters on the board in
+/// Combat Scene
+/// </summary>
 [System.Serializable]
 public class PlayerUnit {
 

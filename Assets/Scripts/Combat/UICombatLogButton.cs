@@ -2,7 +2,9 @@
 using UnityEngine.UI;
 using System.Collections;
 
-
+/// <summary>
+/// In CombatScene, UI on the button in CombatLog
+/// </summary>
 public class UICombatLogButton : MonoBehaviour
 {
 

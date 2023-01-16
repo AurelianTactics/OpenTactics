@@ -17,7 +17,11 @@ using System;
     when spellObject class Is created, fix mod 2
     mod attack and two hands, which weapon etch will likely need to be updated
  */
-
+/// <summary>
+/// Mess of a class
+/// Calculates various things in CombatScene but it is poorly documented, 
+/// unclear and all over the place
+/// </summary>
 public class CalculationMod {
     static int bugTest = 0;
     //wrapper for the mod calculations

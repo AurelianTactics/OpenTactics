@@ -4,6 +4,9 @@ using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// In CombatScene UI scroll list that shows the turns
+/// </summary>
 public class UITurnsScrollList : MonoBehaviour {
 
     public Button backButton;

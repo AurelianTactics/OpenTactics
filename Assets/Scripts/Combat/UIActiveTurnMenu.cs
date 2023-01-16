@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.EventSystems;
 
+/// <summary>
+/// In CombatScene, menu for selecting Active Turn options (Move, Wait, Ability etc)
+/// </summary>
 public class UIActiveTurnMenu : MonoBehaviour {
 
     #region Constants

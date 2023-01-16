@@ -2,6 +2,9 @@
 using UnityEngine.UI;
 using System.Collections;
 
+/// <summary>
+/// Shows spell name detailes in a UI
+/// </summary>
 public class UISpellNameDetails : MonoBehaviour
 {
 

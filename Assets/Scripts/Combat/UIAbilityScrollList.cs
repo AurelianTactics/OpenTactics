@@ -4,6 +4,9 @@ using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// In CombatScene, UI object that shows abilities and handles clicks on the menu
+/// </summary>
 public class UIAbilityScrollList : MonoBehaviour
 {
     public Button backButton;

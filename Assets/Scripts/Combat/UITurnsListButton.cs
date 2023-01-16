@@ -2,7 +2,9 @@
 using UnityEngine.UI;
 using System.Collections;
 
-
+/// <summary>
+/// UI button for the Turns list
+/// </summary>
 public class UITurnsListButton : MonoBehaviour
 {
 

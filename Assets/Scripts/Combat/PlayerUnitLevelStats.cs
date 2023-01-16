@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
+/// <summary>
+/// given a PlayerUnit object (need the level and the class), modifies the PU's 
+/// base stats accordingly
+/// </summary>
 public class PlayerUnitLevelStats {
     /*
- //given a PlayerUnit object (need the level and the class), modifies the PU's base stats accordingly
-
+ //
  //to do:
     //doesn't seem to be able to get level 1, legacy from old code not sure why
  */

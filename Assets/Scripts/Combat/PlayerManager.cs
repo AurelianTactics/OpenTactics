@@ -5,6 +5,19 @@ using System.Collections;
 using System.Collections.Generic;
 using PlayerUnitObjectText.PUOText;
 
+/*
+To do:
+document better
+tidy up the not used parts
+organie better
+ */
+
+/// <summary>
+/// A singleton that holds PlayerUnits, PlayerUnitObjects, and a
+/// variety of functions that relate to manipulating those objects.
+/// Accessible throughout Combat and WalkAround scenes, this monstrosity of a class
+/// has essential functions from the initiation of the scene and throughout the game loop
+/// </summary>
 public class PlayerManager : Singleton<PlayerManager>
 {
 

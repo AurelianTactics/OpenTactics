@@ -4,9 +4,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-//current version basically just holds the markes for each unit (which could just be attached to the PlayerUnitObjects)
-//few convenience functions as well
-//used differently in old version
+/// <summary>
+/// current version basically just holds the markes for each unit 
+/// (which could just be attached to the PlayerUnitObjects)
+/// few convenience functions as well
+/// used differently in old version
+/// </summary>
 public class MapTileManager : Singleton<MapTileManager>
 {
 

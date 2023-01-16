@@ -3,11 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-//called in various class like:
-//CombatPerformAbilityState
-//SlowActionState,MimeState,ReactionState
-//launches an action or creates a slow action
-
+/// <summary>
+/// performs calculates that require a MonoBehaviour class
+/// called in various class like:
+/// CombatPerformAbilityState
+/// SlowActionState,MimeState,ReactionState
+/// launches an action or creates a slow action
+/// </summary>
 public class CalculationMono : MonoBehaviour {
 
     //convenience functions called in other parts, inherits form MonoBehaviour to take advantage of

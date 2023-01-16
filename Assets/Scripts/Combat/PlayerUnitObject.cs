@@ -5,14 +5,14 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
+/// <summary>
+/// controls the physical PlayerUnit Object representation
+/// for example, moving the unit on the gameboard calls a function here, showing unit statuses calls a function here
+/// some other misc stuff is randomly thrown in here like some AI and ability stuff which may be better moved elsewhere
+/// animation is disabled for now. see parts labelled '//Animation Disabled' to turn it back on
+/// </summary>
 [RequireComponent(typeof(CharacterController))]
 [AddComponentMenu("Control Script/FPS Input")]
-
-//controls the physical PlayerUnit Object representation
-	//for example, moving the unit on the gameboard calls a function here, showing unit statuses calls a function here
-//some other misc stuff is randomly thrown in here like some AI and ability stuff which may be better moved elsewhere
-//animation is disabled for now. see parts labelled '//Animation Disabled' to turn it back on
-
 public class PlayerUnitObject : MonoBehaviour {
 
     private int unitId;

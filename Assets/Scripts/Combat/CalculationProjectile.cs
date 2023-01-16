@@ -11,6 +11,9 @@ using System.Collections.Generic;
     map objects have different things passible
  */
 
+/// <summary>
+/// Detects if a projectile reaches its target or hits a different unit/obstacle along the way
+/// </summary>
 public class CalculationProjectile
 //public class CalculationProjectile : MonoBehaviour
 {

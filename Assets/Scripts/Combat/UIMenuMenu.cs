@@ -4,6 +4,9 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System;
 
+/// <summary>
+/// In CombatScene, controls the menu UI
+/// </summary>
 public class UIMenuMenu : MonoBehaviour {
 
     public Button menuButton;

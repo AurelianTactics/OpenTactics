@@ -3,6 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
+/// <summary>
+/// Some units have an infinity that modify the hit chance/damage etc
+/// Called in CombatScene
+/// </summary>
 public static class CalculationZodiac
 {
 

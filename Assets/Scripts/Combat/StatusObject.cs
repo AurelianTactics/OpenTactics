@@ -8,7 +8,10 @@ using System.Collections.Generic;
 objects that get added to static arrays in status lab and treated there
  basically two types, tickable and those tied to equipment/unit
  */
-
+/// <summary>
+/// Object that holds statuses of PlayerUnits
+/// Get added and managed in StatusManager singleton
+/// </summary>
 public class StatusObject
 {
     private int unitId;

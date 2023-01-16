@@ -4,6 +4,9 @@ using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// I think this is the list of units from the main menu so you can see details on the units
+/// </summary>
 public class UIUnitListScrollList : MonoBehaviour
 {
     public Button backButton;

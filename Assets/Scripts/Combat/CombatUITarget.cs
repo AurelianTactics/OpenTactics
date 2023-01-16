@@ -2,6 +2,23 @@
 using System.Collections;
 using UnityEngine.UI;
 
+/*
+to do
+this can be polished when a good ui is there
+passing around the massive string doesnt really make sense
+possible tidy up between WA mode and combat mode
+ */
+
+/// <summary>
+/// Attached to scene in scene in CombatState.cs script
+/// Thus all states in combat/walkaround scene can access this script
+/// Activates and deactivates 3 UI panels and sets details on what the panels show
+/// controls UI elements for actor and target on what is highlighted on 
+/// click/mouseover (ie lower right panel whose turn it is or lower middle 
+/// panel for which unit is being targeted by a spell etc
+/// used in Combat and WalkAround scenes
+/// Called from many scripts
+/// </summary>
 public class CombatUITarget : MonoBehaviour
 {
     //public Image sexImage;

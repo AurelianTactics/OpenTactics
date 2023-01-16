@@ -2,9 +2,9 @@
 using System;
 using UnityEngine;
 
-/*
-Convenience functions, notes on top of functions say where they are called
-    */
+/// <summary>
+/// Convenience functions, notes on top of functions say where they are called
+/// </summary>
 public static class CalculationAT {
     static int bugTest = 0;
 

@@ -2,6 +2,9 @@
 using System.Collections;
 using UnityEngine.UI;
 
+/// <summary>
+/// Idk where it is used and why I have so many different UI buttons
+/// </summary>
 public class UIGenericButton : MonoBehaviour {
 
     public Text textField;

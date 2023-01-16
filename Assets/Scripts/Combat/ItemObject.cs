@@ -3,6 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
+/// <summary>
+/// Stores the stats for an Item. Serializable makes it so objects can be generated from .csv
+/// files
+/// </summary>
 [Serializable]
 public class ItemObject {
 

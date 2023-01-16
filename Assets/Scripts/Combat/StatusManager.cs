@@ -4,6 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+/// <summary>
+/// Manages statuses on PlayerUnits
+/// </summary>
 public class StatusManager : Singleton<StatusManager>
 {
 

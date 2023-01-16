@@ -3,10 +3,9 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 
-/**
- 
- */
-
+/// <summary>
+/// Calculates evasion from abilities in CombatScene
+/// </summary>
 public static class CalculationEvasion {
 
     #region Aurelian

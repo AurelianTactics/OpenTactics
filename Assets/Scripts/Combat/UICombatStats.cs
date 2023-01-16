@@ -2,9 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 
-//shows the stats
-//for now assumign only shows post combat. in the future can modify this
-
+/// <summary>
+/// shows the stats from CombatScene
+/// for now assumign only shows post combat. in the future can modify this
+/// </summary>
 public class UICombatStats : MonoBehaviour {
 
     public GameObject sampleButton;

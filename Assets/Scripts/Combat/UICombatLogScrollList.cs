@@ -4,6 +4,9 @@ using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// In CombatScene, the UI scroll list that shows the combatlog
+/// </summary>
 public class UICombatLogScrollList : MonoBehaviour
 {
     public Button backButton;
