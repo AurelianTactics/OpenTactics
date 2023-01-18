@@ -18,6 +18,9 @@ using Handler = System.Action<System.Object, System.Object>;
 /// </summary>
 using SenderTable = System.Collections.Generic.Dictionary<System.Object, System.Collections.Generic.List<System.Action<System.Object, System.Object>>>;
 
+/// <summary>
+/// Sends messages between scripts/game objects in a scene
+/// </summary>
 public class NotificationCenter
 {
 	#region Properties

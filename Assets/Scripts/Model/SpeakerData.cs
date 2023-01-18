@@ -2,6 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// In CutScene State in Combat Scene these help display dialogue
+/// </summary>
 [System.Serializable]
 public class SpeakerData 
 {

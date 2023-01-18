@@ -2,6 +2,9 @@
 using System;
 using System.Collections;
 
+/// <summary>
+/// used for x and y coordinates in gameobjects like Tile.cs
+/// </summary>
 [System.Serializable]
 public struct Point : IEquatable<Point>
 {

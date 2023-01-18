@@ -2,6 +2,9 @@
 using System;
 using System.Collections;
 
+/// <summary>
+/// Shows conversation in CombatScene CutState
+/// </summary>
 public class ConversationController : MonoBehaviour 
 {
 	#region Events

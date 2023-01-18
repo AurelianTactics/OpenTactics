@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-//using UnityEditor;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,9 +11,6 @@ using UnityEngine.SceneManagement;
 /// Controller for the MapBuilder scene
 /// Maps (levels) are used in combat for the various game modes
 /// </summary>
-
-
-
 public class MapCreator : MonoBehaviour
 {
     #region Fields / Properties

@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Helps layout the UI in certain scenes I think?
+/// </summary>
 [RequireComponent(typeof(RectTransform))]
 public class LayoutAnchor : MonoBehaviour 
 {

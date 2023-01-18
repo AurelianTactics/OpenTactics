@@ -3,6 +3,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// Helps layout the UI in certain scenes I think?
+/// </summary>
 [RequireComponent(typeof(LayoutAnchor))]
 public class Panel : MonoBehaviour 
 {

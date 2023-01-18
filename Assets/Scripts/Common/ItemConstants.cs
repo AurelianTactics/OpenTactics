@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-//constants related to items used across multiple scripts
-
+/// <summary>
+/// constants related to items used across multiple scripts
+/// </summary>
 public class ItemConstants
 {
 

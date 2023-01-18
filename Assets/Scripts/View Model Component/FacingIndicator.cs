@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// I think controls the little dot to indicate which way to face
+/// </summary>
 public class FacingIndicator : MonoBehaviour 
 {
 	[SerializeField] Renderer[] directions;

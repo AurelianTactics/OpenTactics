@@ -2,6 +2,12 @@
 using UnityEngine.UI;
 using System.Collections.Generic;
 
+/* to do
+where is this used */
+
+/// <summary>
+/// Simple UI scroll list populated with buttons with info and can be clicked on
+/// </summary>
 public class ScrollListSimple : MonoBehaviour {
 
     //public Button backButton;

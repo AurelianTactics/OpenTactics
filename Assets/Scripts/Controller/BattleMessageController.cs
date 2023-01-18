@@ -3,6 +3,9 @@ using UnityEngine.UI;
 using System;
 using System.Collections;
 
+/// <summary>
+/// Shows a message during CombatScene
+/// </summary>
 public class BattleMessageController : MonoBehaviour 
 {
 	[SerializeField] Text label;

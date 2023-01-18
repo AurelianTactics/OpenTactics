@@ -1,35 +1,39 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-//entered from GameLoopState
-	//seems kind of unnecessary. could probably put most of this in CombatCommandSelectionState or maybe part of it in GameLoopState
-	//assuming that never come here if rendermode is none or get some game breaking change state things
+/// <summary>
+/// entered from GameLoopState when unit has activeturn
+/// seems kind of unnecessary. could probably put most of this in CombatCommandSelectionState 
+/// or maybe part of it in GameLoopState
+/// assuming that never come here if rendermode is none or get some game breaking 
+//  change state things
+/// </summary>
 public class ActiveTurnState : CombatState
 {
 
-    bool isOffline;
+	bool isOffline;
 
-    public override void Enter()
-    {
-        base.Enter();
-        isOffline = PlayerManager.Instance.IsOfflineGame();
+	public override void Enter()
+	{
+		base.Enter();
+		isOffline = PlayerManager.Instance.IsOfflineGame();
 		//EnableObservers();
 		DoPhase();
-    }
+	}
 
-    public override void Exit()
-    {
-        base.Exit();
-        //DisableObservers();
-        //actorPanel.Close();
-        //statPanelController.HidePrimary();
-    }
+	public override void Exit()
+	{
+		base.Exit();
+		//DisableObservers();
+		//actorPanel.Close();
+		//statPanelController.HidePrimary();
+	}
 
 	void DoPhase()
 	{
 		PlayerUnit pu = PlayerManager.Instance.GetNextActiveTurnPlayerUnit(isSetQuickFlagToFalse: true);//sets quickFlag to false if it was true
-		//Debug.Log("in do phase top");
-		
+																										//Debug.Log("in do phase top");
+
 		if (pu != null) //probably an unnecessary check
 		{
 			turn.Change(pu);

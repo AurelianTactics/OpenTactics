@@ -4,13 +4,18 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class Board : MonoBehaviour 
+/// <summary>
+/// In CombatScene and mapbuilder manages the game board
+/// holds the tiles and allows manipulation
+/// in combatscene accessible through to do
+/// </summary>
+public class Board : MonoBehaviour
 {
 	#region Fields / Properties
 	[SerializeField] GameObject tilePrefab;
 	public Dictionary<Point, Tile> tiles = new Dictionary<Point, Tile>();
-	public Point min { get { return _min; }}
-	public Point max { get { return _max; }}
+	public Point min { get { return _min; } }
+	public Point max { get { return _max; } }
 	Point _min;
 	Point _max;
 	Point[] dirs = new Point[4]
@@ -22,12 +27,12 @@ public class Board : MonoBehaviour
 	};
 	Color selectedTileColor = new Color(0, 1, 1, 1);
 	Color defaultTileColor = new Color(1, 1, 1, 1);
-    Color highlightTileColor = new Color(0, 1, 1, 1);
+	Color highlightTileColor = new Color(0, 1, 1, 1);
 	Color exitMapTileColor = new Color(1, 1, 0, 1);
 
-    [SerializeField]
-    GameObject groundCrystalPrefab;
-    private Dictionary<Tile, GameObject> groundObjectDict = new Dictionary<Tile, GameObject>(); //key is maptileindex, value is the type of object it is
+	[SerializeField]
+	GameObject groundCrystalPrefab;
+	private Dictionary<Tile, GameObject> groundObjectDict = new Dictionary<Tile, GameObject>(); //key is maptileindex, value is the type of object it is
 	private Dictionary<Tile, int> groundTileDict = new Dictionary<Tile, int>(); //this and groundObjectDict duplicate each other, this stores type
 	readonly int GROUND_TILE = 1;
 
@@ -41,13 +46,14 @@ public class Board : MonoBehaviour
 	#endregion
 
 	#region Public
-	public void Load (LevelData data, int renderMode=0)
+	public void Load(LevelData data, int renderMode = 0)
 	{
 		//loads the leveldata into physical tiles. The tiles themselves are placed in t.Load (Tile.Load) with the Match() function;
 		tiles = new Dictionary<Point, Tile>();
 		_min = new Point(int.MaxValue, int.MaxValue);
 		_max = new Point(int.MinValue, int.MinValue);
-		if( renderMode != NameAll.PP_RENDER_NONE) {
+		if (renderMode != NameAll.PP_RENDER_NONE)
+		{
 			tileHolder = new GameObject("TileHolder").transform; //holds tiles
 			tileHolder.SetParent(transform);
 		}
@@ -55,7 +61,7 @@ public class Board : MonoBehaviour
 		Tile t;
 		for (int i = 0; i < data.tiles.Count; ++i)
 		{
-			
+
 			if (renderMode != NameAll.PP_RENDER_NONE)
 			{
 				GameObject instance = Instantiate(tilePrefab) as GameObject;
@@ -80,183 +86,183 @@ public class Board : MonoBehaviour
 		}
 	}
 
-    public Tile GetTile(int x, int y)
-    {
-        Point p = new Point(x, y);
-        return tiles.ContainsKey(p) ? tiles[p] : null;
-    }
+	public Tile GetTile(int x, int y)
+	{
+		Point p = new Point(x, y);
+		return tiles.ContainsKey(p) ? tiles[p] : null;
+	}
 
-    //called in CalculationProjectile to see if projectile is hindered crossing this tile
-    public Tile GetTileCollision(float x, float y, float z, Tile startTile, float unitHeight = 4.0f)
-    {
-        Tile tempTile = GetTile((int)Mathf.Round(x), (int)Mathf.Round(y));
-        if(tempTile != null && tempTile != startTile)
-        {
-            if (z <= tempTile.height)
-                return tempTile;
-            else if(tempTile.UnitId != NameAll.NULL_UNIT_ID && z <= tempTile.height + unitHeight)
-            {
-                return tempTile;
-            }
-        }
-        return null;
-    }
+	//called in CalculationProjectile to see if projectile is hindered crossing this tile
+	public Tile GetTileCollision(float x, float y, float z, Tile startTile, float unitHeight = 4.0f)
+	{
+		Tile tempTile = GetTile((int)Mathf.Round(x), (int)Mathf.Round(y));
+		if (tempTile != null && tempTile != startTile)
+		{
+			if (z <= tempTile.height)
+				return tempTile;
+			else if (tempTile.UnitId != NameAll.NULL_UNIT_ID && z <= tempTile.height + unitHeight)
+			{
+				return tempTile;
+			}
+		}
+		return null;
+	}
 
-    public Tile GetTile (Point p)
+	public Tile GetTile(Point p)
 	{
 		return tiles.ContainsKey(p) ? tiles[p] : null;
 	}
 
-    public Tile GetTile(Tile t)
-    {
-        return tiles.ContainsKey(t.pos) ? tiles[t.pos] : null;
-    }
-
-    public Tile GetTile(PlayerUnit target)
-    {
-        Point p = new Point();
-        p.x = target.TileX;
-        p.y = target.TileY;
-        return GetTile(p);
-    }
-
-    public List<Tile> Search(Tile start, Func<Tile, Tile, bool> addTile)
-    {
-        List<Tile> retValue = new List<Tile>();
-        retValue.Add(start);
-
-        ClearSearch();
-        Queue<Tile> checkNext = new Queue<Tile>();
-        Queue<Tile> checkNow = new Queue<Tile>();
-
-        start.distance = 0;
-        checkNow.Enqueue(start);
-
-        while (checkNow.Count > 0)
-        {
-            Tile t = checkNow.Dequeue();
-            for (int i = 0; i < 4; ++i)
-            {
-                Tile next = GetTile(t.pos + dirs[i]);
-                if (next == null || next.distance <= t.distance + 1)
-                    continue;
-
-                if (addTile(t, next))
-                {
-                    next.distance = t.distance + 1;
-                    next.prev = t;
-                    checkNext.Enqueue(next);
-                    retValue.Add(next);
-                }
-            }
-
-            if (checkNow.Count == 0)
-                SwapReference(ref checkNow, ref checkNext);
-        }
-
-        return retValue;
-    }
-
-    //Combat uses search
-    //WalkAroundMode has multiple units so needs distanceDict and prevDict for each unitId
-    public List<Tile> SearchWalkAround(Tile start, int unitId, Func<Tile, Tile, bool> addTile)
-    {
-        List<Tile> retValue = new List<Tile>();
-        retValue.Add(start);
-        //Debug.Log("reaching here " + unitId);
-        ClearSearchWalkAround(unitId);
-        Queue<Tile> checkNext = new Queue<Tile>();
-        Queue<Tile> checkNow = new Queue<Tile>();
-
-        //start.distance = 0;
-        start.distanceDict[unitId] = 0;
-        checkNow.Enqueue(start);
-
-        while (checkNow.Count > 0)
-        {
-            Tile t = checkNow.Dequeue();
-            for (int i = 0; i < 4; ++i)
-            {
-                Tile next = GetTile(t.pos + dirs[i]);
-                //if (next == null || next.distance <= t.distance + 1)
-                //    continue;
-                //continue if tile does not exist or if the tile has already been added to the distanceDict
-                if (next == null )
-                    continue;
-                if (next.distanceDict.ContainsKey(unitId) && t.distanceDict.ContainsKey(unitId) && next.distanceDict[unitId] <= t.distanceDict[unitId] + 1)
-                    continue;
-
-                if (addTile(t, next))
-                {
-                    //next.distance = t.distance + 1;
-                    //next.prev = t;
-                    next.distanceDict[unitId] = t.distanceDict[unitId] + 1;
-                    next.prevDict[unitId] = t;
-                    checkNext.Enqueue(next);
-                    retValue.Add(next);
-                }
-            }
-
-            if (checkNow.Count == 0)
-                SwapReference(ref checkNow, ref checkNext);
-        }
-
-        return retValue;
-    }
-
-    public void SelectTiles (List<Tile> tiles)
+	public Tile GetTile(Tile t)
 	{
-		for (int i = tiles.Count - 1; i >= 0; --i)
-        {
-            //tiles[i].GetComponent<Renderer>().material.SetColor("_Color", selectedTileColor);
-            tiles[i].HighlightTile(0);
-        }
-			
+		return tiles.ContainsKey(t.pos) ? tiles[t.pos] : null;
 	}
 
-	public void DeSelectTiles (List<Tile> tiles)
+	public Tile GetTile(PlayerUnit target)
 	{
-		for (int i = tiles.Count - 1; i >= 0; --i)
-        {
-            //tiles[i].GetComponent<Renderer>().material.SetColor("_Color", defaultTileColor);
-            tiles[i].RevertTile();
-        }
-			
+		Point p = new Point();
+		p.x = target.TileX;
+		p.y = target.TileY;
+		return GetTile(p);
 	}
 
-    public void UpdatePlayerUnitTile(PlayerUnit pu, Tile newTile)
-    {
-        Point p = new Point(pu.TileX, pu.TileY);
-        GetTile(p).UnitId = NameAll.NULL_UNIT_ID;
-        GetTile(newTile.pos).UnitId = pu.TurnOrder;
-    }
+	public List<Tile> Search(Tile start, Func<Tile, Tile, bool> addTile)
+	{
+		List<Tile> retValue = new List<Tile>();
+		retValue.Add(start);
 
-    public void UpdatePlayerUnitTileSwap(PlayerUnit pu, Tile newTile)
-    {
-        //Point p = new Point(pu.TileX, pu.TileY); //this tile has already been updated with the actor who swapped in
-        //GetTile(p).UnitId = NameAll.NULL_UNIT_ID;
-        GetTile(newTile.pos).UnitId = pu.TurnOrder;
-    }
+		ClearSearch();
+		Queue<Tile> checkNext = new Queue<Tile>();
+		Queue<Tile> checkNow = new Queue<Tile>();
 
-    //called in combatState to highlight certain tiles
-    public void HighlightTile(Point p, int teamId, bool doHighlight)
-    {
-        Tile t = GetTile(p);
-        if (t != null)
-        {
-            if (doHighlight)
-            {
-                //t.GetComponent<Renderer>().material.SetColor("_Color", highlightTileColor);
-                //Debug.Log("highlighting tile");
-                t.HighlightTile(teamId);
-            }
-            else
-            {
-                //t.GetComponent<Renderer>().material.SetColor("_Color", defaultTileColor);
-                t.RevertTile();
-            }
-        }
-    }
+		start.distance = 0;
+		checkNow.Enqueue(start);
+
+		while (checkNow.Count > 0)
+		{
+			Tile t = checkNow.Dequeue();
+			for (int i = 0; i < 4; ++i)
+			{
+				Tile next = GetTile(t.pos + dirs[i]);
+				if (next == null || next.distance <= t.distance + 1)
+					continue;
+
+				if (addTile(t, next))
+				{
+					next.distance = t.distance + 1;
+					next.prev = t;
+					checkNext.Enqueue(next);
+					retValue.Add(next);
+				}
+			}
+
+			if (checkNow.Count == 0)
+				SwapReference(ref checkNow, ref checkNext);
+		}
+
+		return retValue;
+	}
+
+	//Combat uses search
+	//WalkAroundMode has multiple units so needs distanceDict and prevDict for each unitId
+	public List<Tile> SearchWalkAround(Tile start, int unitId, Func<Tile, Tile, bool> addTile)
+	{
+		List<Tile> retValue = new List<Tile>();
+		retValue.Add(start);
+		//Debug.Log("reaching here " + unitId);
+		ClearSearchWalkAround(unitId);
+		Queue<Tile> checkNext = new Queue<Tile>();
+		Queue<Tile> checkNow = new Queue<Tile>();
+
+		//start.distance = 0;
+		start.distanceDict[unitId] = 0;
+		checkNow.Enqueue(start);
+
+		while (checkNow.Count > 0)
+		{
+			Tile t = checkNow.Dequeue();
+			for (int i = 0; i < 4; ++i)
+			{
+				Tile next = GetTile(t.pos + dirs[i]);
+				//if (next == null || next.distance <= t.distance + 1)
+				//    continue;
+				//continue if tile does not exist or if the tile has already been added to the distanceDict
+				if (next == null)
+					continue;
+				if (next.distanceDict.ContainsKey(unitId) && t.distanceDict.ContainsKey(unitId) && next.distanceDict[unitId] <= t.distanceDict[unitId] + 1)
+					continue;
+
+				if (addTile(t, next))
+				{
+					//next.distance = t.distance + 1;
+					//next.prev = t;
+					next.distanceDict[unitId] = t.distanceDict[unitId] + 1;
+					next.prevDict[unitId] = t;
+					checkNext.Enqueue(next);
+					retValue.Add(next);
+				}
+			}
+
+			if (checkNow.Count == 0)
+				SwapReference(ref checkNow, ref checkNext);
+		}
+
+		return retValue;
+	}
+
+	public void SelectTiles(List<Tile> tiles)
+	{
+		for (int i = tiles.Count - 1; i >= 0; --i)
+		{
+			//tiles[i].GetComponent<Renderer>().material.SetColor("_Color", selectedTileColor);
+			tiles[i].HighlightTile(0);
+		}
+
+	}
+
+	public void DeSelectTiles(List<Tile> tiles)
+	{
+		for (int i = tiles.Count - 1; i >= 0; --i)
+		{
+			//tiles[i].GetComponent<Renderer>().material.SetColor("_Color", defaultTileColor);
+			tiles[i].RevertTile();
+		}
+
+	}
+
+	public void UpdatePlayerUnitTile(PlayerUnit pu, Tile newTile)
+	{
+		Point p = new Point(pu.TileX, pu.TileY);
+		GetTile(p).UnitId = NameAll.NULL_UNIT_ID;
+		GetTile(newTile.pos).UnitId = pu.TurnOrder;
+	}
+
+	public void UpdatePlayerUnitTileSwap(PlayerUnit pu, Tile newTile)
+	{
+		//Point p = new Point(pu.TileX, pu.TileY); //this tile has already been updated with the actor who swapped in
+		//GetTile(p).UnitId = NameAll.NULL_UNIT_ID;
+		GetTile(newTile.pos).UnitId = pu.TurnOrder;
+	}
+
+	//called in combatState to highlight certain tiles
+	public void HighlightTile(Point p, int teamId, bool doHighlight)
+	{
+		Tile t = GetTile(p);
+		if (t != null)
+		{
+			if (doHighlight)
+			{
+				//t.GetComponent<Renderer>().material.SetColor("_Color", highlightTileColor);
+				//Debug.Log("highlighting tile");
+				t.HighlightTile(teamId);
+			}
+			else
+			{
+				//t.GetComponent<Renderer>().material.SetColor("_Color", defaultTileColor);
+				t.RevertTile();
+			}
+		}
+	}
 
 	public void UnhighlightTile(PlayerUnit pu)
 	{
@@ -269,183 +275,185 @@ public class Board : MonoBehaviour
 
 	//get reflect tile
 	public Tile GetReflectTile(PlayerUnit actor, PlayerUnit target)
-    {
-        int cast_x = actor.TileX;
-        int cast_y = actor.TileY;
-        int target_x = target.TileX;
-        int target_y = target.TileY;
+	{
+		int cast_x = actor.TileX;
+		int cast_y = actor.TileY;
+		int target_x = target.TileX;
+		int target_y = target.TileY;
 
-        int x1, y1;
-        if (cast_x <= target_x)
-        {
-            x1 = target_x + Math.Abs(target_x - cast_x);
-        }
-        else {
-            x1 = target_x - Math.Abs(target_x - cast_x);
-        }
-        if (cast_y <= target_y)
-        {
-            y1 = target_y + Math.Abs(target_y - cast_y);
-        }
-        else {
-            y1 = target_y - Math.Abs(target_y - cast_y);
-        }
-        Point p = new Point(x1, y1);
-        return GetTile(p);
-    }
+		int x1, y1;
+		if (cast_x <= target_x)
+		{
+			x1 = target_x + Math.Abs(target_x - cast_x);
+		}
+		else
+		{
+			x1 = target_x - Math.Abs(target_x - cast_x);
+		}
+		if (cast_y <= target_y)
+		{
+			y1 = target_y + Math.Abs(target_y - cast_y);
+		}
+		else
+		{
+			y1 = target_y - Math.Abs(target_y - cast_y);
+		}
+		Point p = new Point(x1, y1);
+		return GetTile(p);
+	}
 
-    //find the tile furtherst away from the nearest enemey
-    //in future can be used to find tile furthest away from all enemies
-    public Point GetFarthestPoint( List<Tile> moveOptions, Tile nearestFoe, Tile currentTile )
-    {
-        Point retValue = currentTile.pos;
-        int z1 = moveOptions.Count;
-        int zMax = 0;
-        for( int i = 0; i < z1; i++)
-        {
-            int z2 = Math.Abs(nearestFoe.pos.x - moveOptions[i].pos.x) + Math.Abs(nearestFoe.pos.y - moveOptions[i].pos.y);
-            if( z2 > zMax)
-            {
-                retValue = moveOptions[i].pos;
-            }
-        }
+	//find the tile furtherst away from the nearest enemey
+	//in future can be used to find tile furthest away from all enemies
+	public Point GetFarthestPoint(List<Tile> moveOptions, Tile nearestFoe, Tile currentTile)
+	{
+		Point retValue = currentTile.pos;
+		int z1 = moveOptions.Count;
+		int zMax = 0;
+		for (int i = 0; i < z1; i++)
+		{
+			int z2 = Math.Abs(nearestFoe.pos.x - moveOptions[i].pos.x) + Math.Abs(nearestFoe.pos.y - moveOptions[i].pos.y);
+			if (z2 > zMax)
+			{
+				retValue = moveOptions[i].pos;
+			}
+		}
 
-        return retValue;
-    }
+		return retValue;
+	}
 
-    //get mimetargettile, called in CalcResolveAction
-    public Tile GetMimeTargetTile(PlayerUnit actor, PlayerUnit mime, Tile targetTile)
-    {
-        Tile actorTile = GetTile(actor);
-        Tile mimeTile = GetTile(mime);
+	//get mimetargettile, called in CalcResolveAction
+	public Tile GetMimeTargetTile(PlayerUnit actor, PlayerUnit mime, Tile targetTile)
+	{
+		Tile actorTile = GetTile(actor);
+		Tile mimeTile = GetTile(mime);
 
-        //targeting self, retur the mime coordinates
-        if ( actorTile == targetTile)
-        {
-            return mimeTile;
-        }
+		//targeting self, retur the mime coordinates
+		if (actorTile == targetTile)
+		{
+			return mimeTile;
+		}
 
-        int forwardOffset;
-        int sideOffset;
-        int xOffset = Mathf.Abs(targetTile.pos.x - actorTile.pos.x);
-        int yOffset = Mathf.Abs(targetTile.pos.y - actorTile.pos.y);
-        bool isRight; //is sideOffset to the right or left of the actor. if dead on, this doesn't matter (just adding 0)
-        int xMimeChange = 0; //added at the end to get the new point
-        int yMimeChange = 0; //added at the end to get the new point
+		int forwardOffset;
+		int sideOffset;
+		int xOffset = Mathf.Abs(targetTile.pos.x - actorTile.pos.x);
+		int yOffset = Mathf.Abs(targetTile.pos.y - actorTile.pos.y);
+		bool isRight; //is sideOffset to the right or left of the actor. if dead on, this doesn't matter (just adding 0)
+		int xMimeChange = 0; //added at the end to get the new point
+		int yMimeChange = 0; //added at the end to get the new point
 
-        //gets the direction the actor will be facing
-        Directions attackDir = actorTile.GetDirectionAttack(targetTile);
-        
-        if ( attackDir == Directions.East )
-        {
-            //side offset is >= N/S offset, thus the forward offset is the xOffset
-            forwardOffset = xOffset;
-            sideOffset = yOffset;
-            if (targetTile.pos.y < actorTile.pos.y)
-                isRight = true;
-            else
-                isRight = false;
-        }
-        else if (attackDir == Directions.West)
-        {
-            //side offset is >= N/S offset, thus the forward offset is the xOffset
-            forwardOffset = xOffset;
-            sideOffset = yOffset;
-            if (targetTile.pos.y > actorTile.pos.y)
-                isRight = true;
-            else
-                isRight = false;
-        }
-        else if (attackDir == Directions.North)
-        {
-            //side offset is < N/S offset, thus the forward offset is the y offset
-            forwardOffset = yOffset;
-            sideOffset = xOffset;
-            if (targetTile.pos.x > actorTile.pos.x)
-                isRight = true;
-            else
-                isRight = false;
-        }
-        else //SOUTH
-        {
-            //side offset is < N/S offset, thus the forward offset is the y offset
-            forwardOffset = yOffset;
-            sideOffset = xOffset;
-            if (targetTile.pos.x < actorTile.pos.x)
-                isRight = true;
-            else
-                isRight = false;
-        }
+		//gets the direction the actor will be facing
+		Directions attackDir = actorTile.GetDirectionAttack(targetTile);
 
-        if (mime.Dir == Directions.East)
-        {
-            xMimeChange = forwardOffset;
-            if (isRight)
-                yMimeChange = sideOffset * -1; //off to the right is DOWN the y axis
-            else
-                yMimeChange = sideOffset;
-            Debug.Log("E " + forwardOffset + " " + sideOffset);
-        }
-        else if (mime.Dir == Directions.West)
-        {
-            xMimeChange = forwardOffset * -1;
-            if (isRight)
-                yMimeChange = sideOffset; //off to the right is UP the y axis
-            else
-                yMimeChange = sideOffset * -1;
-            Debug.Log("W " + forwardOffset + " " + sideOffset);
-        }
-        else if (mime.Dir == Directions.North)
-        {
-            yMimeChange = forwardOffset;
-            if (isRight)
-                xMimeChange = sideOffset; //off to the right is UP the x axis
-            else
-                xMimeChange = sideOffset * -1;
-            Debug.Log("N " + forwardOffset + " " + sideOffset);
-        }
-        else //south
-        {
-            yMimeChange = forwardOffset * -1;
-            if (isRight)
-                xMimeChange = sideOffset * -1; //off to the right is DOWN the x axis
-            else
-                xMimeChange = sideOffset;
-            Debug.Log("S " + forwardOffset + " " + sideOffset);
-        }
-    
-        Point p = new Point(mimeTile.pos.x + xMimeChange, mimeTile.pos.y + yMimeChange);
-        return GetTile(p); //can return null, null check done in CalcResolveAction
-    }
+		if (attackDir == Directions.East)
+		{
+			//side offset is >= N/S offset, thus the forward offset is the xOffset
+			forwardOffset = xOffset;
+			sideOffset = yOffset;
+			if (targetTile.pos.y < actorTile.pos.y)
+				isRight = true;
+			else
+				isRight = false;
+		}
+		else if (attackDir == Directions.West)
+		{
+			//side offset is >= N/S offset, thus the forward offset is the xOffset
+			forwardOffset = xOffset;
+			sideOffset = yOffset;
+			if (targetTile.pos.y > actorTile.pos.y)
+				isRight = true;
+			else
+				isRight = false;
+		}
+		else if (attackDir == Directions.North)
+		{
+			//side offset is < N/S offset, thus the forward offset is the y offset
+			forwardOffset = yOffset;
+			sideOffset = xOffset;
+			if (targetTile.pos.x > actorTile.pos.x)
+				isRight = true;
+			else
+				isRight = false;
+		}
+		else //SOUTH
+		{
+			//side offset is < N/S offset, thus the forward offset is the y offset
+			forwardOffset = yOffset;
+			sideOffset = xOffset;
+			if (targetTile.pos.x < actorTile.pos.x)
+				isRight = true;
+			else
+				isRight = false;
+		}
 
-    public void SetTilePickUp(int tileX, int tileY, bool isEnable, int renderMode, int pickUpId = 1)
-    {
-        Tile t = GetTile(tileX, tileY);
-        if(isEnable)
-        {
-            t.PickUpId = pickUpId;   
-        }
-        else
-        {
-            t.PickUpId = 0;
-        }
+		if (mime.Dir == Directions.East)
+		{
+			xMimeChange = forwardOffset;
+			if (isRight)
+				yMimeChange = sideOffset * -1; //off to the right is DOWN the y axis
+			else
+				yMimeChange = sideOffset;
+			Debug.Log("E " + forwardOffset + " " + sideOffset);
+		}
+		else if (mime.Dir == Directions.West)
+		{
+			xMimeChange = forwardOffset * -1;
+			if (isRight)
+				yMimeChange = sideOffset; //off to the right is UP the y axis
+			else
+				yMimeChange = sideOffset * -1;
+			Debug.Log("W " + forwardOffset + " " + sideOffset);
+		}
+		else if (mime.Dir == Directions.North)
+		{
+			yMimeChange = forwardOffset;
+			if (isRight)
+				xMimeChange = sideOffset; //off to the right is UP the x axis
+			else
+				xMimeChange = sideOffset * -1;
+			Debug.Log("N " + forwardOffset + " " + sideOffset);
+		}
+		else //south
+		{
+			yMimeChange = forwardOffset * -1;
+			if (isRight)
+				xMimeChange = sideOffset * -1; //off to the right is DOWN the x axis
+			else
+				xMimeChange = sideOffset;
+			Debug.Log("S " + forwardOffset + " " + sideOffset);
+		}
 
-        if (pickUpId == 1)
-        {
-            SetPickUpObject(t, isEnable, renderMode);
-        }
-    }
+		Point p = new Point(mimeTile.pos.x + xMimeChange, mimeTile.pos.y + yMimeChange);
+		return GetTile(p); //can return null, null check done in CalcResolveAction
+	}
 
-    public void DisableUnit(PlayerUnit pu)
-    {
-        GetTile(pu).UnitId = NameAll.NULL_UNIT_ID;
-    }
+	public void SetTilePickUp(int tileX, int tileY, bool isEnable, int renderMode, int pickUpId = 1)
+	{
+		Tile t = GetTile(tileX, tileY);
+		if (isEnable)
+		{
+			t.PickUpId = pickUpId;
+		}
+		else
+		{
+			t.PickUpId = 0;
+		}
 
-    void SetPickUpObject(Tile t, bool isEnable, int renderMode)
-    {
-        if(isEnable)
-        {
-			if(renderMode != NameAll.PP_RENDER_NONE)
+		if (pickUpId == 1)
+		{
+			SetPickUpObject(t, isEnable, renderMode);
+		}
+	}
+
+	public void DisableUnit(PlayerUnit pu)
+	{
+		GetTile(pu).UnitId = NameAll.NULL_UNIT_ID;
+	}
+
+	void SetPickUpObject(Tile t, bool isEnable, int renderMode)
+	{
+		if (isEnable)
+		{
+			if (renderMode != NameAll.PP_RENDER_NONE)
 			{
 				GameObject go = Instantiate(groundCrystalPrefab) as GameObject;
 				Vector3 vec = t.transform.position;
@@ -453,11 +461,11 @@ public class Board : MonoBehaviour
 				go.transform.position = vec;
 				groundObjectDict.Add(t, go);
 			}
-            
+
 			groundTileDict.Add(t, GROUND_TILE);
-        }
-        else
-        {
+		}
+		else
+		{
 			if (renderMode != NameAll.PP_RENDER_NONE)
 			{
 				Destroy(groundObjectDict[t]);
@@ -465,7 +473,7 @@ public class Board : MonoBehaviour
 			}
 			groundTileDict.Remove(t);
 		}
-    }
+	}
 
 	//move a tile pick up to a specific tile
 	void MoveTilePickUp(Tile t, GameObject go)
@@ -489,7 +497,7 @@ public class Board : MonoBehaviour
 	}
 
 	//called in Gridworld, moves first crystal found to the new position
-		//yes this is obviously a stupid way to do it
+	//yes this is obviously a stupid way to do it
 	void MoveCrystal(int newX, int newY)
 	{
 
@@ -509,57 +517,57 @@ public class Board : MonoBehaviour
 			groundObjectDict.Remove(tKey);
 			break;
 		}
-	
+
 	}
 
 
-    //called in CombatMoveSequenceState for WindsOfFate, returns a random tile that doesn't have a unit on it
-    public Point GetRandomPoint(Point p)
-    {
-        //Debug.Log("in get random point");
-        var tempList = RandomValues(this.tiles).ToList();
-        Tile t = tempList[0];
+	//called in CombatMoveSequenceState for WindsOfFate, returns a random tile that doesn't have a unit on it
+	public Point GetRandomPoint(Point p)
+	{
+		//Debug.Log("in get random point");
+		var tempList = RandomValues(this.tiles).ToList();
+		Tile t = tempList[0];
 
-        if (t.UnitId == NameAll.NULL_UNIT_ID)
-        {
-            return t.pos;
-        }
+		if (t.UnitId == NameAll.NULL_UNIT_ID)
+		{
+			return t.pos;
+		}
 
-        return p; //defaults to entered value unless new one is found
-    }
+		return p; //defaults to entered value unless new one is found
+	}
 
-    //called in WalkAroundMainState for WindsOfFate, returns a random tile that doesn't have a unit on it
-    public Tile GetRandomTile(Tile t)
-    {
-        //Debug.Log("in get random point");
-        var tempList = RandomValues(this.tiles).ToList();
-        Tile t_new = tempList[0];
+	//called in WalkAroundMainState for WindsOfFate, returns a random tile that doesn't have a unit on it
+	public Tile GetRandomTile(Tile t)
+	{
+		//Debug.Log("in get random point");
+		var tempList = RandomValues(this.tiles).ToList();
+		Tile t_new = tempList[0];
 
-        if (t_new.UnitId == NameAll.NULL_UNIT_ID)
-        {
-            return t_new;
-        }
+		if (t_new.UnitId == NameAll.NULL_UNIT_ID)
+		{
+			return t_new;
+		}
 
-        return t; //defaults to entered value unless new one is found
-    }
+		return t; //defaults to entered value unless new one is found
+	}
 
-    //grabs a random entry for a dictionary
-    public IEnumerable<TValue> RandomValues<TKey, TValue>(IDictionary<TKey, TValue> dict)
-    {
-        System.Random rand = new System.Random();
-        List<TValue> values = Enumerable.ToList(dict.Values);
-        int size = dict.Count;
-        yield return values[rand.Next(size)];
-        //while (true)
-        //{
-        //    yield return values[rand.Next(size)];
-        //}
-    }
+	//grabs a random entry for a dictionary
+	public IEnumerable<TValue> RandomValues<TKey, TValue>(IDictionary<TKey, TValue> dict)
+	{
+		System.Random rand = new System.Random();
+		List<TValue> values = Enumerable.ToList(dict.Values);
+		int size = dict.Count;
+		yield return values[rand.Next(size)];
+		//while (true)
+		//{
+		//    yield return values[rand.Next(size)];
+		//}
+	}
 
-    #endregion
+	#endregion
 
-    #region Private
-    void ClearSearch ()
+	#region Private
+	void ClearSearch()
 	{
 		foreach (Tile t in tiles.Values)
 		{
@@ -568,16 +576,16 @@ public class Board : MonoBehaviour
 		}
 	}
 
-    void ClearSearchWalkAround(int unitId)
-    {
-        foreach (Tile t in tiles.Values)
-        {
-            //t.prev = null;
-            //t.distance = int.MaxValue;
-            t.prevDict.Remove(unitId);
-            t.distanceDict.Remove(unitId);
-        }
-    }
+	void ClearSearchWalkAround(int unitId)
+	{
+		foreach (Tile t in tiles.Values)
+		{
+			//t.prev = null;
+			//t.distance = int.MaxValue;
+			t.prevDict.Remove(unitId);
+			t.distanceDict.Remove(unitId);
+		}
+	}
 
 	//reset the board when the level is reset
 	public void ResetBoard(int renderMode)
@@ -588,7 +596,7 @@ public class Board : MonoBehaviour
 
 	void ResetGroundDict(int renderMode)
 	{
-		if(renderMode != NameAll.PP_RENDER_NONE)
+		if (renderMode != NameAll.PP_RENDER_NONE)
 		{
 			foreach (var entry in groundObjectDict)
 			{
@@ -610,7 +618,7 @@ public class Board : MonoBehaviour
 
 
 
-	void SwapReference (ref Queue<Tile> a, ref Queue<Tile> b)
+	void SwapReference(ref Queue<Tile> a, ref Queue<Tile> b)
 	{
 		Queue<Tile> temp = a;
 		a = b;
@@ -618,7 +626,7 @@ public class Board : MonoBehaviour
 	}
 	#endregion
 
-	
+
 
 	//is unit on tile that allows you to move to different map, called in WA Mode
 	public bool IsMapMove(PlayerUnit pu)
@@ -660,7 +668,7 @@ public class Board : MonoBehaviour
 	}
 
 	//find gridworld tile that has the goal and convert it to index of that tile
-		//0,0 is 0; move up x-axis increases index by 1, moving up y axis increases index by 4
+	//0,0 is 0; move up x-axis increases index by 1, moving up y axis increases index by 4
 	public int GetGridworldGoal()
 	{
 
@@ -676,15 +684,15 @@ public class Board : MonoBehaviour
 	}
 
 	//move gridworld tile to new location and return index of that new tile location
-		//assume player is on this tile, so moving to any other random tile
+	//assume player is on this tile, so moving to any other random tile
 	public int ResetGridworldGoal()
 	{
 		while (true)
 		{
-			int x = UnityEngine.Random.Range(0, this.max.x+1);
-			int y = UnityEngine.Random.Range(0, this.max.y+1);
+			int x = UnityEngine.Random.Range(0, this.max.x + 1);
+			int y = UnityEngine.Random.Range(0, this.max.y + 1);
 			Tile t = this.GetTile(x, y);
-			if(groundObjectDict.ContainsKey(t))
+			if (groundObjectDict.ContainsKey(t))
 			{
 				//continue loop
 			}
@@ -693,14 +701,14 @@ public class Board : MonoBehaviour
 				this.MoveGridworldGoal(t);
 				return t.pos.x + t.pos.y * (this.max.x + 1);
 			}
-			
+
 		}
-		
+
 	}
 
 	//move gridworld goal by updating groundObjectDict and moving the GameObject
-		//only item in groundObjectDict should be the crystal
-		//updating the tile in the dictionary it is stored at
+	//only item in groundObjectDict should be the crystal
+	//updating the tile in the dictionary it is stored at
 	void MoveGridworldGoal(Tile t)
 	{
 		GameObject go;

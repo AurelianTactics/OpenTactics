@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+///
+/// </summary>
 public class CameraRig : MonoBehaviour 
 {
 	public float speed = 3f;

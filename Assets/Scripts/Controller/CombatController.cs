@@ -1,14 +1,14 @@
-﻿//attached to object in scenes: Combat and WalkAround
-//contains many objects that are globally accessible in both modes
-    //these objects tie into CombatState. need to declare them ehre and set methods in CombatState
-//reads from PlayerPrefs to either go to InitCombatState or WalkAroundInitState
-
-
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using AurelianTactics.BlackBoxRL;
 
+/// <summary>
+/// attached to object in scenes: Combat and WalkAround
+/// contains many objects that are globally accessible in both modes
+/// these objects tie into CombatState. need to declare them ehre and set methods in CombatState
+/// reads from PlayerPrefs to either go to InitCombatState or WalkAroundInitState
+/// </summary>
 public class CombatController : StateMachine
 {
     //public CameraRig cameraRig;

@@ -1,6 +1,10 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// In Combat Scene, game progresses by transitioning from State to State
+/// CombatState.cs inherits this class and other states inherit from CombatState.cs
+/// </summary>
 public abstract class State : MonoBehaviour 
 {
 	public virtual void Enter ()

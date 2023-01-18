@@ -5,6 +5,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 
+/// <summary>
+/// Allows for saving and loading of classes
+/// </summary>
 public class Serializer
 {
     public static T Load<T>(string filename) where T : class

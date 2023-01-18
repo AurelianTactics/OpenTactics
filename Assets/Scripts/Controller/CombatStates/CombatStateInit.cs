@@ -6,19 +6,23 @@ using System.Linq;
 using UnityEngine.SceneManagement;
 using AurelianTactics.BlackBoxRL;
 
+/// <summary>
+/// State entered when entering CombatScene. Sets up the board, playerunits, etc
+/// to do: bit of a jumbled mess that should be simplified, streamlined, and documented
+/// </summary>
 public class CombatStateInit : CombatState
 {
-    bool isOffline;
+	bool isOffline;
 	bool isRLMode = false;
 	bool isRLBlackBoxMode = false; //testing RL Black Box MODE
 
-    public override void Enter()
-    {
-        base.Enter();
-        isOffline = PlayerManager.Instance.IsOfflineGame();
+	public override void Enter()
+	{
+		base.Enter();
+		isOffline = PlayerManager.Instance.IsOfflineGame();
 
 		var m_Scene = SceneManager.GetActiveScene();
-		if( m_Scene.name == "GridworldAT")
+		if (m_Scene.name == "GridworldAT")
 		{
 			owner.combatMode = NameAll.COMBAT_MODE_DEFAULT;
 			//gridworld specific
@@ -26,7 +30,7 @@ public class CombatStateInit : CombatState
 			int boardYLength = 5;
 			InitGridworldLevel(boardXLength, boardYLength);
 		}
-		else if(m_Scene.name == "DuelRL")
+		else if (m_Scene.name == "DuelRL")
 		{
 			//Debug.Log("am in duelRL");
 			owner.combatMode = NameAll.COMBAT_MODE_RL_DUEL;
@@ -44,7 +48,7 @@ public class CombatStateInit : CombatState
 				owner.isRLBlackBoxMode = true;
 				owner.worldTimeManager = new WorldTimeManager();
 				StartCoroutine(InitRLBlackBox(owner.isFirstCombatInit));
-				
+
 
 			}
 			else
@@ -52,8 +56,8 @@ public class CombatStateInit : CombatState
 				//standard combat scene
 				StartCoroutine(Init());
 			}
-			
-			
+
+
 		}
 	}
 
@@ -62,7 +66,7 @@ public class CombatStateInit : CombatState
 	//use the config to set board size, unit types etc
 	//be able to load a game from midway
 	//not ahve to read from start for the games starting stuff
-		//way too much work done every reset that should only be done once
+	//way too much work done every reset that should only be done once
 	IEnumerator InitRLBlackBox(bool isFirstInit)
 	{
 		//Load text from a JSON file (Assets/Resources/JSONFiles/default_combat.json)
@@ -126,103 +130,103 @@ public class CombatStateInit : CombatState
 	}
 
 	IEnumerator Init()
-    {
+	{
 		Debug.Log("render mode is " + owner.renderMode);
-        AddVictoryCondition();//checks size of team lists, do this before initboard or change the check
-        InitBoard(); //loads the level for the board object, spawns the players, sets the initial marker
-        yield return null;
+		AddVictoryCondition();//checks size of team lists, do this before initboard or change the check
+		InitBoard(); //loads the level for the board object, spawns the players, sets the initial marker
+		yield return null;
 		owner.isFirstCombatInit = false;
-		if(owner.renderMode == NameAll.PP_RENDER_NONE)
+		if (owner.renderMode == NameAll.PP_RENDER_NONE)
 			owner.ChangeState<GameLoopState>();
 		else
 			owner.ChangeState<CombatCutSceneState>();
 
-    }
+	}
 
-    void InitBoard()
-    {
+	void InitBoard()
+	{
 
-        LevelData ld = LoadLevel();
-        if( ld == null)
-        {
-            Debug.Log("couldn't find level, loading main menu");
-            SceneManager.LoadScene(NameAll.SCENE_MAIN_MENU);
-            return;
-        }
-        board.Load(ld);
+		LevelData ld = LoadLevel();
+		if (ld == null)
+		{
+			Debug.Log("couldn't find level, loading main menu");
+			SceneManager.LoadScene(NameAll.SCENE_MAIN_MENU);
+			return;
+		}
+		board.Load(ld);
 		board.spawnList = ld.spList;
-        //need to add the PU lists
-        List<PlayerUnit> tempList = new List<PlayerUnit>();
+		//need to add the PU lists
+		List<PlayerUnit> tempList = new List<PlayerUnit>();
 		calcMono.SpawnUnits(board, PlayerManager.Instance.GetTeamList(NameAll.TEAM_ID_GREEN), PlayerManager.Instance.GetTeamList(NameAll.TEAM_ID_RED), markerTeam1Prefab,
 			markerTeam2Prefab, isOffline, owner.isRLMode, true, owner.renderMode);
-        //SpawnUnits(PlayerManager.Instance.GetTeamList(NameAll.TEAM_ID_GREEN),
-        //    PlayerManager.Instance.GetTeamList(NameAll.TEAM_ID_RED), ld.spList, isRLMode, renderMode);
-        //PlayerManager.Instance.EditTeamLists(null, 0, NameAll.TEAM_LIST_CLEAR);//clears the red and green team lists
+		//SpawnUnits(PlayerManager.Instance.GetTeamList(NameAll.TEAM_ID_GREEN),
+		//    PlayerManager.Instance.GetTeamList(NameAll.TEAM_ID_RED), ld.spList, isRLMode, renderMode);
+		//PlayerManager.Instance.EditTeamLists(null, 0, NameAll.TEAM_LIST_CLEAR);//clears the red and green team lists
 
-        Point p = new Point((int)ld.tiles[0].x, (int)ld.tiles[0].y);
-        SelectTile(p);
-        
-        cameraMain.Open();
-        //cameraMain.Close();
-    }
+		Point p = new Point((int)ld.tiles[0].x, (int)ld.tiles[0].y);
+		SelectTile(p);
 
-    LevelData LoadLevel()
-    {
-        LevelData ld = null;
+		cameraMain.Open();
+		//cameraMain.Close();
+	}
 
-        string levelLoadType = PlayerPrefs.GetString(NameAll.PP_LEVEL_DIRECTORY, NameAll.LEVEL_DIRECTORY_AURELIAN); //Debug.Log("levelLoadType is " + levelLoadType);
-        string levelFileName = Application.dataPath;
-        int levelKey = PlayerPrefs.GetInt(NameAll.PP_COMBAT_LEVEL, 0);
-        if (levelKey >= 1000)
-            levelKey -= 1000;
-        
-        if (levelLoadType == NameAll.LEVEL_DIRECTORY_AURELIAN)
-        {
-            levelFileName += "/Custom/Levels/Aurelian/custom_" + levelKey + ".dat";
-        }
-        else if (levelLoadType == NameAll.LEVEL_DIRECTORY_CUSTOM)
-        {
-            levelFileName += "/Custom/Levels/Custom/custom_" + levelKey + ".dat";
-        }
-        else if (levelLoadType == NameAll.LEVEL_DIRECTORY_CAMPAIGN_AURELIAN || levelLoadType == NameAll.LEVEL_DIRECTORY_CAMPAIGN_CUSTOM)
-        {
-            int campaignId = PlayerPrefs.GetInt(NameAll.PP_COMBAT_CAMPAIGN_LOAD, 0);
-            var campaignLevel = CalcCode.LoadCampaignLevel(campaignId);
-            int mapNumber = campaignLevel.GetMap(levelKey); //Debug.Log("loading level campaignId, mapNumber, levelKey are " + campaignId + "," + mapNumber + "," + levelKey);
+	LevelData LoadLevel()
+	{
+		LevelData ld = null;
 
-            int battleXP = campaignLevel.GetBattleXP(levelKey);
-            int battleAP = campaignLevel.GetBattleAP(levelKey);
-            InitializeCombatStats(battleXP,battleAP);
+		string levelLoadType = PlayerPrefs.GetString(NameAll.PP_LEVEL_DIRECTORY, NameAll.LEVEL_DIRECTORY_AURELIAN); //Debug.Log("levelLoadType is " + levelLoadType);
+		string levelFileName = Application.dataPath;
+		int levelKey = PlayerPrefs.GetInt(NameAll.PP_COMBAT_LEVEL, 0);
+		if (levelKey >= 1000)
+			levelKey -= 1000;
 
-            var tempList = campaignLevel.mapList;
-            //foreach( int i in tempList)
-            //{
-            //    Debug.Log("iterating through mapList, i is " + i);
-            //}
+		if (levelLoadType == NameAll.LEVEL_DIRECTORY_AURELIAN)
+		{
+			levelFileName += "/Custom/Levels/Aurelian/custom_" + levelKey + ".dat";
+		}
+		else if (levelLoadType == NameAll.LEVEL_DIRECTORY_CUSTOM)
+		{
+			levelFileName += "/Custom/Levels/Custom/custom_" + levelKey + ".dat";
+		}
+		else if (levelLoadType == NameAll.LEVEL_DIRECTORY_CAMPAIGN_AURELIAN || levelLoadType == NameAll.LEVEL_DIRECTORY_CAMPAIGN_CUSTOM)
+		{
+			int campaignId = PlayerPrefs.GetInt(NameAll.PP_COMBAT_CAMPAIGN_LOAD, 0);
+			var campaignLevel = CalcCode.LoadCampaignLevel(campaignId);
+			int mapNumber = campaignLevel.GetMap(levelKey); //Debug.Log("loading level campaignId, mapNumber, levelKey are " + campaignId + "," + mapNumber + "," + levelKey);
 
-            levelFileName += "/Custom/Levels/Campaign_" + campaignId +"/custom_" + mapNumber + ".dat";
-        }
-        else
-        {
-            levelFileName += "/Custom/Levels/Aurelian/custom_" + levelKey + ".dat";
-        }
+			int battleXP = campaignLevel.GetBattleXP(levelKey);
+			int battleAP = campaignLevel.GetBattleAP(levelKey);
+			InitializeCombatStats(battleXP, battleAP);
 
-        if (!File.Exists(levelFileName))
-        {
-            Debug.Log("No saved map at that location " + levelFileName); //need redundancy in case of failed load
-            return null;
-        }
-        else
-        {
-            ld = Serializer.Load<LevelData>(levelFileName); //Debug.Log(levelFileName);
-            return ld;
-        }
-    }
-	
+			var tempList = campaignLevel.mapList;
+			//foreach( int i in tempList)
+			//{
+			//    Debug.Log("iterating through mapList, i is " + i);
+			//}
+
+			levelFileName += "/Custom/Levels/Campaign_" + campaignId + "/custom_" + mapNumber + ".dat";
+		}
+		else
+		{
+			levelFileName += "/Custom/Levels/Aurelian/custom_" + levelKey + ".dat";
+		}
+
+		if (!File.Exists(levelFileName))
+		{
+			Debug.Log("No saved map at that location " + levelFileName); //need redundancy in case of failed load
+			return null;
+		}
+		else
+		{
+			ld = Serializer.Load<LevelData>(levelFileName); //Debug.Log(levelFileName);
+			return ld;
+		}
+	}
+
 	void AddVictoryCondition(int victoryInt = -1919, bool isFirstInit = true)
-    {
+	{
 		int victoryType;
-		if(isFirstInit)
+		if (isFirstInit)
 		{
 			CombatVictoryCondition vc = owner.gameObject.AddComponent<CombatVictoryCondition>();
 			if (victoryInt != NameAll.NULL_INT)
@@ -248,24 +252,24 @@ public class CombatStateInit : CombatState
 			vc.VictoryType = victoryType;
 		}
 		else
-		{	
+		{
 			owner.GetComponent<CombatVictoryCondition>().Victor = Teams.None;
 		}
-    }
+	}
 
-    
-    void InitializeCombatStats(int xp, int ap)
-    {
-        int zEntry = PlayerPrefs.GetInt(NameAll.PP_COMBAT_ENTRY, NameAll.SCENE_CUSTOM_GAME);
-        if( zEntry == NameAll.SCENE_STORY_MODE)
-        {
-            PlayerManager.Instance.InitializeCombatStats(false,xp, ap);
-        }
-        else
-        {
-            PlayerManager.Instance.InitializeCombatStats(true,0,0);
-        }
-    }
+
+	void InitializeCombatStats(int xp, int ap)
+	{
+		int zEntry = PlayerPrefs.GetInt(NameAll.PP_COMBAT_ENTRY, NameAll.SCENE_CUSTOM_GAME);
+		if (zEntry == NameAll.SCENE_STORY_MODE)
+		{
+			PlayerManager.Instance.InitializeCombatStats(false, xp, ap);
+		}
+		else
+		{
+			PlayerManager.Instance.InitializeCombatStats(true, 0, 0);
+		}
+	}
 
 
 	//clear map before resetting. used only in RL mode I think

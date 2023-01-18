@@ -2,15 +2,19 @@
 using System.Collections;
 using UnityEngine.UI;
 
-public class UIBackButton : MonoBehaviour {
+/// <summary>
+/// button to indicate cancel/back
+/// </summary>
+public class UIBackButton : MonoBehaviour
+{
 
-    public void Open()
-    {
-        gameObject.SetActive(true);
-    }
+	public void Open()
+	{
+		gameObject.SetActive(true);
+	}
 
-    public void Close()
-    {
-        gameObject.SetActive(false);
-    }
+	public void Close()
+	{
+		gameObject.SetActive(false);
+	}
 }

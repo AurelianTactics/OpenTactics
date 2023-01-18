@@ -3,6 +3,9 @@ using System;
 using System.Collections;
 using Handler = System.Action<System.Object, System.Object>;
 
+/// <summary>
+///
+/// </summary>
 public static class NotificationExtensions
 {
 	public static void PostNotification (this object obj, string notificationName)

@@ -1,25 +1,29 @@
-﻿//enter here from GameLoopState (combat) or WalkAroundMainState (walkAroundMode)
-
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
-public class SlowActionState : CombatState {
+/// <summary>
+/// enter here from GameLoopState (combat) or WalkAroundMainState (walkAroundMode)
+/// resolves slowactions from queue if slowactions are timed to resolve
+/// slow actions are acrions that do not resolve on the active turn
+/// </summary>
+public class SlowActionState : CombatState
+{
 
-    public const string DidSlowActionResolve = "SlowAction.DidResolve";
-    bool isOffline;
+	public const string DidSlowActionResolve = "SlowAction.DidResolve";
+	bool isOffline;
 
-    public override void Enter()
-    {
-        base.Enter();
-        isOffline = PlayerManager.Instance.IsOfflineGame();
+	public override void Enter()
+	{
+		base.Enter();
+		isOffline = PlayerManager.Instance.IsOfflineGame();
 		//StartCoroutine(DoPhase());
 		DoPhase(owner.renderMode);
-    }
+	}
 
-    public override void Exit()
-    {
-        base.Exit();
-    }
+	public override void Exit()
+	{
+		base.Exit();
+	}
 
 	void DoPhase(int renderMode)
 	{
@@ -81,7 +85,7 @@ public class SlowActionState : CombatState {
 				{
 					SpellManager.Instance.RemoveSpellSlowByObject(ss); //i'm not sure why I remove the SS here and not earlier
 					PlayerManager.Instance.GetPlayerUnit(ss.UnitId).Dir = startDir;
-				}				
+				}
 			}
 		}
 

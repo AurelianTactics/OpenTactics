@@ -7,7 +7,8 @@ using UnityEngine.SceneManagement;
 using System;
 
 /// <summary>
-/// Guides the ItemBuilder scene. Creates custom items that are saved in Assets/Custom/Items and can be equipped by various characters in for custom game and story mode
+/// Guides the ItemBuilder scene. Creates custom items that are saved in Assets/Custom/Items 
+/// and can be equipped by various characters in for custom game and story mode
 /// </summary>
 public class ItemBuilderController : MonoBehaviour {
 

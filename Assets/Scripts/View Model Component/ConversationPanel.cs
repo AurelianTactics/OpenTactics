@@ -2,6 +2,9 @@
 using UnityEngine.UI;
 using System.Collections;
 
+/// <summary>
+/// in cutscene state manages the text panel
+/// </summary>
 public class ConversationPanel : MonoBehaviour 
 {
 	public Text message;

@@ -2,19 +2,24 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class GameLoopState : CombatState {
+/// <summary>
+/// Orchestrates Combat and handles the transitions between states for most of the gameloop
+/// to do: document and clean up
+/// </summary>
+public class GameLoopState : CombatState
+{
 
-    static Phases loopPhase = Phases.StatusTick; //what phase the game loop is in, due to Mime, Counter, QuickFlag the "current" phase can be different
-    static Phases lastingPhase = Phases.StatusTick; //so loop phase knows where to return to after jumping to an active turn/counter/mime
-    static Phases flagCheckPhase = Phases.SlowAction;
-    bool doLoop = false;
-    bool isOffline = true;
-    bool isMasterClient;
+	static Phases loopPhase = Phases.StatusTick; //what phase the game loop is in, due to Mime, Counter, QuickFlag the "current" phase can be different
+	static Phases lastingPhase = Phases.StatusTick; //so loop phase knows where to return to after jumping to an active turn/counter/mime
+	static Phases flagCheckPhase = Phases.SlowAction;
+	bool doLoop = false;
+	bool isOffline = true;
+	bool isMasterClient;
 
 	bool isRLEndNotificationSent;
 	const string RLEndEpisode = "ReinforcementLearning.EndEpisode"; //end episode notification sent to RL code
 	const string RLResetGame = "ReinforcementLearning.ResetGame"; //reset game, sent from RL code to this state
-	// show top menu turns
+																  // show top menu turns
 	const string refreshTurns = "refreshTurns";
 
 	//multiplayer checks for DC from opponent
@@ -22,23 +27,23 @@ public class GameLoopState : CombatState {
 	private float delay = 30.0f;
 
 	public override void Enter()
-    {
-        base.Enter();
-        //Debug.Log("in game loop state");
-        doLoop = true;
-        isOffline = PlayerManager.Instance.IsOfflineGame();
-        isMasterClient = PlayerManager.Instance.isMPMasterClient();
+	{
+		base.Enter();
+		//Debug.Log("in game loop state");
+		doLoop = true;
+		isOffline = PlayerManager.Instance.IsOfflineGame();
+		isMasterClient = PlayerManager.Instance.isMPMasterClient();
 		isRLEndNotificationSent = false;
-        EnableObservers();
-        if (!isOffline && !isMasterClient)
-        {
-            //Other (P2) just waits in the phase until receiving a notification
-            //based on the notification phase, does various states
-            doLoop = false;
-            PlayerManager.Instance.SetMPStandby(); //Other sends this to let master know P2
-        }
-            
-    }
+		EnableObservers();
+		if (!isOffline && !isMasterClient)
+		{
+			//Other (P2) just waits in the phase until receiving a notification
+			//based on the notification phase, does various states
+			doLoop = false;
+			PlayerManager.Instance.SetMPStandby(); //Other sends this to let master know P2
+		}
+
+	}
 
 
 	public override void Exit()
@@ -48,18 +53,18 @@ public class GameLoopState : CombatState {
 		DisableObservers();
 	}
 
-    void Update()
-    {
-        if(doLoop)
-        {
-            
-            //Debug.Log("looping through game loop: " + loopPhase);
-            if ( isOffline)
-            {
-                if (IsBattleOver())
-                {
+	void Update()
+	{
+		if (doLoop)
+		{
+
+			//Debug.Log("looping through game loop: " + loopPhase);
+			if (isOffline)
+			{
+				if (IsBattleOver())
+				{
 					//Debug.Log("batte is over 0");
-					if(owner.combatMode == NameAll.COMBAT_MODE_RL_DUEL)
+					if (owner.combatMode == NameAll.COMBAT_MODE_RL_DUEL)
 					{
 						//Debug.Log("batte is over 1");
 						if (!isRLEndNotificationSent)
@@ -73,16 +78,16 @@ public class GameLoopState : CombatState {
 						owner.ChangeState<CombatCutSceneState>(); //online: call it inside gameloop in MP so that Other is ready
 
 					return;
-                }
-                DoGameLoop();
-            }
-            else
-            {
-                if (isMasterClient)
-                    ExecuteMPGameLoop();
-            }
+				}
+				DoGameLoop();
+			}
+			else
+			{
+				if (isMasterClient)
+					ExecuteMPGameLoop();
+			}
 
-        }
+		}
 
 
 		if (!isOffline)
@@ -114,7 +119,7 @@ public class GameLoopState : CombatState {
 		else if (loopPhase == Phases.SlowActionTick) //decrements all slowaction ticks. when slow action reaches 0 ticks, it is executed
 		{
 			lastingPhase = Phases.SlowActionTick;
-			SpellManager.Instance.SlowActionTickPhase(); 
+			SpellManager.Instance.SlowActionTickPhase();
 			loopPhase = Phases.SlowAction;
 		}
 		else if (loopPhase == Phases.SlowAction) //executes slow actions
@@ -186,7 +191,7 @@ public class GameLoopState : CombatState {
 						}
 						else
 						{
-							
+
 							if (owner.renderMode != NameAll.PP_RENDER_NONE)
 							{
 								turn.phaseStart = 0;//next turn will be a full turn, this turn already acted and will complete turn below
@@ -282,7 +287,7 @@ public class GameLoopState : CombatState {
 		//else if (loopPhase == Phases.EndActiveTurn) //doing this after a unit ends his turn
 	}
 
-	
+
 
 	//only done in non-render mode
 	//in render mode this is choosing actions and targets
@@ -308,7 +313,7 @@ public class GameLoopState : CombatState {
 			//StartCoroutine(AIStatusTurn());
 			ComputerTurn();
 		}
-		else if( driver == Drivers.BlackBoxRL)
+		else if (driver == Drivers.BlackBoxRL)
 		{
 			BlackBoxRLTurn();
 		}
@@ -319,7 +324,7 @@ public class GameLoopState : CombatState {
 			{
 				loopPhase = Phases.RLWait;
 				this.PostNotification(RLRequestAction, turn);
-			}			
+			}
 			//Debug.Log("CombatComandSelectionState, sending notification to RLRequestAction");
 		}
 		else
@@ -336,7 +341,7 @@ public class GameLoopState : CombatState {
 	void BlackBoxRLTurn()
 	{
 		// continually hit here until the action is ready. might make sense to change this to a notification style system
-		if(this.owner.worldTimeManager.agentSession.avatar.GetNextActionState() == AurelianTactics.BlackBoxRL.NextActionState.Ready)
+		if (this.owner.worldTimeManager.agentSession.avatar.GetNextActionState() == AurelianTactics.BlackBoxRL.NextActionState.Ready)
 		{
 			List<int> actionList = new List<int>(this.owner.worldTimeManager.agentSession.avatar.actionList);
 			this.owner.worldTimeManager.agentSession.avatar.SetNextActionState(AurelianTactics.BlackBoxRL.NextActionState.InProgress);
@@ -358,7 +363,7 @@ public class GameLoopState : CombatState {
 	bool IsValidTurn(CombatTurn tu)
 	{
 		//other checks done in ExecuteBlackBoxTurn
-		if (tu.plan ==  null || (tu.plan.isActFirst && tu.plan.spellName == null))
+		if (tu.plan == null || (tu.plan.isActFirst && tu.plan.spellName == null))
 			return false;
 
 		return true;
@@ -442,11 +447,11 @@ public class GameLoopState : CombatState {
 			//Debug.Log("in RL turn 2");
 			RLMovePhase();
 		}
-		else if ( (turn.plan.isActFirst && turn.hasUnitActed == false && turn.plan.spellName != null)
-			|| (!turn.plan.isActFirst && turn.hasUnitActed == false && turn.plan.spellName != null) )
+		else if ((turn.plan.isActFirst && turn.hasUnitActed == false && turn.plan.spellName != null)
+			|| (!turn.plan.isActFirst && turn.hasUnitActed == false && turn.plan.spellName != null))
 		{
 			//Debug.Log("in RL turn 1");
-			RLActPhase();		
+			RLActPhase();
 		}
 		else
 		{
@@ -487,7 +492,7 @@ public class GameLoopState : CombatState {
 			{
 				int rollChance = 100 + (turn.actor.StatTotalMove - MapTileManager.Instance.GetDistanceBetweenTiles(turn.actor.TileX, turn.actor.TileY, owner.currentTile.pos.x, owner.currentTile.pos.y)) * 10;
 				int roll = UnityEngine.Random.Range(1, 101);
-				PlayerManager.Instance.AddCombatLogSaveObject(NameAll.COMBAT_LOG_TYPE_MOVE, NameAll.COMBAT_LOG_SUBTYPE_MOVE_TELEPORT_ROLL, rollResult:roll, rollChance:rollChance);
+				PlayerManager.Instance.AddCombatLogSaveObject(NameAll.COMBAT_LOG_TYPE_MOVE, NameAll.COMBAT_LOG_SUBTYPE_MOVE_TELEPORT_ROLL, rollResult: roll, rollChance: rollChance);
 				if (roll > rollChance)
 				{
 					confirmMove = false;
@@ -505,7 +510,7 @@ public class GameLoopState : CombatState {
 
 		if (confirmMove)
 		{
-			PlayerManager.Instance.SetUnitTile(board, turn.actor.TurnOrder, owner.currentTile, isAddCombatLog:true);
+			PlayerManager.Instance.SetUnitTile(board, turn.actor.TurnOrder, owner.currentTile, isAddCombatLog: true);
 			DoTilePickUp(owner.renderMode);
 			if (turn.actor.IsOnMoveEffect())
 			{
@@ -529,8 +534,8 @@ public class GameLoopState : CombatState {
 
 			board.SetTilePickUp(turn.actor.TileX, turn.actor.TileY, false, renderMode, t.PickUpId);
 			//fully restores HP and MP
-			PlayerManager.Instance.AlterUnitStat(NameAll.REMOVE_STAT_HEAL, turn.actor.StatTotalMaxLife, NameAll.STAT_TYPE_HP, turn.actor.TurnOrder, 
-				combatLogSubType:NameAll.COMBAT_LOG_SUBTYPE_CRYSTAL_PICK_UP);
+			PlayerManager.Instance.AlterUnitStat(NameAll.REMOVE_STAT_HEAL, turn.actor.StatTotalMaxLife, NameAll.STAT_TYPE_HP, turn.actor.TurnOrder,
+				combatLogSubType: NameAll.COMBAT_LOG_SUBTYPE_CRYSTAL_PICK_UP);
 			PlayerManager.Instance.AlterUnitStat(NameAll.REMOVE_STAT_HEAL, turn.actor.StatTotalMaxMP, NameAll.STAT_TYPE_MP, turn.actor.TurnOrder,
 				combatLogSubType: NameAll.COMBAT_LOG_SUBTYPE_CRYSTAL_PICK_UP);
 		}
@@ -628,7 +633,7 @@ public class GameLoopState : CombatState {
 	void DoReaction(bool isReaction, bool isMime, bool isMovement)
 	{
 		SpellReaction sr;
-		if(isMime)
+		if (isMime)
 			sr = SpellManager.Instance.GetNextMimeQueue();
 		else
 			sr = SpellManager.Instance.GetNextSpellReaction();
@@ -639,7 +644,7 @@ public class GameLoopState : CombatState {
 			string battleMessage;
 			if (isMime)
 				battleMessage = "Mimic: " + ssTurn.spellName.AbilityName;
-			else if( isMovement)
+			else if (isMovement)
 				battleMessage = "Move: " + ssTurn.spellName.AbilityName;
 			else
 				battleMessage = "Counter: " + ssTurn.spellName.AbilityName;
@@ -696,250 +701,250 @@ public class GameLoopState : CombatState {
 			PlayerManager.Instance.SetPUODirectionMidTurn(ssTurn.actor.TurnOrder, startDir);
 			PlayerManager.Instance.GetPlayerUnit(ssTurn.actor.TurnOrder).Dir = startDir;
 		}
-		
+
 		yield return null;
 	}
 
 	#endregion
 
 	public bool IsOpponentReady()
-    {
-        return PlayerManager.Instance.IsOpponentInStandbyAndReady();
-    }
+	{
+		return PlayerManager.Instance.IsOpponentInStandbyAndReady();
+	}
 
-    public void ExecuteMPGameLoop()
-    {
-        if (!IsOpponentReady())
-        {
-            //Debug.Log("opponent isn't ready");
-            return;
-        }
+	public void ExecuteMPGameLoop()
+	{
+		if (!IsOpponentReady())
+		{
+			//Debug.Log("opponent isn't ready");
+			return;
+		}
 
-        if (IsBattleOver())
-        {
-            owner.ChangeState<CombatCutSceneState>();
-            return;
-        }
-            
+		if (IsBattleOver())
+		{
+			owner.ChangeState<CombatCutSceneState>();
+			return;
+		}
 
-        if (loopPhase == Phases.StatusTick)
-        {
-            PlayerManager.Instance.SendMPPhase(loopPhase);
-            lastingPhase = Phases.StatusTick;
-            loopPhase = Phases.SlowActionTick; //Debug.Log("doing statusTick decrement phase");
-			//owner.ChangeState<StatusCheckState>(); //decrements all lasting statuses, if any expire update combat log and show them expiring
+
+		if (loopPhase == Phases.StatusTick)
+		{
+			PlayerManager.Instance.SendMPPhase(loopPhase);
+			lastingPhase = Phases.StatusTick;
+			loopPhase = Phases.SlowActionTick; //Debug.Log("doing statusTick decrement phase");
+											   //owner.ChangeState<StatusCheckState>(); //decrements all lasting statuses, if any expire update combat log and show them expiring
 			StatusManager.Instance.StatusCheckPhase(); //decrements all lasting statuses, if any expire update combat log and show them expiring.
 		}
-        else if (loopPhase == Phases.SlowActionTick)
-        {
-            //no seperate phase or game state, decrements Slow Action spells and sends an RPC to Other to do the same
-            lastingPhase = Phases.SlowActionTick;
-            SpellManager.Instance.SlowActionTickPhase();
-            loopPhase = Phases.SlowAction;
-        }
-        else if (loopPhase == Phases.SlowAction)
-        {
-            lastingPhase = Phases.SlowAction;
-            //check for quick. mime, and counter flags
-            flagCheckPhase = Phases.SlowAction;
-            loopPhase = CheckForFlag(loopPhase);
-            if (loopPhase == Phases.SlowAction)
-            {
-                if (SpellManager.Instance.GetNextSlowAction() != null)
-                {
-                    owner.ChangeState<SlowActionState>();
-                }
-                else
-                {
-                    loopPhase = Phases.CTIncrement;
-                }
-            }
-        }
-        else if (loopPhase == Phases.CTIncrement)
-        {
-            lastingPhase = Phases.CTIncrement;
-            PlayerManager.Instance.IncrementCTPhase();
-            loopPhase = Phases.ActiveTurn;
+		else if (loopPhase == Phases.SlowActionTick)
+		{
+			//no seperate phase or game state, decrements Slow Action spells and sends an RPC to Other to do the same
+			lastingPhase = Phases.SlowActionTick;
+			SpellManager.Instance.SlowActionTickPhase();
+			loopPhase = Phases.SlowAction;
+		}
+		else if (loopPhase == Phases.SlowAction)
+		{
+			lastingPhase = Phases.SlowAction;
+			//check for quick. mime, and counter flags
+			flagCheckPhase = Phases.SlowAction;
+			loopPhase = CheckForFlag(loopPhase);
+			if (loopPhase == Phases.SlowAction)
+			{
+				if (SpellManager.Instance.GetNextSlowAction() != null)
+				{
+					owner.ChangeState<SlowActionState>();
+				}
+				else
+				{
+					loopPhase = Phases.CTIncrement;
+				}
+			}
+		}
+		else if (loopPhase == Phases.CTIncrement)
+		{
+			lastingPhase = Phases.CTIncrement;
+			PlayerManager.Instance.IncrementCTPhase();
+			loopPhase = Phases.ActiveTurn;
 
-            //loopPhase = CheckForFlag(loopPhase); //not sure if check is needed
-            //if( loopPhase == Phases.CTIncrement)
-            //{
-            //PlayerManager.Instance.IncrementCTPhase();
-            //loopPhase = Phases.ActiveTurn;
-            //lastingPhase = Phases.StatusTick; //starts the loop over after all activeturns are done, is a check in ActiveTurn to make sure they are all done before going to lasting phase
-            //} 
-        }
-        else if (loopPhase == Phases.ActiveTurn)
-        {
-            //turn reached from coming from proper phase
-            if (lastingPhase == Phases.CTIncrement || lastingPhase == Phases.ActiveTurn)
-            {
-                lastingPhase = Phases.ActiveTurn;
-                if (CheckForActiveTurn())
-                {
-                    flagCheckPhase = Phases.ActiveTurn; //in case of reaction or mime state, the loop returns to the proper state
-                    //either quickflag (which is handled below), reaction flag (goes to reaction state then comes back here, mime flag (goes to mime state then returns here), or AT phase which is handled here
-                    loopPhase = CheckForFlag(loopPhase, turn.phaseStart);
-                    if (loopPhase == Phases.Quick)
-                    {
-                        loopPhase = Phases.ActiveTurn;
-                        owner.ChangeState<ActiveTurnState>();
-                    }
-                    else if (loopPhase == Phases.ActiveTurn)
-                    {
-                        //either turn start or mid turn, if turn.phaseStart = 0 then it is turn start
-                        //need this because after every action, need to check for reactions and mime which can send the game loop to a different stat
-                        if (turn.phaseStart == 0)
-                        {
-                            //Debug.Log("changing state to Active turn state");
-                            owner.ChangeState<ActiveTurnState>();
-                        }
-                        else
-                        {
-                            turn.phaseStart = 0;//next turn will be a full turn, this turn already acted and will complete turn below
-                            owner.ChangeState<CombatCommandSelectionState>();
-                        }
-                    }
-                }
-                else
-                {
-                    loopPhase = Phases.StatusTick; //returns to the beginning of the loop
-                }
-            }
-            else
-            {
-                //came here from slow action raising a quick flag, will only do the quick flags or complete the turn that was started due to a quick flag
-                if (PlayerManager.Instance.QuickFlagCheckPhase() || turn.phaseStart != 0)
-                {
-                    flagCheckPhase = Phases.ActiveTurn; //in case of reaction or mime state, the loop returns to the proper state
-                    //either quickflag (which is handled below), reaction flag (goes to reaction state then comes back here, mime flag (goes to mime state then returns here), or AT phase which is handled here
-                    loopPhase = CheckForFlag(loopPhase, turn.phaseStart);
-                    if (loopPhase == Phases.Quick)
-                    {
-                        loopPhase = Phases.ActiveTurn;
-                        owner.ChangeState<ActiveTurnState>();
-                    }
-                    else if (loopPhase == Phases.ActiveTurn)
-                    {
-                        //either turn start or mid turn, if turn.phaseStart = 0 then it is turn start
-                        //need this because after every action, need to check for reactions and mime which can send the game loop to a different state
-                        if (turn.phaseStart == 0)
-                        {
-                            owner.ChangeState<ActiveTurnState>(); Debug.Log("Should never reach this part of the gameLoop code");
-                        }
-                        else
-                        {
-                            turn.phaseStart = 0;//next turn will be a full turn, this turn already acted and will complete turn below
-                            owner.ChangeState<CombatCommandSelectionState>();
-                        }
-                    }
-                }
-                else
-                {
-                    loopPhase = lastingPhase; //returns to SlowAction
-                }
-            }
+			//loopPhase = CheckForFlag(loopPhase); //not sure if check is needed
+			//if( loopPhase == Phases.CTIncrement)
+			//{
+			//PlayerManager.Instance.IncrementCTPhase();
+			//loopPhase = Phases.ActiveTurn;
+			//lastingPhase = Phases.StatusTick; //starts the loop over after all activeturns are done, is a check in ActiveTurn to make sure they are all done before going to lasting phase
+			//} 
+		}
+		else if (loopPhase == Phases.ActiveTurn)
+		{
+			//turn reached from coming from proper phase
+			if (lastingPhase == Phases.CTIncrement || lastingPhase == Phases.ActiveTurn)
+			{
+				lastingPhase = Phases.ActiveTurn;
+				if (CheckForActiveTurn())
+				{
+					flagCheckPhase = Phases.ActiveTurn; //in case of reaction or mime state, the loop returns to the proper state
+														//either quickflag (which is handled below), reaction flag (goes to reaction state then comes back here, mime flag (goes to mime state then returns here), or AT phase which is handled here
+					loopPhase = CheckForFlag(loopPhase, turn.phaseStart);
+					if (loopPhase == Phases.Quick)
+					{
+						loopPhase = Phases.ActiveTurn;
+						owner.ChangeState<ActiveTurnState>();
+					}
+					else if (loopPhase == Phases.ActiveTurn)
+					{
+						//either turn start or mid turn, if turn.phaseStart = 0 then it is turn start
+						//need this because after every action, need to check for reactions and mime which can send the game loop to a different stat
+						if (turn.phaseStart == 0)
+						{
+							//Debug.Log("changing state to Active turn state");
+							owner.ChangeState<ActiveTurnState>();
+						}
+						else
+						{
+							turn.phaseStart = 0;//next turn will be a full turn, this turn already acted and will complete turn below
+							owner.ChangeState<CombatCommandSelectionState>();
+						}
+					}
+				}
+				else
+				{
+					loopPhase = Phases.StatusTick; //returns to the beginning of the loop
+				}
+			}
+			else
+			{
+				//came here from slow action raising a quick flag, will only do the quick flags or complete the turn that was started due to a quick flag
+				if (PlayerManager.Instance.QuickFlagCheckPhase() || turn.phaseStart != 0)
+				{
+					flagCheckPhase = Phases.ActiveTurn; //in case of reaction or mime state, the loop returns to the proper state
+														//either quickflag (which is handled below), reaction flag (goes to reaction state then comes back here, mime flag (goes to mime state then returns here), or AT phase which is handled here
+					loopPhase = CheckForFlag(loopPhase, turn.phaseStart);
+					if (loopPhase == Phases.Quick)
+					{
+						loopPhase = Phases.ActiveTurn;
+						owner.ChangeState<ActiveTurnState>();
+					}
+					else if (loopPhase == Phases.ActiveTurn)
+					{
+						//either turn start or mid turn, if turn.phaseStart = 0 then it is turn start
+						//need this because after every action, need to check for reactions and mime which can send the game loop to a different state
+						if (turn.phaseStart == 0)
+						{
+							owner.ChangeState<ActiveTurnState>(); Debug.Log("Should never reach this part of the gameLoop code");
+						}
+						else
+						{
+							turn.phaseStart = 0;//next turn will be a full turn, this turn already acted and will complete turn below
+							owner.ChangeState<CombatCommandSelectionState>();
+						}
+					}
+				}
+				else
+				{
+					loopPhase = lastingPhase; //returns to SlowAction
+				}
+			}
 
-        }
-        else if (loopPhase == Phases.Mime)
-        {
-            if (flagCheckPhase == Phases.ActiveTurn)
-                loopPhase = Phases.ActiveTurn; //set back to active turn, if there is more 1 flag it'll come back here again
-            else
-                loopPhase = Phases.SlowAction;
-            owner.ChangeState<MimeState>();
-        }
-        else if (loopPhase == Phases.Reaction)
-        {
-            if (flagCheckPhase == Phases.ActiveTurn)
-                loopPhase = Phases.ActiveTurn; //set back to active turn, if there is more 1 flag it'll come back here again
-            else
-                loopPhase = Phases.SlowAction;
-            owner.ChangeState<ReactionState>();
-        }
-        else if (loopPhase == Phases.Quick)
-        {
-            //for now just moves to activeturn, active turn handles the quickflags etc
-            loopPhase = Phases.ActiveTurn;
-        }
-        //else if (loopPhase == Phases.EndActiveTurn) //doing this after a unit ends his turn
-        //{
+		}
+		else if (loopPhase == Phases.Mime)
+		{
+			if (flagCheckPhase == Phases.ActiveTurn)
+				loopPhase = Phases.ActiveTurn; //set back to active turn, if there is more 1 flag it'll come back here again
+			else
+				loopPhase = Phases.SlowAction;
+			owner.ChangeState<MimeState>();
+		}
+		else if (loopPhase == Phases.Reaction)
+		{
+			if (flagCheckPhase == Phases.ActiveTurn)
+				loopPhase = Phases.ActiveTurn; //set back to active turn, if there is more 1 flag it'll come back here again
+			else
+				loopPhase = Phases.SlowAction;
+			owner.ChangeState<ReactionState>();
+		}
+		else if (loopPhase == Phases.Quick)
+		{
+			//for now just moves to activeturn, active turn handles the quickflags etc
+			loopPhase = Phases.ActiveTurn;
+		}
+		//else if (loopPhase == Phases.EndActiveTurn) //doing this after a unit ends his turn
+		//{
 
-        //}
+		//}
 
-    }
+	}
 
- 
-    //counterflag goes first, then mimeflag, then quickflag
-    Phases CheckForFlag(Phases currentPhase, int midActiveTurn = 0)
-    {
-        //Debug.Log("checking for flag");
-        if (SpellManager.Instance.IsSpellReaction() )
-        {
-            //Debug.Log("checking for flag is reaction");
-            return Phases.Reaction;
-        }
-        else if (SpellManager.Instance.GetNextMimeQueue() != null)
-        {
-            return Phases.Mime;
-        }
-        else if (PlayerManager.Instance.QuickFlagCheckPhase() && midActiveTurn == 0)
-        {
-            //mid turn indicator is for ActiveTurns, can't jump from a midActiveTurn active turn into a Quick turn  
-            return Phases.Quick;
-        }
-        return currentPhase;
-    }
 
-    bool CheckForActiveTurn()
-    {
-        if( PlayerManager.Instance.GetNextActiveTurnPlayerUnit(isSetQuickFlagToFalse:false) != null) //don't set quickflag to false, only do that when getting the active unit
-        {
-            return true;
-        }
-        return false;
-    }
+	//counterflag goes first, then mimeflag, then quickflag
+	Phases CheckForFlag(Phases currentPhase, int midActiveTurn = 0)
+	{
+		//Debug.Log("checking for flag");
+		if (SpellManager.Instance.IsSpellReaction())
+		{
+			//Debug.Log("checking for flag is reaction");
+			return Phases.Reaction;
+		}
+		else if (SpellManager.Instance.GetNextMimeQueue() != null)
+		{
+			return Phases.Mime;
+		}
+		else if (PlayerManager.Instance.QuickFlagCheckPhase() && midActiveTurn == 0)
+		{
+			//mid turn indicator is for ActiveTurns, can't jump from a midActiveTurn active turn into a Quick turn  
+			return Phases.Quick;
+		}
+		return currentPhase;
+	}
+
+	bool CheckForActiveTurn()
+	{
+		if (PlayerManager.Instance.GetNextActiveTurnPlayerUnit(isSetQuickFlagToFalse: false) != null) //don't set quickflag to false, only do that when getting the active unit
+		{
+			return true;
+		}
+		return false;
+	}
 
 
 	#region notifications
 	//listeners that need to be able to be called from anywhere like StatusManager and crystalize
 	const string DidStatusManager = "StatusManager.Did";
-    const string CombatMenuAdd = "CombatMenu.AddItem";
-    //const string MultiplayerGameLoop = "Multiplayer.GameLoop"; //called from PlayerManager for Other (p2)
-    //const string MultiplayerSpellSlow = "Multiplayer.SpellSlow";
-    //const string MultiplayerReaction = "Multiplayer.Reaction";//mime and reaction
-    //const string MultiplayerActiveTurnPreTurn = "Multiplayer.ActiveTurnPreTurn";//active turn start, show whose turn it is
-    //const string MultiplayerActiveTurnMidTurn = "Multiplayer.ActiveTurnMidTurn";//active turn mid-turn. Master raises it after other has told results of input to Master and vice versa
-    //const string MultiplayerCommandTurn = "Multiplayer.CommandTurn";//other gets to input an action
-    //const string MultiplayerMove = "Multiplayer.Move";//other gets the actual move that happens and starts the move
-    //const string MultiplayerDisableUnit = "Multiplayer.DisableUnit";//does the call to board to disable the unit
-    //const string MultiplayerTilePickUp = "Multiplayer.RemoveTilePickUp";
-    //const string MultiplayerGameOver = "Multiplayer.GameOver";
-    //const string MultiplayerMessageNotification = "Multiplayer.Message";
+	const string CombatMenuAdd = "CombatMenu.AddItem";
+	//const string MultiplayerGameLoop = "Multiplayer.GameLoop"; //called from PlayerManager for Other (p2)
+	//const string MultiplayerSpellSlow = "Multiplayer.SpellSlow";
+	//const string MultiplayerReaction = "Multiplayer.Reaction";//mime and reaction
+	//const string MultiplayerActiveTurnPreTurn = "Multiplayer.ActiveTurnPreTurn";//active turn start, show whose turn it is
+	//const string MultiplayerActiveTurnMidTurn = "Multiplayer.ActiveTurnMidTurn";//active turn mid-turn. Master raises it after other has told results of input to Master and vice versa
+	//const string MultiplayerCommandTurn = "Multiplayer.CommandTurn";//other gets to input an action
+	//const string MultiplayerMove = "Multiplayer.Move";//other gets the actual move that happens and starts the move
+	//const string MultiplayerDisableUnit = "Multiplayer.DisableUnit";//does the call to board to disable the unit
+	//const string MultiplayerTilePickUp = "Multiplayer.RemoveTilePickUp";
+	//const string MultiplayerGameOver = "Multiplayer.GameOver";
+	//const string MultiplayerMessageNotification = "Multiplayer.Message";
 
-    void OnEnable()
-    {
-        this.AddObserver(OnStatusManagerNotification, DidStatusManager);
-        this.AddObserver(OnQuitNotification, NameAll.NOTIFICATION_EXIT_GAME);
+	void OnEnable()
+	{
+		this.AddObserver(OnStatusManagerNotification, DidStatusManager);
+		this.AddObserver(OnQuitNotification, NameAll.NOTIFICATION_EXIT_GAME);
 		this.AddObserver(OnResetNotification, NameAll.NOTIFICATION_RESET_GAME);
 		this.AddObserver(OnRLResetGame, RLResetGame);
 	}
 
-    void OnDisable()
-    {
-        DirectRemoveObservers();
-    }
+	void OnDisable()
+	{
+		DirectRemoveObservers();
+	}
 
-    void DirectRemoveObservers()
-    {
-        this.RemoveObserver(OnStatusManagerNotification, DidStatusManager);
-        this.RemoveObserver(OnQuitNotification, NameAll.NOTIFICATION_EXIT_GAME);
+	void DirectRemoveObservers()
+	{
+		this.RemoveObserver(OnStatusManagerNotification, DidStatusManager);
+		this.RemoveObserver(OnQuitNotification, NameAll.NOTIFICATION_EXIT_GAME);
 		this.RemoveObserver(OnResetNotification, NameAll.NOTIFICATION_RESET_GAME);
 		this.RemoveObserver(OnRLResetGame, RLResetGame);
 	}
 
-    void EnableObservers()
-    {
+	void EnableObservers()
+	{
 		//multiplayer deprecated for now
 		//if (!PlayerManager.Instance.IsOfflineGame() && !PlayerManager.Instance.isMPMasterClient())
 		//{
@@ -958,87 +963,87 @@ public class GameLoopState : CombatState {
 	}
 
 	void DisableObservers()
-    {
+	{
 		//multiplayer deprecated for now
-        //if (!PlayerManager.Instance.IsOfflineGame() && !PlayerManager.Instance.isMPMasterClient())
-        //{
-        //    this.RemoveObserver(OnMultiplayerPhaseNotification, MultiplayerGameLoop);
-        //    this.RemoveObserver(OnMultiplayerSpellSlowNotification, MultiplayerSpellSlow);
-        //    this.RemoveObserver(OnMultiplayerReactionNotification, MultiplayerReaction);
-        //    this.RemoveObserver(OnMultiplayerActiveTurnPreTurnNotification, MultiplayerActiveTurnPreTurn);
-        //    this.RemoveObserver(OnMultiplayerCommandTurnNotification, MultiplayerCommandTurn);
-        //    this.RemoveObserver(OnMultiplayerTurnInputNotification, MultiplayerActiveTurnMidTurn);
-        //    this.RemoveObserver(OnMultiplayerMoveNotification, MultiplayerMove);
-        //    this.RemoveObserver(OnMultiplayerDisableUnitNotification, MultiplayerDisableUnit);
-        //    this.RemoveObserver(OnMultiplayerRemoveTilePickUpNotification, MultiplayerTilePickUp);
-        //    this.RemoveObserver(OnMultiplayerGameOver, MultiplayerGameOver);
-        //    this.RemoveObserver(OnMultiplayerBattleMessageControllerNotification, MultiplayerMessageNotification);
-        //}
-    }
+		//if (!PlayerManager.Instance.IsOfflineGame() && !PlayerManager.Instance.isMPMasterClient())
+		//{
+		//    this.RemoveObserver(OnMultiplayerPhaseNotification, MultiplayerGameLoop);
+		//    this.RemoveObserver(OnMultiplayerSpellSlowNotification, MultiplayerSpellSlow);
+		//    this.RemoveObserver(OnMultiplayerReactionNotification, MultiplayerReaction);
+		//    this.RemoveObserver(OnMultiplayerActiveTurnPreTurnNotification, MultiplayerActiveTurnPreTurn);
+		//    this.RemoveObserver(OnMultiplayerCommandTurnNotification, MultiplayerCommandTurn);
+		//    this.RemoveObserver(OnMultiplayerTurnInputNotification, MultiplayerActiveTurnMidTurn);
+		//    this.RemoveObserver(OnMultiplayerMoveNotification, MultiplayerMove);
+		//    this.RemoveObserver(OnMultiplayerDisableUnitNotification, MultiplayerDisableUnit);
+		//    this.RemoveObserver(OnMultiplayerRemoveTilePickUpNotification, MultiplayerTilePickUp);
+		//    this.RemoveObserver(OnMultiplayerGameOver, MultiplayerGameOver);
+		//    this.RemoveObserver(OnMultiplayerBattleMessageControllerNotification, MultiplayerMessageNotification);
+		//}
+	}
 
-    void OnStatusManagerNotification(object sender, object args)
-    {
-        //string str = (string)args;
-        //object sent is a list of ints first is the statusId, 2nd is the playerId
-        List<int> tempList = args as List<int>;
-        if (tempList[0] == NameAll.STATUS_ID_CRYSTAL) //str.Equals(NameAll.STATUS_NAME_CRYSTAL)
-        {
-       
-            if ( !isOffline && isMasterClient) //sends result to other
-                PlayerManager.Instance.SendMPCrystalOutcome(tempList);
+	void OnStatusManagerNotification(object sender, object args)
+	{
+		//string str = (string)args;
+		//object sent is a list of ints first is the statusId, 2nd is the playerId
+		List<int> tempList = args as List<int>;
+		if (tempList[0] == NameAll.STATUS_ID_CRYSTAL) //str.Equals(NameAll.STATUS_NAME_CRYSTAL)
+		{
 
-            PlayerUnit pu = PlayerManager.Instance.GetPlayerUnit(tempList[1]);
+			if (!isOffline && isMasterClient) //sends result to other
+				PlayerManager.Instance.SendMPCrystalOutcome(tempList);
 
-			
-            
-            if (tempList[2] == 1)
-            {//roll for crystal occurs in StatusManager
-                //turn object holds the player shit
-                board.SetTilePickUp(pu.TileX, pu.TileY, true, owner.renderMode, 1);
-                CombatLogClass cll2 = new CombatLogClass("time runs to 0 and turns to crystal", pu.TurnOrder, PlayerManager.Instance.GetRenderMode());
-                cll2.SendNotification();
-            }
+			PlayerUnit pu = PlayerManager.Instance.GetPlayerUnit(tempList[1]);
+
+
+
+			if (tempList[2] == 1)
+			{//roll for crystal occurs in StatusManager
+			 //turn object holds the player shit
+				board.SetTilePickUp(pu.TileX, pu.TileY, true, owner.renderMode, 1);
+				CombatLogClass cll2 = new CombatLogClass("time runs to 0 and turns to crystal", pu.TurnOrder, PlayerManager.Instance.GetRenderMode());
+				cll2.SendNotification();
+			}
 			else
 			{
 				CombatLogClass cll = new CombatLogClass("time runs to 0 and disappears", pu.TurnOrder, PlayerManager.Instance.GetRenderMode());
 				cll.SendNotification();
 			}
-            board.DisableUnit(pu);
-            PlayerManager.Instance.DisableUnit(pu.TurnOrder);
-        }
-    }
+			board.DisableUnit(pu);
+			PlayerManager.Instance.DisableUnit(pu.TurnOrder);
+		}
+	}
 
-    void OnQuitNotification(object sender, object args)
-    {
-        //Debug.Log("quitting game due to notification 0");
-        DirectRemoveObservers(); //want to remove observers
-        if (!isOffline)
-        {
-            //Debug.Log("quitting game due to notification 1");
-            bool isSelfQuit = (bool)args;
-            if(isSelfQuit) //this player quit. let other player know and end game
-            {
-                //Debug.Log("quitting game by self quit");
-                PlayerManager.Instance.SendMPQuitGame( isSelfQuit);
-                owner.ChangeState<CombatEndState>();
-            }
-            else //other playerquit, move to CombatCutSceneState
-            {
-                //Debug.Log("quitting game because other player quit");
+	void OnQuitNotification(object sender, object args)
+	{
+		//Debug.Log("quitting game due to notification 0");
+		DirectRemoveObservers(); //want to remove observers
+		if (!isOffline)
+		{
+			//Debug.Log("quitting game due to notification 1");
+			bool isSelfQuit = (bool)args;
+			if (isSelfQuit) //this player quit. let other player know and end game
+			{
+				//Debug.Log("quitting game by self quit");
+				PlayerManager.Instance.SendMPQuitGame(isSelfQuit);
+				owner.ChangeState<CombatEndState>();
+			}
+			else //other playerquit, move to CombatCutSceneState
+			{
+				//Debug.Log("quitting game because other player quit");
 
-                if ( isMasterClient)
-                    owner.GetComponent<CombatVictoryCondition>().Victor = Teams.Team1;
-                else
-                    owner.GetComponent<CombatVictoryCondition>().Victor = Teams.Team2;
+				if (isMasterClient)
+					owner.GetComponent<CombatVictoryCondition>().Victor = Teams.Team1;
+				else
+					owner.GetComponent<CombatVictoryCondition>().Victor = Teams.Team2;
 
-                owner.ChangeState<CombatCutSceneState>();
-            }
-        }
-        else
-        {
-            owner.ChangeState<CombatEndState>();
-        }     
-    }
+				owner.ChangeState<CombatCutSceneState>();
+			}
+		}
+		else
+		{
+			owner.ChangeState<CombatEndState>();
+		}
+	}
 
 
 	void OnResetNotification(object sender, object args)
@@ -1066,12 +1071,12 @@ public class GameLoopState : CombatState {
 	//refresh the turns menu after certain game loop things. basically after a slow action resolves or before an active turn
 	void RefreshTurnsList()
 	{
-		if( owner.renderMode != NameAll.PP_RENDER_NONE)
+		if (owner.renderMode != NameAll.PP_RENDER_NONE)
 		{
 			//Debug.Log("sending refresh turns notification");
 			this.PostNotification(refreshTurns);
 		}
-			
+
 	}
 
 

@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Determines the victor in CombatScene based on victoryconditions set in CombatInitState (i think)
+/// to do: where this is attached and checked
+/// </summary>
 public class CombatVictoryCondition : MonoBehaviour
 {
     #region Fields & Properties

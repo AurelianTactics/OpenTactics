@@ -3,6 +3,15 @@ using UnityEngine.UI;
 using System;
 using System.Collections;
 
+/*
+to do
+where is this used
+how is this used */
+
+/// <summary>
+/// I think this UI takes up hte screen and asks for a confirm/deny
+/// along with a dialogue menu
+/// </summary>
 public class DialogController : MonoBehaviour 
 {
 	[SerializeField] Text titleLabel;

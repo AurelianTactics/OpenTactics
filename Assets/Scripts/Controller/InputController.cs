@@ -1,12 +1,15 @@
-﻿/*
- Handles user inputs in Combat and WalkAround modes
- CombatState adds listeners for moveevent (WASD/arrow keys) and fireevent (mouse clicks)
-	since CombatState is inherited by most states, those states have those listeners built in
- */
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 using System.Collections;
 
+/// <summary>
+/// Called in Scripts/Controller/CombatStates/CombatState.cs
+/// Handles user inputs in Combat and WalkAround modes
+/// CombatState adds listeners for moveevent (WASD/arrow keys) and fireevent 
+/// (mouse clicks)
+/// since CombatState is inherited by most states, those states have those 
+/// listeners built in
+/// </summary>
 class Repeater
 {
 	const float threshold = 0.5f;

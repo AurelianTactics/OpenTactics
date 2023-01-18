@@ -2,12 +2,11 @@
 using System.Collections;
 using UnityEngine.UI;
 using System;
-//using UnityEngine.EventSystems;
 
-//current way: 
-//activated during certain states, lets user click around on buttons to pan the camera
-//input on map click only done in certain states, handled elsewhere
 
+/// <summary>
+/// In CombatScene and other scenes, lets player click on this UI menu to move the camera around
+/// </summary>
 public class UICameraMenu : MonoBehaviour {
 
     //public float smoothTime = 0.3f;

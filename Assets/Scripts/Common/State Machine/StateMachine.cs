@@ -1,6 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/* to do
+add explanation to this
+ */
+
+/// <summary>
+///
+/// </summary>
 public class StateMachine : MonoBehaviour 
 {
 	public virtual State CurrentState
