@@ -25,7 +25,7 @@ public class GameLoopState : CombatState
 	static Phases lastingPhase = Phases.StatusTick;
 
 	/// <summary>
-	/// 
+	/// Reaction, Mime and Quick flags can cause order of gameloop to shift. Need a flagCheckPhase to enure the proper order
 	/// </summary>
 	static Phases flagCheckPhase = Phases.SlowAction;
 
@@ -35,6 +35,7 @@ public class GameLoopState : CombatState
 	/// </summary>
 	bool doLoop = false;
 
+	// to do, write these notification when fleshed out a bit more. idea is agent will send a notification after receiving one from teh python API
 	bool isRLEndNotificationSent;
 	const string RLEndEpisode = "ReinforcementLearning.EndEpisode"; //end episode notification sent to RL code
 	const string RLResetGame = "ReinforcementLearning.ResetGame"; //reset game, sent from RL code to this state
@@ -42,7 +43,8 @@ public class GameLoopState : CombatState
 	const string refreshTurns = "refreshTurns";
 
 
-	// to do: function to load from client prefs
+	// to do: probably set in combat init state
+	// probably use gametype to set the refreseh mode
 	static CombatGameTypes gameType = CombatGameTypes.ReinforcementLearningTraining;
 
 	public override void Enter()
@@ -70,7 +72,7 @@ public class GameLoopState : CombatState
 				//Debug.Log("batte is over 0");
 				if (owner.combatMode == NameAll.COMBAT_MODE_RL_DUEL)
 				{
-					// to do: how to handle RL over
+					// to do: how to handle RL over. some sort of reset here probably
 				}
 				else
 					owner.ChangeState<CombatCutSceneState>(); //online: call it inside gameloop in MP so that Other is ready
@@ -87,29 +89,36 @@ public class GameLoopState : CombatState
 	void DoGameLoop()
 	{
 		//Debug.Log("Doing Game Loop " + loopPhase);
-		if (loopPhase == Phases.StatusTick) //some statuses last for a certain number of ticks, decrements statuses by a tick and sees if any trigger
+		if (loopPhase == Phases.StatusTick) 
 		{
+			//some statuses last for a certain number of ticks, decrements statuses by a tick and sees if any trigger
 			lastingPhase = Phases.StatusTick;
 			loopPhase = Phases.SlowActionTick; //Debug.Log("doing statusTick decrement phase");
 			StatusManager.Instance.StatusCheckPhase(); //decrements all lasting statuses, if any expire update combat log and show them expiring.
 		}
-		else if (loopPhase == Phases.SlowActionTick) //decrements all slowaction ticks. when slow action reaches 0 ticks, it is executed
+		else if (loopPhase == Phases.SlowActionTick) 
 		{
+			//decrements all slowaction ticks. when slow action reaches 0 ticks, it is executed
 			lastingPhase = Phases.SlowActionTick;
 			SpellManager.Instance.SlowActionTickPhase();
 			loopPhase = Phases.SlowAction;
 		}
-		else if (loopPhase == Phases.SlowAction) //executes slow actions
+		else if (loopPhase == Phases.SlowAction) 
 		{
+			// executes slow actions
 			lastingPhase = Phases.SlowAction;
-			//check for quick. mime, and counter flags. These flags signify events that occure before slowactions
+			// check for quick. mime, and counter flags. These flags signify events that occur before slowactions
+			// potential for those flags to change the loopPhase. example: first slowaction goes and triggers a reaction, then reaction goes,
+			// then next slowaction goes
 			flagCheckPhase = Phases.SlowAction;
 			loopPhase = CheckForFlag(loopPhase);
+
 			if (loopPhase == Phases.SlowAction)
 			{
 				SpellSlow ss = SpellManager.Instance.GetNextSlowAction();
 				if (ss != null)
 				{
+					// Slow action found. Resolve it.
 					DoSlowAction(ss);
 					RefreshTurnsList();
 				}
@@ -128,15 +137,18 @@ public class GameLoopState : CombatState
 		else if (loopPhase == Phases.ActiveTurn)
 		{
 			//Debug.Log("Doing Game Loop ActiveTurn top" + loopPhase);
-			//turn reached from coming from proper phase
 			if (lastingPhase == Phases.CTIncrement || lastingPhase == Phases.ActiveTurn)
 			{
+				// turn reached from coming from proper phase and not a quick flag
 				lastingPhase = Phases.ActiveTurn;
 				if (CheckForActiveTurn())
 				{
-					flagCheckPhase = Phases.ActiveTurn; //in case of reaction or mime state, the loop returns to the proper state
-														//either quickflag (which is handled below), reaction flag (goes to reaction state then comes back here, mime flag (goes to mime state then returns here), or AT phase which is handled here
+					// in case of reaction or mime state, the loop returns to the proper state
+					// either quickflag (which is handled below), reaction flag (goes to reaction state then comes back here,
+					// mime flag (goes to mime state then returns here), or AT phase which is handled here
+					flagCheckPhase = Phases.ActiveTurn; 									
 					loopPhase = CheckForFlag(loopPhase, turn.phaseStart);
+
 					if (loopPhase == Phases.Quick)
 					{
 						loopPhase = Phases.ActiveTurn;
@@ -146,14 +158,14 @@ public class GameLoopState : CombatState
 							owner.ChangeState<ActiveTurnState>();
 						}
 						else
-							ActiveTurnCheck();
+							ActiveTurnCheckAndStart();
 
 					}
 					else if (loopPhase == Phases.ActiveTurn)
 					{
 						//Debug.Log("Doing Game Loop ActiveTurn AT top" + loopPhase + " " + turn.phaseStart);
-						//either turn start or mid turn, if turn.phaseStart = 0 then it is turn start
-						//need this because after every action, need to check for reactions and mime which can send the game loop to a different stat
+						// either turn start or mid turn, if turn.phaseStart = 0 then it is turn start
+						// need this because after every action, need to check for reactions and mime which can send the game loop to a different state
 						if (turn.phaseStart == 0)
 						{
 							//Debug.Log("changing state to Active turn state");
@@ -164,7 +176,7 @@ public class GameLoopState : CombatState
 								owner.ChangeState<ActiveTurnState>();
 							}
 							else
-								ActiveTurnCheck();
+								ActiveTurnCheckAndStart();
 						}
 						else
 						{
@@ -184,7 +196,8 @@ public class GameLoopState : CombatState
 				}
 				else
 				{
-					loopPhase = Phases.StatusTick; //returns to the beginning of the loop
+					// no active turns. return to top of the game loop.
+					loopPhase = Phases.StatusTick; 
 				}
 			}
 			else
@@ -192,9 +205,12 @@ public class GameLoopState : CombatState
 				//came here from slow action raising a quick flag, will only do the quick flags or complete the turn that was started due to a quick flag
 				if (PlayerManager.Instance.QuickFlagCheckPhase() || turn.phaseStart != 0)
 				{
-					flagCheckPhase = Phases.ActiveTurn; //in case of reaction or mime state, the loop returns to the proper state
-														//either quickflag (which is handled below), reaction flag (goes to reaction state then comes back here, mime flag (goes to mime state then returns here), or AT phase which is handled here
+					// in case of reaction or mime state, the loop returns to the proper state
+					// either quickflag (which is handled below), reaction flag (goes to reaction state then comes back here,
+					// mime flag (goes to mime state then returns here), or AT phase which is handled here
+					flagCheckPhase = Phases.ActiveTurn; 
 					loopPhase = CheckForFlag(loopPhase, turn.phaseStart);
+
 					if (loopPhase == Phases.Quick)
 					{
 						loopPhase = Phases.ActiveTurn;
@@ -204,7 +220,7 @@ public class GameLoopState : CombatState
 							owner.ChangeState<ActiveTurnState>();
 						}
 						else
-							ActiveTurnCheck();
+							ActiveTurnCheckAndStart();
 					}
 					else if (loopPhase == Phases.ActiveTurn)
 					{
@@ -216,13 +232,14 @@ public class GameLoopState : CombatState
 							if (owner.renderMode != NameAll.PP_RENDER_NONE)
 								owner.ChangeState<ActiveTurnState>();
 							else
-								ActiveTurnCheck();
+								ActiveTurnCheckAndStart();
 						}
 						else
 						{
 							if (owner.renderMode != NameAll.PP_RENDER_NONE)
 							{
-								turn.phaseStart = 0;//next turn will be a full turn, this turn already acted and will complete turn below
+								// next turn will be a full turn, this turn already acted and will complete turn below
+								turn.phaseStart = 0;
 								owner.ChangeState<CombatCommandSelectionState>();
 							}
 							else
@@ -235,23 +252,32 @@ public class GameLoopState : CombatState
 				}
 				else
 				{
-					loopPhase = lastingPhase; //returns to SlowAction
+					//returns to SlowAction
+					loopPhase = lastingPhase; 
 				}
 			}
 
 		}
 		else if (loopPhase == Phases.Mime)
 		{
+			// Do Mime phase. Mime Phase happens after eligible fast or slow action resolves
 			if (flagCheckPhase == Phases.ActiveTurn)
-				loopPhase = Phases.ActiveTurn; //set back to active turn, if there is more 1 flag it'll come back here again
+			{
+				// set back to active turn, if there is more 1 flag it'll come back here again
+				loopPhase = Phases.ActiveTurn;
+			}
 			else
 				loopPhase = Phases.SlowAction;
 			DoReaction(false, true, false);
 		}
 		else if (loopPhase == Phases.Reaction)
 		{
+			// Do reaction phase. Mime Phase happens after eligible fast or slow action resolves
 			if (flagCheckPhase == Phases.ActiveTurn)
-				loopPhase = Phases.ActiveTurn; //set back to active turn, if there is more 1 flag it'll come back here again
+			{
+				//set back to active turn, if there is more 1 flag it'll come back here again
+				loopPhase = Phases.ActiveTurn; 
+			}
 			else
 				loopPhase = Phases.SlowAction;
 			DoReaction(true, false, false);
@@ -266,8 +292,10 @@ public class GameLoopState : CombatState
 
 
 
-	//only done in non-render mode
-	//in render mode this is choosing actions and targets
+	/// <summary>
+	/// Called from DoGameLoop in non-render mode
+	/// Decides how the action for the active turn is generated
+	/// </summary>
 	void CombatCommandSelection()
 	{
 		//handles dead, reraise, chicken etc. if unit is dead and unable to act returns a true
@@ -303,6 +331,15 @@ public class GameLoopState : CombatState
 				this.PostNotification(RLRequestAction, turn);
 			}
 			//Debug.Log("CombatComandSelectionState, sending notification to RLRequestAction");
+		}
+		else if(driver == Drivers.ReinforcementLearningGym)
+		{
+			// action is supplied throuhg the python Gym API. waiting on an action from that source before proceeding
+			if(loopPhase != Phases.RLWait)
+			{
+				loopPhase = Phases.RLWait;
+				// to do, not sure how to handle getting an action back from the gym. maybe it is a notification? maybe return from a function?
+			}
 		}
 		else
 		{
@@ -530,10 +567,14 @@ public class GameLoopState : CombatState
 		return false;
 	}
 
-	//only done in non-render mode. a few pre-checks before letting an active turn proceed or not
-	void ActiveTurnCheck()
+	/// <summary>
+	/// Start the ActiveTurn 
+	/// only done in non-render mode. Called from DoGameLoop.
+	/// </summary>
+	void ActiveTurnCheckAndStart()
 	{
-		PlayerUnit pu = PlayerManager.Instance.GetNextActiveTurnPlayerUnit(isSetQuickFlagToFalse: true);//sets quickFlag to false if it was true
+		// sets quickFlag to false if it was true
+		PlayerUnit pu = PlayerManager.Instance.GetNextActiveTurnPlayerUnit(isSetQuickFlagToFalse: true);
 
 		if (pu != null) //probably an unnecessary check
 		{
@@ -542,27 +583,31 @@ public class GameLoopState : CombatState
 		}
 	}
 
+	/// <summary>
+	/// Execute a slow action
+	/// </summary>
+	/// <param name="ss"></param>
 	void DoSlowAction(SpellSlow ss)
 	{
 		if (!StatusManager.Instance.IsTurnActable(ss.UnitId))
 		{
-			//unit can't go, remove the spell slow
+			// unit can't go, remove the spell slow
 			SpellManager.Instance.RemoveSpellSlowByObject(ss);
 			PlayerManager.Instance.AddCombatLogSaveObject(NameAll.COMBAT_LOG_TYPE_SLOW_ACTION, NameAll.COMBAT_LOG_SUBTYPE_SLOW_ACTION_UNABLE_TO_CAST, ss);
 		}
 		else
 		{
-			if (!isOffline) //online game, sends details to Other for display
-				SpellManager.Instance.SendSpellSlowPreCast(ss.UniqueId);
-
+			// unit may to cast the slow action so save startDir to turn the unit back if applicable
 			Directions startDir = PlayerManager.Instance.GetPlayerUnit(ss.UnitId).Dir;
 			Tile targetTile; //Debug.Log("spell slow is is targetting " + ss.GetTargetUnitId());
 			if (ss.TargetUnitId != NameAll.NULL_UNIT_ID)
 			{
+				// target a unit
 				targetTile = board.GetTile(PlayerManager.Instance.GetPlayerUnit(ss.UnitId)); //Debug.Log("spell slow is targeting a unit");
 			}
 			else
 			{
+				// target a panel
 				targetTile = board.GetTile(ss.TargetX, ss.TargetY); //Debug.Log("spell slow is targeting a panel");
 			}
 
@@ -579,13 +624,14 @@ public class GameLoopState : CombatState
 			StatusManager.Instance.CheckChargingJumping(ssTurn.actor.TurnOrder, ssTurn.spellName);
 
 			owner.calcMono.DoFastAction(board, ssTurn, isActiveTurn: false, isReaction: false, isMime: false, renderMode: owner.renderMode);
-			//yield return StartCoroutine(owner.calcMono.DoFastActionInner(board, ssTurn, isActiveTurn: false, isSlowActionPhase: true, isReaction: false, isMime: false));
 
+			// get the SpellName to see if the a new slow action needs to be created
 			SpellName sn = SpellManager.Instance.GetSpellNameByIndex(ss.SpellIndex);
-			//if performing, add a new instance of it Ctr into the future
+			
 			if (sn.CommandSet == NameAll.COMMAND_SET_SING || sn.CommandSet == NameAll.COMMAND_SET_DANCE
 				|| (sn.CommandSet == NameAll.COMMAND_SET_ARTS && sn.CTR % 10 == 1))
 			{
+				//if performing, add a new instance of it CTR into the future
 				SpellManager.Instance.CreateSpellSlow(ss);
 			}
 			else
@@ -600,13 +646,22 @@ public class GameLoopState : CombatState
 			}
 			else
 			{
-				SpellManager.Instance.RemoveSpellSlowByObject(ss); //i'm not sure why I remove the SS here and not earlier
+				// remove the SpellSlow and turn the unit back to original direction
+				SpellManager.Instance.RemoveSpellSlowByObject(ss);
 				PlayerManager.Instance.GetPlayerUnit(ss.UnitId).Dir = startDir;
 			}
 		}
 
 	}
 
+	/// <summary>
+	/// Execute the reaction, mime action, or after move action
+	/// Called from DoGameLoop
+	/// I think I did move actions here since these reaction resolve types happen instantly
+	/// </summary>
+	/// <param name="isReaction">Is the phase a reaction phase</param>
+	/// <param name="isMime">Is the phase a mime phase</param>
+	/// <param name="isMovement">IS the phase a movement</param>
 	void DoReaction(bool isReaction, bool isMime, bool isMovement)
 	{
 		SpellReaction sr;
@@ -629,20 +684,8 @@ public class GameLoopState : CombatState
 			if (owner.renderMode != NameAll.PP_RENDER_NONE)
 				StartCoroutine(HighlightAction(ssTurn, ssTurn.targetTile, battleMessage));
 
-			if (!isOffline)
-			{ //online game, sends details to Other for display
-				int targetX = sr.TargetX;
-				int targetY = sr.TargetY;
-				if (sr.TargetX == NameAll.NULL_INT || sr.TargetY == NameAll.NULL_INT)
-				{
-					PlayerUnit tempUnit = PlayerManager.Instance.GetPlayerUnit(sr.TargetId);
-					targetX = tempUnit.TileX;
-					targetY = tempUnit.TileY;
-				}
-				SpellManager.Instance.SendReactionDetails(sr.ActorId, sr.SpellIndex, targetX, targetY, battleMessage);
-			}
 
-			//modify the spellName for reaction
+			// modify the spellName for reaction
 			ssTurn.spellName = CalculationAT.ModifyReactionSpellName(sr, ssTurn.actor.TurnOrder);
 
 			owner.calcMono.DoFastAction(board, ssTurn, isActiveTurn: false, isReaction: isReaction, isMime: isMime, renderMode: owner.renderMode);
@@ -686,7 +729,13 @@ public class GameLoopState : CombatState
 
 
 
-	//counterflag goes first, then mimeflag, then quickflag
+	/// <summary>
+	/// Check for flags to see if DoGameLoop should change which game phase it is in
+	/// counterflag goes first, then mimeflag, then quickflag
+	/// </summary>
+	/// <param name="currentPhase"></param>
+	/// <param name="midActiveTurn"></param>
+	/// <returns></returns>
 	Phases CheckForFlag(Phases currentPhase, int midActiveTurn = 0)
 	{
 		//Debug.Log("checking for flag");
@@ -707,9 +756,14 @@ public class GameLoopState : CombatState
 		return currentPhase;
 	}
 
+	/// <summary>
+	/// Check if player has the next active turn
+	/// </summary>
+	/// <returns>true if player has next active turn, false if not</returns>
 	bool CheckForActiveTurn()
 	{
-		if (PlayerManager.Instance.GetNextActiveTurnPlayerUnit(isSetQuickFlagToFalse: false) != null) //don't set quickflag to false, only do that when getting the active unit
+		//don't set quickflag to false, only do that when getting the active unit
+		if (PlayerManager.Instance.GetNextActiveTurnPlayerUnit(isSetQuickFlagToFalse: false) != null) 
 		{
 			return true;
 		}
