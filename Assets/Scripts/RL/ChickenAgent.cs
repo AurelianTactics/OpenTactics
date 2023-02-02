@@ -6,12 +6,58 @@ using Unity.MLAgents.Policies;
 using UnityEngine.Serialization;
 using Unity.MLAgents.Sensors;
 
+/*
+
+Needs to be able to 
+NEED TO TEST handle reset (how do unity examples do it?)
+	no reset function in the agent. maybe in the base Agent.cs that can be overriden?
+	https://github.com/Unity-Technologies/ml-agents/blob/develop/com.unity.ml-agents/Runtime/Agent.cs
+	so I think reset would hit the academy from API which passes it to agent?
+read action and send to game loop state
+	pretty sure this is OnActionReceived
+send obs back out
+	pretty sure this is collectobervations
+send done back out
+	I think this is here:
+	https://github.com/Unity-Technologies/ml-agents/blob/develop/com.unity.ml-agents/Runtime/Agent.cs#L45
+action mask?
+	https://github.com/Unity-Technologies/ml-agents/blob/develop/com.unity.ml-agents/Runtime/Agent.cs#L30
+	unclear if can be sent in info or not
+	more of a to do
+reward
+	https://github.com/Unity-Technologies/ml-agents/blob/develop/com.unity.ml-agents/Runtime/Agent.cs#L730
+	so this only occurs after the action hits the gameloopstate and is processed
+	could alternatively be end of game when done is passed in
+info
+	unclear how to send this out
+
+so if it was tightly coupled (and not sure it can be? but maybe try?)
+	the agent has an instance of gameloopstate
+	gameloopstate has an instance of agent
+	init or reset
+	combatinit happens 
+	moves too gameloopstate
+		instantiates the agent and passes a gameloopstate instance to it
+	gameloopstate does whatever. eventually needs an action
+		gives obs, reward, done, info to agent
+			reward is tricky since has to be stored side specific since the last time
+			guess only need from side 1 for initial thing
+		invokes agent to request decision
+			agent passes obs, reward, done, info out to gym api
+		gameloopstate hangs until receives notification from agent (or if tightly coupled agent hangs? i feel this would cause a crash?)
+		gym api takes that info, passes an action in to step
+			agent takes the action, passes it to gameloopstate until it done
+	on done
+		rest call from gym, flows to agent then to gameloopstate (through a notification?)
+ */
+
+/// <summary>
+/// Test agent for a 1 vs. 1 test script with working thoruhg the python gym api unity offers
+/// seeing how things work
+/// </summary>
 public class ChickenAgent : Agent
 {
-	/// <summary>
-	/// Test agent for a 1 vs. 1 test script with working thoruhg the python gym api unity offers
-	/// seeing how things work
-	/// </summary>
+	
 
 	public DuelRLArea areaScript;
 	public float timeBetweenDecisionsAtInference;
