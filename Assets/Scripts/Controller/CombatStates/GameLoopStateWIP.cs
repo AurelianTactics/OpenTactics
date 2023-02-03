@@ -42,16 +42,22 @@ public class GameLoopState : CombatState
 																  // show top menu turns
 	const string refreshTurns = "refreshTurns";
 
+	/// <summary>
+	/// Agent class for RL agent when training an RL
+	/// to do: abstract the class
+	/// </summary>
+	public ChickenAgent RLAgent;
 
-	// to do: probably set in combat init state
-	// probably use gametype to set the refreseh mode
-	static CombatGameTypes gameType = CombatGameTypes.ReinforcementLearningTraining;
 
 	public override void Enter()
 	{
 		base.Enter();
 		//Debug.Log("in game loop state");
 		doLoop = true;
+		// to do, add this to owner
+		var combatGameType = owner.combatGameType;
+		// to do abstract this; look up the syntax on this
+		RLAgent = new ChickenAgent(gameLoopState=this);
 	}
 
 

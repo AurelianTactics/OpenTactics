@@ -8,6 +8,13 @@ using Unity.MLAgents.Sensors;
 
 /*
 
+STOPPED HERE RENAME FROM CHICKENAGENT TO SOMETHING MORE GENERAL
+
+minimal version
+only include one side, opponent starts facing and has 2nd turn and does random action
+	next version control both sides
+
+
 Needs to be able to 
 NEED TO TEST handle reset (how do unity examples do it?)
 	no reset function in the agent. maybe in the base Agent.cs that can be overriden?
@@ -57,7 +64,20 @@ so if it was tightly coupled (and not sure it can be? but maybe try?)
 /// </summary>
 public class ChickenAgent : Agent
 {
-	
+	/// <summary>
+	/// The GameLoopState used to pass messages from and to
+	/// unclear on the syntax on this
+	/// </summary>
+	public GameLoopState gameLoopState;
+
+	/// <summary>
+	/// Constructor
+	/// </summary>
+	/// <param name="gameLoopState"></param>
+	public ChickenAgent(GameLoopState gameLoopState)
+	{
+		this.gameLoopState = gameLoopState;
+	}
 
 	public DuelRLArea areaScript;
 	public float timeBetweenDecisionsAtInference;
