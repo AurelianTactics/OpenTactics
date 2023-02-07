@@ -62,7 +62,7 @@ so if it was tightly coupled (and not sure it can be? but maybe try?)
 /// Test agent for a 1 vs. 1 test script with working thoruhg the python gym api unity offers
 /// seeing how things work
 /// </summary>
-public class ChickenAgent : Agent
+public class AgentForGymWrapper : Agent
 {
 	/// <summary>
 	/// The GameLoopState used to pass messages from and to
@@ -92,10 +92,14 @@ public class ChickenAgent : Agent
 		//behaviorType = m_BehaviorParameters.BehaviorType;
 	}
 
+	/// <summary>
+	/// Collect obs to send out to gym wrapper
+	/// Obs are stored in GameLoopState
+	/// </summary>
+	/// <param name="sensor"></param>
 	public override void CollectObservations(VectorSensor sensor)
 	{
-		//collected in area script from PlayerManager function. this seems like a poorly designed way to do this
-		var obsArray = areaScript.GetObservations();
+		var obsArray = gameLoopState.GetGymWrapperObservations();
 		for( int i = 0; i < obsArray.Length; i++){
 			sensor.AddObservation(obsArray[i]);
 		}

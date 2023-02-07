@@ -46,7 +46,7 @@ public class GameLoopState : CombatState
 	/// Agent class for RL agent when training an RL
 	/// to do: abstract the class
 	/// </summary>
-	public ChickenAgent RLAgent;
+	public AgentForGymWrapper RLAgent;
 
 
 	public override void Enter()
@@ -355,6 +355,24 @@ public class GameLoopState : CombatState
 
 
 	#region ReinforcementLearning
+
+	/// <summary>
+	/// Get observations for the GymWrapper
+	/// </summary>
+	/// <returns></returns>
+	public float[] GetGymWrapperObservations()
+	{
+		var obsArray = PlayerManager.Instance.GetGymWrapperObservationTest();
+
+		//obsArray[0] = game_state / 10f;
+		//Debug.Log("testing observations");
+		//for( int i = 0; i < obsArray.Length; i++)
+		//{
+		//	print("testing observations " + obsArray[i]);
+		//}
+		return obsArray;
+	}
+
 	/// <summary>
 	/// Read action from the Avatar and update the env with that action
 	/// </summary>

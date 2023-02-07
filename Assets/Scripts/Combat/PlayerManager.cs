@@ -3043,6 +3043,44 @@ public class PlayerManager : Singleton<PlayerManager>
 	//}
 	#endregion
 
+	#region RL GyMWrapper
+	public float[] GetGymWrapperObservationTest()
+	{
+		//teamId, x, y, currentHP, maxHP, PA, MA, Speed, MP, brave, CT
+		//divide to scale values in 0 to 1 range
+		float[] retValue = new float[23];
+		retValue[0] = 0f; //placeholder
+		int zIndex = 1;
+		foreach (PlayerUnit pu in sPlayerUnitList)
+		{
+			retValue[zIndex] = pu.TeamId / 10f;
+			zIndex += 1;
+			retValue[zIndex] = pu.TileX / 10f;
+			zIndex += 1;
+			retValue[zIndex] = pu.TileY / 10f;
+			zIndex += 1;
+			retValue[zIndex] = pu.StatTotalLife / 100f; //should be 1000 if actual equipment
+			zIndex += 1;
+			retValue[zIndex] = pu.StatTotalMaxLife / 100f; //should be 1000 if actual equipment
+			zIndex += 1;
+			retValue[zIndex] = pu.StatTotalPA / 10f; //should be 100 if actual equipment
+			zIndex += 1;
+			retValue[zIndex] = pu.StatTotalMA / 10f; //should be 100 if actual equipment
+			zIndex += 1;
+			retValue[zIndex] = pu.StatTotalSpeed / 20f; //20 is fine, capped that way in AT
+			zIndex += 1;
+			retValue[zIndex] = pu.StatTotalMP / 100f; //should be 1000 if actual equipment
+			zIndex += 1;
+			retValue[zIndex] = pu.StatTotalBrave / 100f;
+			zIndex += 1;
+			retValue[zIndex] = pu.CT / 100f;
+			zIndex += 1;
+		}
+
+		return retValue;
+	}
+	#endregion
+
 	#region RL Duel
 
 	//get obs from the two players in the PU list
