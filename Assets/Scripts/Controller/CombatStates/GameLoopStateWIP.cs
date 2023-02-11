@@ -360,17 +360,17 @@ public class GameLoopState : CombatState
 	/// Get observations for the GymWrapper
 	/// </summary>
 	/// <returns></returns>
-	public float[] GetGymWrapperObservations(int game_state)
+	public float[] GetGymWrapperObservations(CombatTurn turn, int game_state)
 	{
 		// simple 1 v 1 on 1 v 1 board for testing. One hit kills. high evasion from front, none on back
 		// obs index 0 is the team
 		// obs index 1 is the game state
 		// best way to win is to attack and wait, and end facing the opponent
 		float[] obsArray = new float[1];
-		if (this.owner.turn != null & this.owner.turn.actor != NameAll.NULL_UNIT_ID)
+		if (turn != null & turn.actor != NameAll.NULL_UNIT_ID)
 		{
 			// probably not needed
-			retValue[0] = this.owner.turn.actor.TeamID / 10.0f; //teamID
+			retValue[0] = turn.actor.TeamId / 10.0f; //teamID
 			retValue[1] = game_state / 10.0f; //game state filled out in gameloopstate or passed here
 		}
 		else
