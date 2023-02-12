@@ -35,6 +35,11 @@ public class GameLoopState : CombatState
 	/// </summary>
 	bool doLoop = false;
 
+	/// <summary>
+	/// The phase of the active turn if applicable. Used in RL mode for the agent obs
+	/// </summary>
+	static CombatActiveTurnPhases activeTurnPhase = CombatActiveTurnPhases.None;
+
 	// to do, write these notification when fleshed out a bit more. idea is agent will send a notification after receiving one from teh python API
 	bool isRLEndNotificationSent;
 	const string RLEndEpisode = "ReinforcementLearning.EndEpisode"; //end episode notification sent to RL code
@@ -360,7 +365,7 @@ public class GameLoopState : CombatState
 	/// Get observations for the GymWrapper
 	/// </summary>
 	/// <returns></returns>
-	public float[] GetGymWrapperObservations(CombatTurn turn, int game_state)
+	public float[] GetGymWrapperObservations(CombatTurn turn, CombatActiveTurnPhases activeTurnPhase)
 	{
 		// simple 1 v 1 on 1 v 1 board for testing. One hit kills. high evasion from front, none on back
 		// obs index 0 is the team
@@ -370,8 +375,8 @@ public class GameLoopState : CombatState
 		if (turn != null & turn.actor != NameAll.NULL_UNIT_ID)
 		{
 			// probably not needed
-			retValue[0] = turn.actor.TeamId / 10.0f; //teamID
-			retValue[1] = game_state / 10.0f; //game state filled out in gameloopstate or passed here
+			retValue[0] = (float) turn.actor.TeamId / 10.0f; //teamID
+			retValue[1] = (float) activeTurnPhase / 10.0f; //game state filled out in gameloopstate or passed here
 		}
 		else
 		{

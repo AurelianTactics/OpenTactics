@@ -41,5 +41,9 @@ public enum CombatActiveTurnPhases
     /// </summary>
     ContinueLastAbilitySelectPhase = 6,
 
+    /// <summary>
+    /// No phase
+    /// </summary>
+    None = 7,
 }
 
