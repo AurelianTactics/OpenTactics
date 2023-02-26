@@ -6,44 +6,54 @@ using System.Collections;
 /// </summary>
 public enum CombatActiveTurnPhases
 {
-    /// <summary>
-    /// Select between move, ability, wait
-    /// </summary>
-    TopSelectPhase = 0,
+	/// <summary>
+	/// New active turn assigned
+	/// </summary>
+    NewActiveTurn,
+
+	/// <summary>
+	/// Select between move, ability, wait
+	/// </summary>
+	TopSelectPhase,
 
     /// <summary>
     /// Select direction to end turn
     /// </summary>
-    WaitDirectionSelectPhase = 1,
+    WaitDirectionSelectPhase,
 
     /// <summary>
     /// Select movement tile
     /// </summary>
-    MoveTileSelectPhase = 2,
+    MoveTileSelectPhase,
 
     /// <summary>
     /// Select ability
     /// </summary>
-    AbilitySelectPhase = 3,
+    AbilitySelectPhase,
 
     /// <summary>
     /// Select the tile the ability targets
     /// </summary>
-    AbilityTileSelectPhase = 4,
+    AbilityTileSelectPhase,
 
     /// <summary>
     /// Select between targeting tile or unit on abilities that can target either
     /// </summary>
-    AbilityTileUnitSelectPhase = 5,
+    AbilityTileUnitSelectPhase,
 
     /// <summary>
     /// Some abilities can continue into next turn. Continue the ability or not
     /// </summary>
-    ContinueLastAbilitySelectPhase = 6,
+    ContinueLastAbilitySelectPhase,
 
-    /// <summary>
-    /// No phase
-    /// </summary>
-    None = 7,
+	/// <summary>
+	/// ActiveTurn is over
+	/// </summary> 
+    TurnCompleted,
+
+	/// <summary>
+	/// No phase
+	/// </summary>
+	None,
 }
 

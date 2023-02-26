@@ -70,7 +70,9 @@ public class CombatTurn
 	//starts at 0. set to 1 after the activeUnit performs an action
 	//gameLoop will then check reaction/mime shit and if it sees a phaseStart = 1 afterwards then it will go back to the unit's midTurn shit
 
+
 	/// <summary>
+	/// to do: use the enum? is this used anywhere?
 	/// to do: better explanation
 	/// PhaseStart int is used in GameLoop.cs to track what part of the game loop
 	/// the game is in. This is a copy of that int. Needed here because of reaction and
@@ -95,6 +97,11 @@ public class CombatTurn
 	/// walkaround mode, is unit moving or acting first?
 	/// </summary>
 	public bool isWalkAroundMoveFirst;
+
+	/// <summary>
+	/// Stores what phase of the activeturn the unit is in
+	/// </summary>
+	public CombatActiveTurnPhases activeTurnPhase;
 
 	public CombatTurn() { }
 
@@ -169,6 +176,7 @@ public class CombatTurn
 		targetTile = null;
 		this.walkAroundMoveTile = null;
 		this.isWalkAroundMoveFirst = false;
+		this.activeTurnPhase = CombatActiveTurnPhases.NewActiveTurn;
 	}
 
 	/// <summary>

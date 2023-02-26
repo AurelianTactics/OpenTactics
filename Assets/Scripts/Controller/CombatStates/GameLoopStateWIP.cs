@@ -63,6 +63,8 @@ public class GameLoopState : CombatState
 		var combatGameType = owner.combatGameType;
 		// to do abstract this; look up the syntax on this
 		RLAgent = new ChickenAgent(gameLoopState=this);
+
+		activeTurnPhase = CombatActiveTurnPhases.None; // To do: probably int this and other stuff in a function
 	}
 
 
@@ -144,129 +146,170 @@ public class GameLoopState : CombatState
 			lastingPhase = Phases.CTIncrement;
 			PlayerManager.Instance.IncrementCTPhase();
 			loopPhase = Phases.ActiveTurn;
+			activeTurnPhase = CombatActiveTurnPhases.None; // this is always a fresh turn
 		}
 		else if (loopPhase == Phases.ActiveTurn)
 		{
-			//Debug.Log("Doing Game Loop ActiveTurn top" + loopPhase);
-			if (lastingPhase == Phases.CTIncrement || lastingPhase == Phases.ActiveTurn)
+			// can enter ActiveTurn if the last phase was CTIncrement or
+			// if prior phase was an ActiveTurn that did not finish
+			if(lastingPhase == Phases.ActiveTurn )
 			{
-				// turn reached from coming from proper phase and not a quick flag
+				// active turn entered because new active turn, prior active turn was completed
+				// or because prior active turn was interrupted (ie reaction ability) and returning here to finish the active turn
+
+				if(owner.turn.activeTurnPhase == null && owner.turn.activeTurnPhase == CombatActiveTurnPhases.TurnCompleted)
+				{
+					// if the turn is completed, check to see if there is a new eligible active turn
+					// if no unit has an active turn, a null value will be returned
+					owner.turn = CheckForActiveTurnAndGetNewTurn();
+				}
+
+				if (owner.turn == null)
+				{
+					// prior turn was completed and no new active turn; return to top of game loop
+					loopPhase = Phases.StatusTick;
+				}
+				else
+				{
+					HandleActiveTurn();
+				}
+
+			}
+			else if(lastingPhase == Phases.CTIncrement)
+			{
+				// check if anyone has an active turn
+				owner.turn = CheckForActiveTurnAndGetNewTurn();
 				lastingPhase = Phases.ActiveTurn;
-				if (CheckForActiveTurn())
+				if (owner.turn == null)
 				{
-					// in case of reaction or mime state, the loop returns to the proper state
-					// either quickflag (which is handled below), reaction flag (goes to reaction state then comes back here,
-					// mime flag (goes to mime state then returns here), or AT phase which is handled here
-					flagCheckPhase = Phases.ActiveTurn; 									
-					loopPhase = CheckForFlag(loopPhase, turn.phaseStart);
-
-					if (loopPhase == Phases.Quick)
-					{
-						loopPhase = Phases.ActiveTurn;
-						if (owner.renderMode != NameAll.PP_RENDER_NONE)
-						{
-							RefreshTurnsList();
-							owner.ChangeState<ActiveTurnState>();
-						}
-						else
-							ActiveTurnCheckAndStart();
-
-					}
-					else if (loopPhase == Phases.ActiveTurn)
-					{
-						//Debug.Log("Doing Game Loop ActiveTurn AT top" + loopPhase + " " + turn.phaseStart);
-						// either turn start or mid turn, if turn.phaseStart = 0 then it is turn start
-						// need this because after every action, need to check for reactions and mime which can send the game loop to a different state
-						if (turn.phaseStart == 0)
-						{
-							//Debug.Log("changing state to Active turn state");
-							if (owner.renderMode != NameAll.PP_RENDER_NONE)
-							{
-								//Debug.Log("Doing Game Loop ActiveTurn phaseStart" + loopPhase + " " + turn.phaseStart);
-								RefreshTurnsList();
-								owner.ChangeState<ActiveTurnState>();
-							}
-							else
-								ActiveTurnCheckAndStart();
-						}
-						else
-						{
-
-							if (owner.renderMode != NameAll.PP_RENDER_NONE)
-							{
-								turn.phaseStart = 0;//next turn will be a full turn, this turn already acted and will complete turn below
-								owner.ChangeState<CombatCommandSelectionState>();
-							}
-							else
-							{
-								//turn.phaseStart and loopPhase going to RLWait (if necessary) handled in function below
-								CombatCommandSelection();
-							}
-						}
-					}
+					// is not a new active turn. return to the top of the game loop
+					loopPhase = Phases.StatusTick;
 				}
-				else
-				{
-					// no active turns. return to top of the game loop.
-					loopPhase = Phases.StatusTick; 
-				}
+				//else
+				//{
+				//	//is an active turn. lastingPhase is now activeturn and there is a fresh turn indicating start of turn so handled above
+				//}
 			}
-			else
-			{
-				//came here from slow action raising a quick flag, will only do the quick flags or complete the turn that was started due to a quick flag
-				if (PlayerManager.Instance.QuickFlagCheckPhase() || turn.phaseStart != 0)
-				{
-					// in case of reaction or mime state, the loop returns to the proper state
-					// either quickflag (which is handled below), reaction flag (goes to reaction state then comes back here,
-					// mime flag (goes to mime state then returns here), or AT phase which is handled here
-					flagCheckPhase = Phases.ActiveTurn; 
-					loopPhase = CheckForFlag(loopPhase, turn.phaseStart);
+			////Debug.Log("Doing Game Loop ActiveTurn top" + loopPhase);
+			//if (lastingPhase == Phases.CTIncrement || lastingPhase == Phases.ActiveTurn)
+			//{
+			//	// turn reached from coming from proper phase and not a quick flag
+			//	lastingPhase = Phases.ActiveTurn;
+			//	if (CheckForActiveTurn())
+			//	{
+			//		// in case of reaction or mime state, the loop returns to the proper state
+			//		// either quickflag (which is handled below), reaction flag (goes to reaction state then comes back here,
+			//		// mime flag (goes to mime state then returns here), or AT phase which is handled here
+			//		flagCheckPhase = Phases.ActiveTurn; 									
+			//		loopPhase = CheckForFlag(loopPhase, turn.phaseStart);
 
-					if (loopPhase == Phases.Quick)
-					{
-						loopPhase = Phases.ActiveTurn;
-						if (owner.renderMode != NameAll.PP_RENDER_NONE)
-						{
-							RefreshTurnsList();
-							owner.ChangeState<ActiveTurnState>();
-						}
-						else
-							ActiveTurnCheckAndStart();
-					}
-					else if (loopPhase == Phases.ActiveTurn)
-					{
-						//either turn start or mid turn, if turn.phaseStart = 0 then it is turn start
-						//need this because after every action, need to check for reactions and mime which can send the game loop to a different state
-						if (turn.phaseStart == 0)
-						{
-							Debug.Log("Should never reach this part of the gameLoop code");
-							if (owner.renderMode != NameAll.PP_RENDER_NONE)
-								owner.ChangeState<ActiveTurnState>();
-							else
-								ActiveTurnCheckAndStart();
-						}
-						else
-						{
-							if (owner.renderMode != NameAll.PP_RENDER_NONE)
-							{
-								// next turn will be a full turn, this turn already acted and will complete turn below
-								turn.phaseStart = 0;
-								owner.ChangeState<CombatCommandSelectionState>();
-							}
-							else
-							{
-								//turn.phaseStart and loopPhase going to RLWait (if necessary) handled in function below
-								CombatCommandSelection();
-							}
-						}
-					}
-				}
-				else
-				{
-					//returns to SlowAction
-					loopPhase = lastingPhase; 
-				}
-			}
+			//		if (loopPhase == Phases.Quick)
+			//		{
+			//			loopPhase = Phases.ActiveTurn;
+			//			if (owner.renderMode != NameAll.PP_RENDER_NONE)
+			//			{
+			//				RefreshTurnsList();
+			//				owner.ChangeState<ActiveTurnState>();
+			//			}
+			//			else
+			//				ActiveTurnCheckAndStart();
+
+			//		}
+			//		else if (loopPhase == Phases.ActiveTurn)
+			//		{
+			//			//Debug.Log("Doing Game Loop ActiveTurn AT top" + loopPhase + " " + turn.phaseStart);
+			//			// either turn start or mid turn, if turn.phaseStart = 0 then it is turn start
+			//			// need this because after every action, need to check for reactions and mime which can send the game loop to a different state
+			//			if (turn.phaseStart == 0)
+			//			{
+			//				//Debug.Log("changing state to Active turn state");
+			//				if (owner.renderMode != NameAll.PP_RENDER_NONE)
+			//				{
+			//					//Debug.Log("Doing Game Loop ActiveTurn phaseStart" + loopPhase + " " + turn.phaseStart);
+			//					RefreshTurnsList();
+			//					owner.ChangeState<ActiveTurnState>();
+			//				}
+			//				else
+			//					ActiveTurnCheckAndStart();
+			//			}
+			//			else
+			//			{
+
+			//				if (owner.renderMode != NameAll.PP_RENDER_NONE)
+			//				{
+			//					turn.phaseStart = 0;//next turn will be a full turn, this turn already acted and will complete turn below
+			//					owner.ChangeState<CombatCommandSelectionState>();
+			//				}
+			//				else
+			//				{
+			//					//turn.phaseStart and loopPhase going to RLWait (if necessary) handled in function below
+			//					CombatCommandSelection();
+			//				}
+			//			}
+			//		}
+			//	}
+			//	else
+			//	{
+			//		// no active turns. return to top of the game loop.
+			//		loopPhase = Phases.StatusTick; 
+			//	}
+			//}
+			//else
+			//{
+			//	//came here from slow action raising a quick flag, will only do the quick flags or complete the turn that was started due to a quick flag
+			//	if (PlayerManager.Instance.QuickFlagCheckPhase() || turn.phaseStart != 0)
+			//	{
+			//		// in case of reaction or mime state, the loop returns to the proper state
+			//		// either quickflag (which is handled below), reaction flag (goes to reaction state then comes back here,
+			//		// mime flag (goes to mime state then returns here), or AT phase which is handled here
+			//		flagCheckPhase = Phases.ActiveTurn; 
+			//		loopPhase = CheckForFlag(loopPhase, turn.phaseStart);
+
+			//		if (loopPhase == Phases.Quick)
+			//		{
+			//			loopPhase = Phases.ActiveTurn;
+			//			if (owner.renderMode != NameAll.PP_RENDER_NONE)
+			//			{
+			//				RefreshTurnsList();
+			//				owner.ChangeState<ActiveTurnState>();
+			//			}
+			//			else
+			//				ActiveTurnCheckAndStart();
+			//		}
+			//		else if (loopPhase == Phases.ActiveTurn)
+			//		{
+			//			//either turn start or mid turn, if turn.phaseStart = 0 then it is turn start
+			//			//need this because after every action, need to check for reactions and mime which can send the game loop to a different state
+			//			if (turn.phaseStart == 0)
+			//			{
+			//				Debug.Log("Should never reach this part of the gameLoop code");
+			//				if (owner.renderMode != NameAll.PP_RENDER_NONE)
+			//					owner.ChangeState<ActiveTurnState>();
+			//				else
+			//					ActiveTurnCheckAndStart();
+			//			}
+			//			else
+			//			{
+			//				if (owner.renderMode != NameAll.PP_RENDER_NONE)
+			//				{
+			//					// next turn will be a full turn, this turn already acted and will complete turn below
+			//					turn.phaseStart = 0;
+			//					owner.ChangeState<CombatCommandSelectionState>();
+			//				}
+			//				else
+			//				{
+			//					//turn.phaseStart and loopPhase going to RLWait (if necessary) handled in function below
+			//					CombatCommandSelection();
+			//				}
+			//			}
+			//		}
+			//	}
+			//	else
+			//	{
+			//		//returns to SlowAction
+			//		loopPhase = lastingPhase; 
+			//	}
+			//}
 
 		}
 		else if (loopPhase == Phases.Mime)
@@ -301,7 +344,37 @@ public class GameLoopState : CombatState
 		//else if (loopPhase == Phases.EndActiveTurn) //doing this after a unit ends his turn
 	}
 
+	void HandleActiveTurn()
+	{
+		// render vs. non render mode
+		// if render mode, move to the correct state (probably one of the enter turn states) as it will likely be at the top of the state
+		// if non render mode I think you either call for an AI input or need to decipher the AI input    
+			// so for calling an AI input you just use the phase and pass it to the obs and call for it
+			// for receiving an AI input you need an action and some sort of decipherer
+				// probably also want to check on the state
 
+	}
+	CombatTurn CheckForActiveTurnAndGetNewTurn()
+	{
+		// create a new combat turn
+		CombatTurn combatTurn = new CombatTurn();
+
+		// sees if a player is eligible for an ActiveTurn
+		// sets quickFlag to false if it was true
+		PlayerUnit pu = PlayerManager.Instance.GetNextActiveTurnPlayerUnit(isSetQuickFlagToFalse: true);
+
+		if (pu != null)
+		{
+			combatTurn.Change(pu);
+		}
+		else
+		{
+			combatTurn = null;
+		}
+
+		return combatTurn;
+		
+	}
 
 	/// <summary>
 	/// Called from DoGameLoop in non-render mode
