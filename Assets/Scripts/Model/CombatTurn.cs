@@ -6,7 +6,6 @@ using System.Collections.Generic;
 /*
 To do
 fill out the doc strings particularly for parameters
-the phaseStart int needs a better description
  */
 
 /// <summary>
@@ -81,7 +80,7 @@ public class CombatTurn
 	/// GameLoop.cs will then check reaction/mime stuff and if it sees a phaseStart = 1 
 	/// afterwards then it will go back to the unit's midTurn checks
 	/// </summary>
-	public int phaseStart;
+	//public int phaseStart; DEPRECATED
 
 	/// <summary>
 	/// If the ability targets a tile, the tile that is being targetted.
@@ -172,7 +171,7 @@ public class CombatTurn
 		spellName = null;
 		spellName2 = null;
 		targetUnitId = NameAll.NULL_UNIT_ID;
-		phaseStart = 0;
+		//phaseStart = 0;
 		targetTile = null;
 		this.walkAroundMoveTile = null;
 		this.isWalkAroundMoveFirst = false;

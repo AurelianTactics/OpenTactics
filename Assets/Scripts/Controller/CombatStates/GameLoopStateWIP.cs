@@ -344,16 +344,28 @@ public class GameLoopState : CombatState
 		//else if (loopPhase == Phases.EndActiveTurn) //doing this after a unit ends his turn
 	}
 
-	void HandleActiveTurn()
+	void HandleActiveTurn(int renderMode)
 	{
 		// render vs. non render mode
-		// if render mode, move to the correct state (probably one of the enter turn states) as it will likely be at the top of the state
 		// if non render mode I think you either call for an AI input or need to decipher the AI input    
 			// so for calling an AI input you just use the phase and pass it to the obs and call for it
 			// for receiving an AI input you need an action and some sort of decipherer
 				// probably also want to check on the state
 
+		//to do enum rather than renderMode int
+		if( renderMode == NameAll.PP_RENDER_NONE)
+		{
+
+		}
+		else
+		{
+			//rendering mode, send to ActiveTurnState to handle the turn
+			owner.ChangeState<ActiveTurnState>();
+			// this might be fine? probably need to test it
+		}
+
 	}
+
 	CombatTurn CheckForActiveTurnAndGetNewTurn()
 	{
 		// create a new combat turn
@@ -598,11 +610,11 @@ public class GameLoopState : CombatState
 		{
 			PlayerManager.Instance.SetFacingDirectionMidTurn(turn.actor.TurnOrder, board.GetTile(turn.actor), turn.targetTile);
 			PlayerManager.Instance.EndCombatTurn(turn);
-			turn.phaseStart = 0; //think this is redundant but keeps it from coming back to this unit mid turn
+			//turn.phaseStart = 0; //think this is redundant but keeps it from coming back to this unit mid turn
 		}
 		else
 		{
-			turn.phaseStart = 1;
+			//turn.phaseStart = 1;
 		}
 	}
 
@@ -650,7 +662,7 @@ public class GameLoopState : CombatState
 				PlayerManager.Instance.AddCombatLogSaveObject(NameAll.COMBAT_LOG_TYPE_MOVE, NameAll.COMBAT_LOG_SUBTYPE_MOVE_EFFECT, cTurn: turn, effectValue: turn.actor.AbilityMovementCode);
 			}
 		}
-		turn.phaseStart = 1;
+		//turn.phaseStart = 1;
 	}
 	#endregion
 
@@ -675,7 +687,7 @@ public class GameLoopState : CombatState
 	{
 		PlayerManager.Instance.EndCombatTurn(turn);
 		StatusManager.Instance.CheckStatusAtEndOfTurn(turn.actor.TurnOrder);
-		turn.phaseStart = 0;
+		//turn.phaseStart = 0;
 	}
 
 	bool UnitHasControl()
