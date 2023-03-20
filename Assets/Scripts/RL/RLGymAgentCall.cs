@@ -4,16 +4,12 @@ using UnityEngine;
 using Unity.MLAgents;
 
 /// <summary>
-/// Sends message to env that an action is needed
-/// Stores items needed by the env
+/// Sends message to agent that an action is needed
+/// Stores items from the env that the agent needs ot make a decision
 /// Called from GameLoopState
 /// </summary>
-public class RLMessageClass
+public class RLGymAgentCall
 {
-	//so probably want a rquest, time requested, number requested
-	//when it requests sends over the obs as well
-	//flexible enough to handle later
-	//maybe matching ids so won't consume the same thing twice
 
 	/// <summary>
 	/// Stores obs for the current state
@@ -35,7 +31,7 @@ public class RLMessageClass
 	/// </summary>
 	public int numRequestsThisTick;
 
-	RLMessageClass(float[] obsArray, int id, int gameTick, int numRequests)
+	RLGymAgentCall(float[] obsArray, int id, int gameTick, int numRequests)
 	{
 		this.obsArray = obsArray;
 		this.id = id;
