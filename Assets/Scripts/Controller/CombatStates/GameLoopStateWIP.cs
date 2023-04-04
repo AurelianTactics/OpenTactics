@@ -53,6 +53,19 @@ public class GameLoopState : CombatState
 	/// </summary>
 	public AgentForGymWrapper RLAgent;
 
+	/// <summary>
+	/// Class object for communicating to gym wrapper
+	/// </summary>
+	RLGymAgentCall gymAgentCall;
+
+	/// <summary>
+	/// Class object for receiving from gym wrapper
+	/// </summary>
+	RLGymAgentReceive gymAgentReceive;
+
+	int gameTick = 0;
+	int gymCallId = 0
+
 
 	public override void Enter()
 	{
@@ -82,6 +95,7 @@ public class GameLoopState : CombatState
 
 			if (IsBattleOver())
 			{
+				gameTick = 0;
 				//Debug.Log("batte is over 0");
 				if (owner.combatMode == NameAll.COMBAT_MODE_RL_DUEL)
 				{
@@ -104,6 +118,7 @@ public class GameLoopState : CombatState
 		//Debug.Log("Doing Game Loop " + loopPhase);
 		if (loopPhase == Phases.StatusTick) 
 		{
+			gameTick++;
 			//some statuses last for a certain number of ticks, decrements statuses by a tick and sees if any trigger
 			lastingPhase = Phases.StatusTick;
 			loopPhase = Phases.SlowActionTick; //Debug.Log("doing statusTick decrement phase");
@@ -355,7 +370,10 @@ public class GameLoopState : CombatState
 		//to do enum rather than renderMode int
 		if( renderMode == NameAll.PP_RENDER_NONE)
 		{
-
+			int numRequests = 0; // to do how to increment this properly
+			gymCallId += 1;
+			STOPPED HERE GETTING THE obsARRAY OR FUNCTION THIS OFF
+			gymAgentCall = new RLGymAgentCall(obsArray, gymCallId, gameTick, numRequests)
 		}
 		else
 		{
